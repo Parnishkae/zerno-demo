@@ -1,0 +1,191 @@
+<!--
+============================================================
+  ДЕМО-ЛЕНДИНГ · Кофейня "Зерно"
+  Это демо для записи Reels и показа в портфолио.
+  Меняется так же, как твой сайт: текст между тегами,
+  цвета — в блоке :root в начале <style>.
+============================================================
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Зерно — кофейня в центре города</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ===== КОФЕЙНАЯ ГАММА ===== */
+    --bg:        #1a1410;   /* тёмный шоколад */
+    --bg-soft:   #241b14;
+    --cream:     #f3e9dc;   /* кремовый */
+    --card:      #2a2017;
+    --line:      #3a2d22;
+    --text:      #f3e9dc;
+    --muted:     #b0a08e;
+    --accent:    #c98a4b;   /* карамель */
+    --accent-2:  #e0b074;
+    --font-display:'Fraunces', serif;
+    --font-body:'Manrope', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* шапка */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(26,20,16,.7);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1080px;margin:0 auto}
+  .brand{font-family:var(--font-display);font-weight:900;font-size:22px;letter-spacing:.5px}
+  .brand span{color:var(--accent)}
+  .nav-links{display:flex;gap:26px}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:15px;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{background:var(--accent);color:var(--bg);padding:10px 18px;border-radius:100px;text-decoration:none;font-weight:600;font-size:14px;transition:transform .2s,box-shadow .2s}
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(201,138,75,.3)}
+
+  /* hero */
+  .hero{padding:90px 0 70px;text-align:center;position:relative}
+  .hero::before{content:"";position:absolute;top:10%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(circle,rgba(201,138,75,.18),transparent 70%);pointer-events:none}
+  .hero .eyebrow{font-family:var(--font-body);text-transform:uppercase;letter-spacing:3px;font-size:13px;color:var(--accent);margin-bottom:22px}
+  .hero h1{font-family:var(--font-display);font-weight:900;font-size:clamp(44px,9vw,92px);line-height:.98;letter-spacing:-1px;margin-bottom:24px;position:relative}
+  .hero h1 em{font-style:italic;color:var(--accent-2)}
+  .hero p{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:480px;margin:0 auto 38px;position:relative}
+  .hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--bg);padding:16px 34px;border-radius:100px;text-decoration:none;font-weight:600;font-size:16px;transition:transform .2s,box-shadow .2s;position:relative}
+  .hero-btn:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(201,138,75,.35)}
+
+  /* лента-бегущая строка */
+  .ticker{background:var(--accent);color:var(--bg);padding:14px 0;overflow:hidden;white-space:nowrap;font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:.5px}
+  .ticker span{display:inline-block;padding:0 24px}
+
+  section{padding:80px 0}
+  .sec-eyebrow{text-transform:uppercase;letter-spacing:3px;font-size:13px;color:var(--accent);margin-bottom:16px;text-align:center}
+  .sec-title{font-family:var(--font-display);font-weight:600;font-size:clamp(30px,5vw,48px);text-align:center;margin-bottom:54px;letter-spacing:-.5px}
+
+  /* меню-карточки */
+  .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:32px;transition:transform .25s,border-color .25s}
+  .item:hover{transform:translateY(-6px);border-color:var(--accent)}
+  .item .emoji{font-size:38px;margin-bottom:18px}
+  .item h3{font-family:var(--font-display);font-weight:600;font-size:23px;margin-bottom:8px}
+  .item .desc{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+  .item .price{font-family:var(--font-display);font-weight:600;font-size:22px;color:var(--accent-2)}
+
+  /* about */
+  .about{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+  .about-text h2{font-family:var(--font-display);font-weight:600;font-size:clamp(28px,4vw,40px);line-height:1.1;margin-bottom:20px;letter-spacing:-.5px}
+  .about-text p{color:var(--muted);font-size:16px;margin-bottom:16px}
+  .about-visual{background:linear-gradient(135deg,var(--accent),var(--bg-soft));border-radius:24px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:120px}
+
+  /* часы / контакты */
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}
+  .info{background:var(--bg-soft);border:1px solid var(--line);border-radius:18px;padding:34px}
+  .info .k{text-transform:uppercase;letter-spacing:2px;font-size:12px;color:var(--accent);margin-bottom:12px}
+  .info .v{font-family:var(--font-display);font-size:19px;line-height:1.4}
+
+  /* финал */
+  .cta{text-align:center;background:linear-gradient(135deg,var(--card),var(--bg-soft));border:1px solid var(--line);border-radius:28px;padding:70px 30px;margin:0 24px}
+  .cta h2{font-family:var(--font-display);font-weight:900;font-size:clamp(32px,5vw,56px);margin-bottom:18px;letter-spacing:-1px}
+  .cta p{color:var(--muted);font-size:17px;margin-bottom:34px}
+
+  footer{text-align:center;padding:50px 24px;color:var(--muted);font-size:14px}
+  footer .brand{font-size:26px;margin-bottom:12px}
+
+  @media(max-width:760px){
+    .menu-grid,.info-grid{grid-template-columns:1fr}
+    .about{grid-template-columns:1fr}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="brand">Зер<span>но</span></div>
+    <div class="nav-links">
+      <a href="#menu">Меню</a>
+      <a href="#about">О нас</a>
+      <a href="#info">Контакты</a>
+    </div>
+    <a href="#info" class="nav-cta">Где нас найти</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">кофейня в центре города</div>
+    <h1>Кофе, ради которого<br>стоит <em>проснуться</em></h1>
+    <p>Обжариваем зерно сами, варим с любовью и подаём с улыбкой. Заходите — у нас уютно.</p>
+    <a href="#menu" class="hero-btn">Смотреть меню →</a>
+  </div>
+</section>
+
+<!-- бегущая строка -->
+<div class="ticker">
+  <span>☕ Свежая обжарка</span><span>·</span><span>🥐 Домашняя выпечка</span><span>·</span><span>🌱 Растительное молоко</span><span>·</span><span>☕ Свежая обжарка</span><span>·</span><span>🥐 Домашняя выпечка</span><span>·</span><span>🌱 Растительное молоко</span>
+</div>
+
+<!-- МЕНЮ -->
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-eyebrow">наше меню</div>
+    <h2 class="sec-title">Что мы готовим</h2>
+    <div class="menu-grid">
+      <div class="item"><div class="emoji">☕</div><h3>Капучино</h3><div class="desc">Нежная молочная пена и насыщенный эспрессо из свежей обжарки.</div><div class="price">85 ₴</div></div>
+      <div class="item"><div class="emoji">🍵</div><h3>Раф ванильный</h3><div class="desc">Сливочный, тёплый, с натуральной ванилью. Наш бестселлер.</div><div class="price">95 ₴</div></div>
+      <div class="item"><div class="emoji">🧊</div><h3>Айс-латте</h3><div class="desc">Холодный кофе со льдом и молоком — спасение в жаркий день.</div><div class="price">90 ₴</div></div>
+      <div class="item"><div class="emoji">🥐</div><h3>Круассан</h3><div class="desc">Хрустящий снаружи, воздушный внутри. Печём каждое утро.</div><div class="price">65 ₴</div></div>
+      <div class="item"><div class="emoji">🍰</div><h3>Чизкейк</h3><div class="desc">Нежный, не приторный, идеален к чашке кофе.</div><div class="price">110 ₴</div></div>
+      <div class="item"><div class="emoji">🍪</div><h3>Печенье</h3><div class="desc">Большое, с шоколадом, ещё тёплое. Берут по два.</div><div class="price">45 ₴</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- О НАС -->
+<section id="about">
+  <div class="wrap">
+    <div class="about">
+      <div class="about-text">
+        <h2>Маленькая кофейня<br>с большой душой</h2>
+        <p>Мы начинали с одной кофемашины и большой любви к делу. Сегодня «Зерно» — это место, куда возвращаются за вкусом и атмосферой.</p>
+        <p>Зерно обжариваем сами небольшими партиями, поэтому каждая чашка — свежая. Никакого конвейера, только ручная работа.</p>
+      </div>
+      <div class="about-visual">☕</div>
+    </div>
+  </div>
+</section>
+
+<!-- ИНФО -->
+<section id="info">
+  <div class="wrap">
+    <div class="sec-eyebrow">как нас найти</div>
+    <h2 class="sec-title">Заходите в гости</h2>
+    <div class="info-grid">
+      <div class="info"><div class="k">Адрес</div><div class="v">ул. Кофейная, 12<br>Николаев</div></div>
+      <div class="info"><div class="k">Часы работы</div><div class="v">Пн–Пт 8:00–21:00<br>Сб–Вс 9:00–22:00</div></div>
+      <div class="info"><div class="k">Телефон</div><div class="v">+380 (00) 000-00-00<br>@zerno_coffee</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ФИНАЛ -->
+<section>
+  <div class="cta">
+    <h2>Первый кофе — за наш счёт</h2>
+    <p>Покажите этот сайт на кассе и получите эспрессо в подарок к любому заказу.</p>
+    <a href="#" class="hero-btn">Хочу кофе ☕</a>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">Зер<span>но</span></div>
+  <p>Кофейня в центре города · Обжарка · Выпечка · Уют</p>
+</footer>
+
+</body>
+</html>
