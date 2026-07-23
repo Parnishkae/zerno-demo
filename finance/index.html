@@ -1,6 +1,6 @@
 <!--
 ============================================================
-  ПРОТОТИП · «Каса» — приложение личных финансов
+  ПРОТОТИП · «Meridian» — приложение личных финансов
   Кликабельное демо для выбора направления.
   · Данные и суммы — в блоке DATA (внизу, в <script>).
   · Цвета/темы — в блоке :root в начале <style>.
@@ -12,12 +12,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Каса — деньги под контролем</title>
+<title>Meridian — личные и бизнес-финансы</title>
 <meta name="theme-color" content="#0D1512">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Каса">
+<meta name="apple-mobile-web-app-title" content="Meridian">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
@@ -369,7 +369,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="coin">₴</div>
-      <div><b>Каса</b><small>деньги под контролем</small></div>
+      <div><b>Meridian</b><small>личные и бизнес-финансы</small></div>
     </div>
     <button class="navlink active" data-view="overview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
@@ -447,7 +447,7 @@
           <!-- платёжная карта -->
           <div class="paycard">
             <div class="pc-top">
-              <span class="pc-brand" id="pcBrand"><span class="chip"></span>Каса&nbsp;·&nbsp;Black</span>
+              <span class="pc-brand" id="pcBrand"><span class="chip"></span>Meridian&nbsp;·&nbsp;Black</span>
               <span style="font-size:12px;opacity:.7">VISA</span>
             </div>
             <div class="pc-label" id="pcLabel">Основная карта</div>
@@ -645,7 +645,7 @@ const MONTHS=['Фев','Мар','Апр','Май','Июн','Июл'];
 /* «во все стороны» — три режима одного приложения: личные, семья, бизнес */
 const MODES = {
   personal:{
-    tab:'Личные', brand:'Каса · Black', pcLabel:'Основная карта',
+    tab:'Личные', brand:'Meridian · Black', pcLabel:'Основная карта',
     who:'Алекс', whoSub:'основной профиль', avatar:'А',
     balEyebrow:'Общий баланс · 3 счёта', capIn:'Доход · июль', capOut:'Расход · июль',
     capSaved:'Отложено в июле', savedWord:'норма сбережений',
@@ -686,7 +686,7 @@ const MODES = {
     nw:[131000,138500,149000,157200,167980,177120]
   },
   family:{
-    tab:'Семья', brand:'Каса · Family', pcLabel:'Общий счёт',
+    tab:'Семья', brand:'Meridian · Family', pcLabel:'Общий счёт',
     who:'Семья Ковальчук', whoSub:'семейный профиль', avatar:'К',
     balEyebrow:'Общий бюджет · 3 счёта', capIn:'Доходы семьи · июль', capOut:'Расходы · июль',
     capSaved:'Отложено в июле', savedWord:'норма сбережений',

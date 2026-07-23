@@ -1,5 +1,5 @@
-/* Каса — сервис-воркер: офлайн-кэш оболочки приложения */
-const CACHE = 'kasa-v1';
+/* Meridian — сервис-воркер: офлайн-кэш оболочки приложения */
+const CACHE = 'meridian-v1';
 const ASSETS = [
   './',
   './index.html',
