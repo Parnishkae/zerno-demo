@@ -11,7 +11,7 @@ on:
       - '.github/workflows/build-android.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -54,9 +54,19 @@ jobs:
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk Meridian.apk
 
-      - name: Upload APK
+      - name: Upload APK (artifact)
         uses: actions/upload-artifact@v4
         with:
           name: Meridian-Android
           path: Meridian.apk
           if-no-files-found: error
+
+      - name: Publish direct .apk download (Release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete android-latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create android-latest Meridian.apk \
+            --title "Meridian для Android" \
+            --target "${GITHUB_SHA}" \
+            --notes "Скачай Meridian.apk и установи на телефон (Android). Пересобирается автоматически."
