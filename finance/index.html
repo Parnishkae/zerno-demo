@@ -1,6 +1,6 @@
 <!--
 ============================================================
-  ПРОТОТИП · «Копейка» — приложение личных финансов
+  ПРОТОТИП · «Каса» — приложение личных финансов
   Кликабельное демо для выбора направления.
   · Данные и суммы — в блоке DATA (внизу, в <script>).
   · Цвета/темы — в блоке :root в начале <style>.
@@ -12,7 +12,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Копейка — личные финансы</title>
+<title>Каса — деньги под контролем</title>
+<meta name="theme-color" content="#0D1512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Каса">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
   /* ===================== ТОКЕНЫ / ТЕМЫ ===================== */
   :root{
@@ -112,7 +119,7 @@
   .side-foot .gear:hover{background:var(--surface-2);color:var(--ink)}
 
   .main{min-width:0;display:flex;flex-direction:column}
-  .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;
+  .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;flex-wrap:wrap;row-gap:10px;
     padding:18px 30px;background:color-mix(in srgb,var(--bg) 82%,transparent);
     backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .topbar h1{font-size:22px;font-weight:750;letter-spacing:-.02em}
@@ -202,6 +209,10 @@
   .tx .tt small{font-size:12.5px;color:var(--faint)}
   .tx .amt{margin-left:auto;font-weight:700;font-size:14.5px;white-space:nowrap;padding-left:10px}
   .tx .amt.in{color:var(--income)}
+  .txdel{margin-left:8px;flex:none;width:28px;height:28px;border-radius:8px;color:var(--faint);font-size:12px;
+    display:grid;place-items:center;opacity:.5;transition:opacity .15s,background .15s,color .15s}
+  .tx:hover .txdel{opacity:1}
+  .txdel:hover{background:var(--neg-soft);color:var(--expense);opacity:1}
   .tx-list.divided .tx+.tx{border-top:1px solid var(--line);border-radius:0}
   .day-label{font-size:12px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;
     padding:16px 6px 6px}
@@ -358,7 +369,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="coin">₴</div>
-      <div><b>Копейка</b><small>личные финансы</small></div>
+      <div><b>Каса</b><small>деньги под контролем</small></div>
     </div>
     <button class="navlink active" data-view="overview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
@@ -383,7 +394,7 @@
     <div class="side-foot">
       <div class="avatar" id="profAvatar">А</div>
       <div class="who" id="profWho">Алекс<small>основной профиль</small></div>
-      <button class="gear" aria-label="Настройки">
+      <button class="gear js-reset" aria-label="Сбросить к демо" title="Сбросить к демо">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2l-.4-2.6H8.9l-.4 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2l.4 2.6h4.2l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z"/></svg>
       </button>
     </div>
@@ -407,6 +418,9 @@
         </button>
         <button class="icon-btn" id="themeBtn" aria-label="Сменить тему">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+        </button>
+        <button class="icon-btn js-reset" aria-label="Сбросить к демо" title="Сбросить к демо">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 12a9 9 0 1 0 2.6-6.3M3 4v4h4"/></svg>
         </button>
         <button class="btn-primary hide-sm" id="addBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>
@@ -433,7 +447,7 @@
           <!-- платёжная карта -->
           <div class="paycard">
             <div class="pc-top">
-              <span class="pc-brand" id="pcBrand"><span class="chip"></span>Копейка&nbsp;·&nbsp;Black</span>
+              <span class="pc-brand" id="pcBrand"><span class="chip"></span>Каса&nbsp;·&nbsp;Black</span>
               <span style="font-size:12px;opacity:.7">VISA</span>
             </div>
             <div class="pc-label" id="pcLabel">Основная карта</div>
@@ -631,7 +645,7 @@ const MONTHS=['Фев','Мар','Апр','Май','Июн','Июл'];
 /* «во все стороны» — три режима одного приложения: личные, семья, бизнес */
 const MODES = {
   personal:{
-    tab:'Личные', brand:'Копейка · Black', pcLabel:'Основная карта',
+    tab:'Личные', brand:'Каса · Black', pcLabel:'Основная карта',
     who:'Алекс', whoSub:'основной профиль', avatar:'А',
     balEyebrow:'Общий баланс · 3 счёта', capIn:'Доход · июль', capOut:'Расход · июль',
     capSaved:'Отложено в июле', savedWord:'норма сбережений',
@@ -672,7 +686,7 @@ const MODES = {
     nw:[131000,138500,149000,157200,167980,177120]
   },
   family:{
-    tab:'Семья', brand:'Копейка · Family', pcLabel:'Общий счёт',
+    tab:'Семья', brand:'Каса · Family', pcLabel:'Общий счёт',
     who:'Семья Ковальчук', whoSub:'семейный профиль', avatar:'К',
     balEyebrow:'Общий бюджет · 3 счёта', capIn:'Доходы семьи · июль', capOut:'Расходы · июль',
     capSaved:'Отложено в июле', savedWord:'норма сбережений',
@@ -737,13 +751,20 @@ const MODES = {
   }
 };
 let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH;
+/* сохранение прогресса в браузере — операции/цели/баланс не пропадают после перезагрузки */
+const LSK='kasa-state-v1';
+let STORE={};
+try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
+function saveState(){
+  try{STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS};STORE.__mode=MODE;localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
+}
 function loadMode(m){
-  MODE=m; const d=MODES[m];
+  MODE=m; const d=MODES[m], s=STORE[m];
   CATS=d.cats;
-  ACCTS=d.accts.map(a=>({...a}));
-  TX=d.tx.map(t=>({...t}));
+  ACCTS=(s&&s.accts)?s.accts.map(a=>({...a})):d.accts.map(a=>({...a}));
+  TX=(s&&s.tx)?s.tx.map(t=>({...t})):d.tx.map((t,i)=>({...t,id:'seed'+i}));
+  GOALS=(s&&s.goals)?s.goals.map(g=>({...g})):d.goals.map(g=>({...g}));
   BUDGETS=d.budgets.map(b=>({...b}));
-  GOALS=d.goals.map(g=>({...g}));
   CASHFLOW={labels:MONTHS.slice(), income:d.cfIn.slice(), expense:d.cfOut.slice()};
   NETWORTH={labels:MONTHS.slice(), v:d.nw.slice()};
 }
@@ -916,11 +937,13 @@ function renderHbars(){
 /* =================================================================
    СПИСКИ / КАРТОЧКИ
    ================================================================= */
-function txRow(t){
-  const c=CATS[t.cat];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function txRow(t,full){
+  const c=CATS[t.cat]||{color:'var(--faint)',ic:'•',name:'—'};
   return `<div class="tx"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
-    <div class="tt"><b>${t.t}</b><small>${c.name} · ${t.ac}</small></div>
-    <div class="amt ${t.type==='in'?'in':''} mono">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</div></div>`;
+    <div class="tt"><b>${esc(t.t)}</b><small>${c.name} · ${t.ac}</small></div>
+    <div class="amt ${t.type==='in'?'in':''} mono">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</div>
+    ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
 }
 function renderRecent(){
   $('#recentTx').innerHTML=[...TX].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6).map(txRow).join('');
@@ -935,8 +958,9 @@ function renderTxFull(){
     .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(!q||t.t.toLowerCase().includes(q)));
   if(!rows.length){$('#txFull').innerHTML=`<div class="empty"><div style="font-size:34px">🔍</div><b>Ничего не найдено</b>Измените фильтры или запрос</div>`;return;}
   let html='',cur='';
-  rows.forEach(t=>{if(t.d!==cur){cur=t.d;html+=`<div class="day-label">${dayLabel(t.d)}</div>`;}html+=txRow(t);});
+  rows.forEach(t=>{if(t.d!==cur){cur=t.d;html+=`<div class="day-label">${dayLabel(t.d)}</div>`;}html+=txRow(t,true);});
   $('#txFull').innerHTML=html;
+  $$('#txFull [data-del]').forEach(b=>b.onclick=()=>deleteTx(b.dataset.del));
 }
 function renderBudgets(target,mini){
   const spend=catSpend();
@@ -975,7 +999,7 @@ function renderGoals(){
   requestAnimationFrame(()=>$$('#goalsGrid circle[data-off]').forEach(c=>c.style.strokeDashoffset=c.dataset.off));
   $$('#goalsGrid [data-goal]').forEach(b=>b.onclick=()=>{
     const g=GOALS[+b.dataset.goal]; g.saved=Math.min(g.saved+5000,g.target);
-    renderGoals(); toast(`+5 000 ₴ в цель «${g.name}»`);
+    saveState(); renderGoals(); toast(`+5 000 ₴ в цель «${g.name}»`);
   });
   $('#addGoal').onclick=()=>toast('Демо: создание цели');
 }
@@ -1029,6 +1053,7 @@ function fillCatSelects(){
   $('#mCat').innerHTML=opts;
   const all=Object.entries(CATS).filter(([k])=>k!=='income').map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');
   $('#txCat').innerHTML='<option value="all">Все категории</option>'+all;
+  $('#mAcct').innerHTML=ACCTS.map(a=>`<option>${a.name}</option>`).join('');
 }
 function openModal(){$('#modal').hidden=false;setTimeout(()=>$('#mAmount').focus(),50);}
 function closeModal(){$('#modal').hidden=true;$('#mAmount').value='';$('#mTitle').value='';}
@@ -1039,13 +1064,21 @@ function saveTx(){
   const amt=parseInt(($('#mAmount').value||'').replace(/\D/g,''),10);
   if(!amt){$('#mAmount').focus();$('.amount-in').style.borderColor='var(--expense)';return;}
   const title=$('#mTitle').value.trim()||CATS[$('#mCat').value].name;
-  const nt={t:title,cat:$('#mCat').value,type:mType,amt,d:'2026-07-22',ac:$('#mAcct').value};
+  const nt={id:'tx'+Date.now(),t:title,cat:$('#mCat').value,type:mType,amt,d:'2026-07-22',ac:$('#mAcct').value};
   TX.unshift(nt);
   const acct=ACCTS.find(a=>a.name===nt.ac); if(acct)acct.bal+=mType==='in'?amt:-amt;
+  saveState();
   closeModal();
   // пересчёт видимых чисел
   animated={}; refreshAll(); go('overview');
   toast((mType==='in'?'Доход':'Расход')+' добавлен: '+money(amt));
+}
+function deleteTx(id){
+  const t=TX.find(x=>x.id===id); if(!t)return;
+  const acct=ACCTS.find(a=>a.name===t.ac); if(acct)acct.bal-=(t.type==='in'?t.amt:-t.amt);
+  TX=TX.filter(x=>x.id!==id);
+  saveState(); animated.overview=false; animated.analytics=false; refreshAll();
+  toast('Операция удалена');
 }
 function plural(n,one,few,many){const m=n%100,d=n%10;if(m>=11&&m<=14)return many;if(d===1)return one;if(d>=2&&d<=4)return few;return many;}
 function setLabels(){
@@ -1089,7 +1122,7 @@ function refreshAll(){
 }
 function setMode(m){
   if(m===MODE)return;
-  loadMode(m); animated={};
+  loadMode(m); saveState(); animated={};
   state.txFilter='all'; state.txCat='all'; state.txQuery='';
   const srch=$('#txSearch'); if(srch)srch.value='';
   $$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x.dataset.f==='all'));
@@ -1125,10 +1158,16 @@ function bind(){
   $$('#txChips .chip-btn').forEach(b=>b.onclick=()=>{state.txFilter=b.dataset.f;$$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x===b));renderTxFull();});
   $('#txCat').addEventListener('change',e=>{state.txCat=e.target.value;renderTxFull();});
   $('#txSearch').addEventListener('input',e=>{state.txQuery=e.target.value;renderTxFull();});
+  $$('.js-reset').forEach(b=>b.onclick=doReset);
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 }
+function doReset(){
+  if(!confirm('Сбросить все изменения и вернуть демо-данные?'))return;
+  try{localStorage.removeItem(LSK);}catch(e){}
+  location.reload();
+}
 function init(){
-  loadMode('personal');
+  loadMode(STORE.__mode||'personal');
   initTheme();setLabels();fillCatSelects();bind();
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
@@ -1137,6 +1176,7 @@ function init(){
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   animated.overview=true; runAnim('overview');
 }
+if('serviceWorker' in navigator){try{addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}}
 init();
 </script>
 </body>
