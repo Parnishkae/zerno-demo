@@ -1,0 +1,12 @@
+# сгенерированное при сборке
+/.gradle/
+/build/
+/app/build/
+local.properties
+# ассеты и иконки копируются из finance/ на этапе сборки
+/app/src/main/assets/
+/app/src/main/res/mipmap-mdpi/
+/app/src/main/res/mipmap-hdpi/
+/app/src/main/res/mipmap-xhdpi/
+/app/src/main/res/mipmap-xxhdpi/
+/app/src/main/res/mipmap-xxxhdpi/
