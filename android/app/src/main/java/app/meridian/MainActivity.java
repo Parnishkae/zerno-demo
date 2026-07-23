@@ -44,12 +44,12 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(true);
         s.setAllowContentAccess(true);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        // фиксируем окно: без масштабирования и «широкого» вьюпорта
+        // респектим <meta viewport width=device-width>, но без зума
+        s.setUseWideViewPort(true);
+        s.setLoadWithOverviewMode(true);
         s.setSupportZoom(false);
         s.setBuiltInZoomControls(false);
         s.setDisplayZoomControls(false);
-        s.setUseWideViewPort(false);
-        s.setLoadWithOverviewMode(false);
 
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);   // без «резинки» и сдвигов
         web.setHorizontalScrollBarEnabled(false);

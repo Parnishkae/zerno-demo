@@ -150,7 +150,10 @@
   .view{animation:fadeUp .35s ease both}
 
   /* ===================== СЕТКА / КАРТОЧКИ ===================== */
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;max-width:100%}
+  .grid>*{min-width:0}
+  .content{overflow-x:clip}
+  .card{min-width:0}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow-sm)}
   .card.pad-lg{padding:22px 24px}
   .is-empty .demo-only{display:none!important}
@@ -203,6 +206,16 @@
     background:var(--surface-2);border:1px solid var(--line);font-size:13px;font-weight:600}
   .acct-chip .ac-ic{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;color:#fff}
   .acct-chip small{color:var(--faint);font-weight:500;margin-left:2px}
+  .acct-chip{cursor:pointer;transition:border-color .15s,transform .1s}
+  .acct-chip:hover{border-color:var(--brand)}
+  .acct-chip:active{transform:scale(.97)}
+  .paycard{cursor:pointer}
+  .acct-banner{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:10px 14px;border-radius:11px;
+    background:var(--brand-soft);color:var(--brand);font-size:13.5px;font-weight:600}
+  .acct-banner[hidden]{display:none}
+  .acct-banner b{color:var(--ink)}
+  .acct-banner button{margin-left:auto;width:26px;height:26px;border-radius:8px;color:var(--brand);display:grid;place-items:center;font-size:12px}
+  .acct-banner button:hover{background:color-mix(in srgb,var(--brand) 15%,transparent)}
 
   /* операции */
   .tx{display:flex;align-items:center;gap:13px;padding:11px 6px;border-radius:12px}
@@ -409,7 +422,8 @@
   @media(max-width:560px){
     .grid{grid-template-columns:repeat(2,1fr)}
     .col-3,.col-4{grid-column:span 1}
-    .col-5,.col-6,.col-7,.col-8,.paycard{grid-column:span 2}
+    .col-5,.col-6,.col-7,.col-8,.paycard{grid-column:1 / -1}
+    .col-12{grid-column:1 / -1}
     .stat .v{font-size:21px}
     .content{padding:18px 12px 96px}
   }
@@ -600,6 +614,7 @@
           </div>
           <select class="sel" id="txCat"><option value="all">Все категории</option></select>
         </div>
+        <div id="txAcctBanner" class="acct-banner" hidden></div>
         <div class="card" style="padding:8px 16px 16px">
           <div id="txFull"></div>
         </div>
@@ -955,7 +970,7 @@ const MODES = {
 };
 let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH, PLANS, DEBTS, SCRATCH;
 /* сохранение прогресса в браузере — операции/цели/баланс не пропадают после перезагрузки */
-const LSK='kasa-state-v1';
+const LSK='meridian-v2';
 let STORE={};
 try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
 function persist(){ try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
@@ -1197,12 +1212,26 @@ function renderRecent(){
 }
 function renderAcctChips(){
   $('#acctChips').innerHTML=ACCTS.map(a=>
-    `<span class="acct-chip"><span class="ac-ic" style="background:${a.color}">${a.ic}</span>${a.name}<small class="mono">${money(a.bal)}</small></span>`).join('');
+    `<button class="acct-chip" data-acct="${esc(a.name)}"><span class="ac-ic" style="background:${a.color}">${a.ic}</span>${esc(a.name)}<small class="mono">${money(a.bal)}</small></button>`).join('');
+  $$('#acctChips [data-acct]').forEach(b=>b.onclick=()=>openAcct(b.dataset.acct));
+}
+function openAcct(name){
+  state.txAcct=name; state.txFilter='all'; state.txQuery='';
+  const srch=$('#txSearch'); if(srch)srch.value='';
+  $$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x.dataset.f==='all'));
+  const sel=$('#txCat'); if(sel){sel.value='all';state.txCat='all';}
+  go('tx'); renderTxFull();
 }
 function renderTxFull(){
-  const f=state.txFilter, q=state.txQuery.toLowerCase();
+  const f=state.txFilter, q=state.txQuery.toLowerCase(), ac=state.txAcct||'all';
+  const banner=$('#txAcctBanner');
+  if(banner){
+    if(ac!=='all'){ banner.hidden=false; banner.innerHTML='Счёт: <b>'+esc(ac)+'</b><button id="txAcctClear" aria-label="Показать все">✕</button>';
+      $('#txAcctClear').onclick=()=>{ state.txAcct='all'; renderTxFull(); }; }
+    else banner.hidden=true;
+  }
   let rows=[...TX].sort((a,b)=>b.d.localeCompare(a.d))
-    .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(!q||t.t.toLowerCase().includes(q)));
+    .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(ac==='all'||t.ac===ac)&&(!q||t.t.toLowerCase().includes(q)));
   if(!rows.length){
     $('#txFull').innerHTML = TX.length
       ? `<div class="empty"><div style="font-size:34px">🔍</div><b>Ничего не найдено</b>Измените фильтры или запрос</div>`
@@ -1263,7 +1292,7 @@ function renderTopMerch(){
 /* =================================================================
    СОСТОЯНИЕ / НАВИГАЦИЯ
    ================================================================= */
-const state={view:'overview',txFilter:'all',txCat:'all',txQuery:''};
+const state={view:'overview',txFilter:'all',txCat:'all',txQuery:'',txAcct:'all'};
 const TITLES={overview:['Обзор','Вторник, 22 июля 2026'],tx:['Операции','23 операции в июле'],
   budgets:['Бюджеты','Июль 2026 · 91% лимита'],goals:['Цели','3 активные цели'],analytics:['Аналитика','Июль 2026'],
   plans:['Планы','платежи, долги и рассрочки'],scratch:['Черновик','быстрый расчёт «на салфетке»']};
@@ -1409,6 +1438,7 @@ function bind(){
   $$('[data-goto]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.goto)));
   $$('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
   $('#addBtn').onclick=openModal; $('#fab').onclick=openModal;
+  const pc=$('.paycard'); if(pc)pc.onclick=()=>{ if(ACCTS[0])openAcct(ACCTS[0].name); };
   $('#mCancel').onclick=closeModal; $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   $('#mSave').onclick=saveTx;
   $('#mAmount').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');$('.amount-in').style.borderColor='';});
@@ -1525,20 +1555,29 @@ async function monoSync(){
   const ci=await monoGet('https://api.monobank.ua/personal/client-info',token);
   if(ci.err){ st.textContent='Ошибка: '+ci.err; return; }
   const accs=(ci.data.accounts||[]).filter(a=>a.currencyCode===980);
-  if(!accs.length){ st.textContent='Гривневых счетов не найдено.'; return; }
+  const jars=(ci.data.jars||[]).filter(j=>j.currencyCode===980);
+  if(!accs.length&&!jars.length){ st.textContent='Гривневых счетов не найдено.'; return; }
+  const manual=(Array.isArray(ACCTS)?ACCTS:[]).filter(a=>!a.monoId&&a.bal!==0);
   MODE='personal'; CATS=MODES.personal.cats; BUDGETS=MODES.personal.budgets.map(b=>({...b}));
-  ACCTS=accs.map(a=>({name:monoAcctName(a),bal:Math.round(a.balance/100),color:'var(--brand)',ic:a.type==='fop'?'🏦':'💳',monoId:a.id}));
-  st.textContent='Счета получены ('+ACCTS.length+'). Загружаю операции за 30 дней…';
-  const to=Math.floor(Date.now()/1000), from=to-30*24*3600, main=accs[0];
-  const sres=await monoGet('https://api.monobank.ua/personal/statement/'+main.id+'/'+from+'/'+to,token);
+  const cardAccts=accs.map(a=>({name:monoAcctName(a),bal:Math.round(a.balance/100),color:'var(--brand)',ic:a.type==='fop'?'🏦':'💳',monoId:a.id}));
+  const jarAccts=jars.map(j=>({name:(j.title||'Банка'),bal:Math.round(j.balance/100),color:'var(--gold)',ic:'💰',monoId:j.id,jar:true}));
+  ACCTS=[...cardAccts,...jarAccts,...manual];
+  st.textContent='Счета получены ('+ACCTS.length+'). Загружаю операции…';
+  const to=Math.floor(Date.now()/1000), from=to-30*24*3600;
+  const main=accs.slice().sort((a,b)=>b.balance-a.balance)[0];
   TX=[];
-  if(sres.err){ st.textContent='Счета загружены. Операции: '+sres.err+'. Попробуйте «Обновить» через минуту.'; }
+  if(!main){ st.textContent='Готово: '+ACCTS.length+' счёт(ов). Операции доступны только по картам.'; }
   else {
-    TX=(sres.data||[]).map(t=>(t&&typeof t.amount==='number')?{
-      id:'mono'+t.id, t:(t.description||'Операция').slice(0,60), cat:mccToCat(t.mcc),
-      type:t.amount>0?'in':'out', amt:Math.round(Math.abs(t.amount)/100), d:unixDate(t.time), ac:ACCTS[0].name
-    }:null).filter(Boolean);
-    st.textContent='Готово: '+ACCTS.length+' счёт(ов), '+TX.length+' операций.';
+    const mainName=monoAcctName(main);
+    const sres=await monoGet('https://api.monobank.ua/personal/statement/'+main.id+'/'+from+'/'+to,token);
+    if(sres.err){ st.textContent='Счета загружены ('+ACCTS.length+'). Операции: '+sres.err+'. Нажмите ещё раз через минуту.'; }
+    else {
+      TX=(sres.data||[]).map(t=>(t&&typeof t.amount==='number')?{
+        id:'mono'+t.id, t:(t.description||'Операция').slice(0,60), cat:mccToCat(t.mcc),
+        type:t.amount>0?'in':'out', amt:Math.round(Math.abs(t.amount)/100), d:unixDate(t.time), ac:mainName
+      }:null).filter(Boolean);
+      st.textContent='Готово: '+ACCTS.length+' счёт(ов), '+TX.length+' операций (по «'+mainName+'»).';
+    }
   }
   STORE.__empty=false; CASHFLOW={labels:MONTHS.slice(),income:[0,0,0,0,0,0],expense:[0,0,0,0,0,0]};
   const bal=ACCTS.reduce((a,b)=>a+b.bal,0); NETWORTH={labels:MONTHS.slice(),v:[bal,bal,bal,bal,bal,bal]};

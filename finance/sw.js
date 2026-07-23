@@ -1,5 +1,5 @@
 /* Meridian — сервис-воркер: офлайн-кэш оболочки приложения */
-const CACHE = 'meridian-v1';
+const CACHE = 'meridian-v2';
 const ASSETS = [
   './',
   './index.html',
