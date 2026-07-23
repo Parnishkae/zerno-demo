@@ -11,7 +11,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Meridian — личные и бизнес-финансы</title>
 <meta name="theme-color" content="#0D1512">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,9 +83,12 @@
 
   /* ===================== БАЗА ===================== */
   *{margin:0;padding:0;box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:none;
+    -webkit-tap-highlight-color:transparent}
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;
-    -webkit-font-smoothing:antialiased;font-feature-settings:"cv02","cv03","cv04";}
+    -webkit-font-smoothing:antialiased;font-feature-settings:"cv02","cv03","cv04";
+    overflow-x:hidden;overscroll-behavior:none;width:100%;max-width:100vw;position:relative}
+  .app{overflow-x:hidden;max-width:100vw}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
   input,select{font-family:inherit}
   .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
@@ -150,6 +153,7 @@
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow-sm)}
   .card.pad-lg{padding:22px 24px}
+  .is-empty .demo-only{display:none!important}
   .col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-5{grid-column:span 5}
   .col-6{grid-column:span 6}.col-7{grid-column:span 7}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
   .card-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
@@ -327,6 +331,25 @@
   .empty{text-align:center;padding:46px 20px;color:var(--faint)}
   .empty b{display:block;color:var(--muted);font-size:15px;margin:8px 0 4px}
 
+  /* настройки / счета / monobank */
+  .setrow{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;
+    padding:15px 15px;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);
+    font-weight:600;font-size:14.5px;margin-bottom:9px;color:var(--ink);transition:border-color .15s}
+  .setrow:hover{border-color:var(--line-strong)}
+  .setrow.danger{color:var(--expense)}
+  .setrow .chev{color:var(--faint);font-size:18px;font-weight:400}
+  .acc-row{display:flex;gap:8px;align-items:center;margin-bottom:9px}
+  .acc-row input{padding:12px 12px;border-radius:11px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--ink);font-size:14px;outline:none}
+  .acc-row input:focus{border-color:var(--brand)}
+  .acc-row input.nm{flex:1;min-width:0}
+  .acc-row input.bal{width:120px;flex:none;font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  .acc-row .del{width:36px;height:36px;flex:none;border-radius:10px;color:var(--faint);display:grid;place-items:center;font-size:13px}
+  .acc-row .del:hover{background:var(--neg-soft);color:var(--expense)}
+  #accList{max-height:min(46vh,360px);overflow-y:auto;margin-bottom:8px}
+  .empty-chart{display:flex;align-items:center;justify-content:center;text-align:center;
+    color:var(--faint);font-size:13px;font-weight:500;min-height:120px;padding:20px}
+
   /* мобильные табы + FAB */
   .bottomnav,.fab{display:none}
   @media(max-width:900px){
@@ -438,7 +461,7 @@
           <div class="card pad-lg col-8 hero-bal">
             <div class="eyebrow" id="balEyebrow">Общий баланс · 3 счёта</div>
             <div class="big mono" data-count="177120">0 ₴</div>
-            <div class="row">
+            <div class="row demo-only">
               <span class="delta up">▲ 5,4% <span style="opacity:.7;font-weight:600">за месяц</span></span>
               <span style="font-size:13px;color:var(--muted);font-weight:550">+&nbsp;<span class="mono">9&nbsp;140&nbsp;₴</span> к июню</span>
             </div>
@@ -460,14 +483,14 @@
             <div class="k" id="capIn"><span class="dot" style="background:var(--income)"></span>Доход · июль</div>
             <div class="v mono" id="ovIncome" style="color:var(--income)" data-count="48140" data-suffix=" ₴">0</div>
             <div class="spark" id="sparkIn"></div>
-            <div class="foot"><span class="delta up">▲ 4%</span> к среднему</div>
+            <div class="foot demo-only"><span class="delta up">▲ 4%</span> к среднему</div>
           </div>
           <!-- расход -->
           <div class="card col-3 stat">
             <div class="k" id="capOut"><span class="dot" style="background:var(--expense)"></span>Расход · июль</div>
             <div class="v mono" id="ovExpense" style="color:var(--expense)" data-count="29899" data-suffix=" ₴">0</div>
             <div class="spark" id="sparkOut"></div>
-            <div class="foot"><span class="delta down">▼ 8%</span> к среднему</div>
+            <div class="foot demo-only"><span class="delta down">▼ 8%</span> к среднему</div>
           </div>
           <!-- норма сбережений -->
           <div class="card col-3 stat">
@@ -477,7 +500,7 @@
             <div class="foot" id="capSavedFoot">норма сбережений <b style="color:var(--ink);margin-left:4px">38%</b></div>
           </div>
           <!-- к оплате -->
-          <div class="card col-3 stat">
+          <div class="card col-3 stat demo-only">
             <div class="k">Скоро списания</div>
             <div class="v mono" id="upTotal" data-count="14299" data-suffix=" ₴">0</div>
             <div class="spark" id="upList" style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
@@ -633,6 +656,51 @@
     </div>
   </div>
 
+  <!-- ===== НАСТРОЙКИ ===== -->
+  <div class="overlay" id="settings" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Настройки">
+      <h2>Настройки</h2>
+      <div class="msub">Профиль: <b id="setMode">Личные</b></div>
+      <button class="setrow" id="openAccounts"><span>💳&nbsp;&nbsp;Мои счета и баланс</span><span class="chev">›</span></button>
+      <button class="setrow" id="openMono"><span>🏦&nbsp;&nbsp;Подключить Monobank</span><span class="chev">›</span></button>
+      <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
+      <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
+      <div class="modal-actions"><button class="btn-cancel" id="setClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== МОИ СЧЕТА ===== -->
+  <div class="overlay" id="accsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Мои счета">
+      <h2>Мои счета</h2>
+      <div class="msub">Впишите текущий баланс каждого счёта — сумма станет вашим общим балансом.</div>
+      <div id="accList"></div>
+      <button class="btn-ghost" id="accAdd" style="width:100%;margin-top:4px">＋ Добавить счёт</button>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="accCancel">Отмена</button>
+        <button class="btn-primary" id="accSave">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MONOBANK ===== -->
+  <div class="overlay" id="monosheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Подключить Monobank">
+      <h2>Подключить Monobank</h2>
+      <div class="msub">Вставьте <b>персональный токен</b> с <b>api.monobank.ua</b> (кнопка «Отримати токен»). Токен хранится только на вашем телефоне и даёт лишь чтение операций.</div>
+      <div class="field">
+        <label>Токен Monobank</label>
+        <input id="monoToken" type="text" inputmode="text" placeholder="u_xxxxxxxxxxxxxxxxxx" autocomplete="off" autocapitalize="none" spellcheck="false">
+      </div>
+      <div id="monoStatus" class="msub" style="min-height:20px;color:var(--muted)"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="monoCancel">Отмена</button>
+        <button class="btn-primary" id="monoSync">Подключить и загрузить</button>
+      </div>
+      <div class="msub" style="margin-top:12px;font-size:11.5px;line-height:1.5">⚠ Работает в Android-приложении Meridian. Загружает счета и операции за 30 дней. Лимит Monobank — 1 запрос в минуту.</div>
+    </div>
+  </div>
+
   <div class="chart-tip" id="tip" hidden></div>
   <div class="toast" id="toast" hidden><span class="tcheck">✓</span><span id="toastMsg"></span></div>
 </div>
@@ -758,15 +826,26 @@ try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
 function saveState(){
   try{STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS};STORE.__mode=MODE;localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
 }
+function emptyFor(m){ const d=MODES[m]; return {accts:d.accts.map(a=>({...a,bal:0})), tx:[], goals:[]}; }
 function loadMode(m){
   MODE=m; const d=MODES[m], s=STORE[m];
   CATS=d.cats;
-  ACCTS=(s&&s.accts)?s.accts.map(a=>({...a})):d.accts.map(a=>({...a}));
-  TX=(s&&s.tx)?s.tx.map(t=>({...t})):d.tx.map((t,i)=>({...t,id:'seed'+i}));
-  GOALS=(s&&s.goals)?s.goals.map(g=>({...g})):d.goals.map(g=>({...g}));
+  let base;
+  if(s&&s.accts) base={accts:s.accts, tx:s.tx||[], goals:s.goals||[]};
+  else if(STORE.__empty) base=emptyFor(m);
+  else base={accts:d.accts, tx:d.tx.map((t,i)=>({...t,id:'seed'+i})), goals:d.goals};
+  ACCTS=base.accts.map(a=>({...a}));
+  TX=base.tx.map(t=>({...t}));
+  GOALS=base.goals.map(g=>({...g}));
   BUDGETS=d.budgets.map(b=>({...b}));
-  CASHFLOW={labels:MONTHS.slice(), income:d.cfIn.slice(), expense:d.cfOut.slice()};
-  NETWORTH={labels:MONTHS.slice(), v:d.nw.slice()};
+  if(STORE.__empty){
+    const bal=ACCTS.reduce((a,b)=>a+b.bal,0);
+    CASHFLOW={labels:MONTHS.slice(), income:[0,0,0,0,0,0], expense:[0,0,0,0,0,0]};
+    NETWORTH={labels:MONTHS.slice(), v:[bal,bal,bal,bal,bal,bal]};
+  } else {
+    CASHFLOW={labels:MONTHS.slice(), income:d.cfIn.slice(), expense:d.cfOut.slice()};
+    NETWORTH={labels:MONTHS.slice(), v:d.nw.slice()};
+  }
 }
 
 /* =================================================================
@@ -801,6 +880,10 @@ function hideTip(){tip.hidden=true;}
 // сгруппированные столбцы: доход/расход
 function renderCashflow(){
   CASHFLOW.income[5]=monthIncome(); CASHFLOW.expense[5]=monthExpense();
+  $('#lgIn').textContent=money(CASHFLOW.income[5]); $('#lgOut').textContent=money(CASHFLOW.expense[5]);
+  if(CASHFLOW.income.reduce((a,b)=>a+b,0)+CASHFLOW.expense.reduce((a,b)=>a+b,0)<=0){
+    $('#cashflow').innerHTML='<div class="empty-chart">Пока нет движения денег.<br>Добавьте операцию или подключите Monobank.</div>'; return;
+  }
   const W=560,H=210, padB=26, padT=8, padL=6, padR=6;
   const n=CASHFLOW.labels.length, max=Math.max(...CASHFLOW.income,...CASHFLOW.expense)*1.12;
   const gw=(W-padL-padR)/n, bw=Math.min(15,gw/3.4), gap=5;
@@ -837,6 +920,10 @@ function renderDonut(){
   const spend=catSpend();
   const entries=Object.entries(spend).sort((a,b)=>b[1]-a[1]);
   const total=entries.reduce((a,b)=>a+b[1],0);
+  if(total<=0){
+    $('#donut').innerHTML='<div class="empty-chart" style="min-height:176px">Нет расходов<br>в этом месяце</div>';
+    $('#donutLegend').innerHTML=''; return;
+  }
   const size=176, sw=24, r=(size-sw)/2, c=2*Math.PI*r, cx=size/2, cy=size/2;
   let acc=0, arcs='';
   entries.forEach(([k,v])=>{
@@ -878,7 +965,9 @@ function spark(el,data,color){
 // линия капитала (area + crosshair)
 function renderNetworth(){
   const W=560,H=230,padB=28,padT=12,padL=44,padR=10;
-  const d=NETWORTH.v,n=d.length,max=Math.max(...d)*1.04,min=Math.min(...d)*.9;
+  const d=NETWORTH.v,n=d.length;
+  let max=Math.max(...d)*1.04, min=Math.min(...d)*.9;
+  if(!(max>min)){ max=(Math.max(...d)||0)+1000; min=Math.min(...d,0); }
   const X=i=>padL+(W-padL-padR)*(i/(n-1));
   const Y=v=>padT+(H-padT-padB)*(1-(v-min)/(max-min));
   let grid='',ax='';
@@ -946,6 +1035,7 @@ function txRow(t,full){
     ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
 }
 function renderRecent(){
+  if(!TX.length){ $('#recentTx').innerHTML='<div class="empty" style="padding:28px 12px"><div style="font-size:30px">🧾</div><b>Пока нет операций</b>Нажмите «+ Операция» или подключите Monobank в настройках ⚙️</div>'; return; }
   $('#recentTx').innerHTML=[...TX].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6).map(txRow).join('');
 }
 function renderAcctChips(){
@@ -956,7 +1046,12 @@ function renderTxFull(){
   const f=state.txFilter, q=state.txQuery.toLowerCase();
   let rows=[...TX].sort((a,b)=>b.d.localeCompare(a.d))
     .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(!q||t.t.toLowerCase().includes(q)));
-  if(!rows.length){$('#txFull').innerHTML=`<div class="empty"><div style="font-size:34px">🔍</div><b>Ничего не найдено</b>Измените фильтры или запрос</div>`;return;}
+  if(!rows.length){
+    $('#txFull').innerHTML = TX.length
+      ? `<div class="empty"><div style="font-size:34px">🔍</div><b>Ничего не найдено</b>Измените фильтры или запрос</div>`
+      : `<div class="empty"><div style="font-size:34px">🧾</div><b>Пока нет операций</b>Нажмите «+ Операция» или подключите Monobank</div>`;
+    return;
+  }
   let html='',cur='';
   rows.forEach(t=>{if(t.d!==cur){cur=t.d;html+=`<div class="day-label">${dayLabel(t.d)}</div>`;}html+=txRow(t,true);});
   $('#txFull').innerHTML=html;
@@ -1093,9 +1188,11 @@ function setLabels(){
   $$('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
 }
 function setComputedCounts(){
+  document.body.classList.toggle('is-empty', !!STORE.__empty);
   const inc=monthIncome(), exp=monthExpense(), bal=ACCTS.reduce((a,b)=>a+b.bal,0);
   const saved=inc-exp, rate=inc?Math.round(saved/inc*100):0;
   CASHFLOW.income[5]=inc; CASHFLOW.expense[5]=exp;
+  $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
   const set=(id,v)=>{const el=$(id);if(el)el.dataset.count=v;};
   set('#ovIncome',inc); set('#ovExpense',exp); set('#ovSaved',saved);
   const big=$('.hero-bal .big'); if(big)big.dataset.count=bal;
@@ -1158,20 +1255,159 @@ function bind(){
   $$('#txChips .chip-btn').forEach(b=>b.onclick=()=>{state.txFilter=b.dataset.f;$$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x===b));renderTxFull();});
   $('#txCat').addEventListener('change',e=>{state.txCat=e.target.value;renderTxFull();});
   $('#txSearch').addEventListener('input',e=>{state.txQuery=e.target.value;renderTxFull();});
-  $$('.js-reset').forEach(b=>b.onclick=doReset);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+  $$('.js-reset').forEach(b=>b.onclick=openSettings);
+  bindSheets();
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
-function doReset(){
-  if(!confirm('Сбросить все изменения и вернуть демо-данные?'))return;
-  try{localStorage.removeItem(LSK);}catch(e){}
+
+/* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
+function startEmpty(){
+  if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
+  STORE={__empty:true,__mode:MODE}; try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
   location.reload();
 }
+function loadDemo(){
+  STORE={__empty:false,__mode:MODE}; try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
+  location.reload();
+}
+// --- редактор счетов ---
+function accRowHtml(a,i){
+  return `<div class="acc-row" data-i="${i}">
+    <input class="nm" value="${a?esc(a.name):''}" placeholder="Название счёта">
+    <input class="bal" inputmode="numeric" value="${a?fmt(a.bal):'0'}" placeholder="0">
+    <button class="del" title="Удалить" aria-label="Удалить">✕</button></div>`;
+}
+function wireAccRow(row){
+  row.querySelector('.del').onclick=()=>{ if($$('#accList .acc-row').length>1) row.remove(); };
+  row.querySelector('.bal').addEventListener('input',e=>{
+    const neg=e.target.value.trim().startsWith('-');
+    let v=e.target.value.replace(/[^\d]/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+    e.target.value=(neg?'-':'')+v;
+  });
+}
+function openAccounts(){
+  $('#accList').innerHTML=ACCTS.map((a,i)=>accRowHtml(a,i)).join('');
+  $$('#accList .acc-row').forEach(wireAccRow);
+  $('#settings').hidden=true; $('#accsheet').hidden=false;
+}
+function addAccRow(){
+  const wrap=document.createElement('div'); wrap.innerHTML=accRowHtml(null,-1);
+  const row=wrap.firstElementChild; $('#accList').appendChild(row); wireAccRow(row);
+  row.querySelector('.nm').focus();
+}
+function saveAccounts(){
+  const rows=$$('#accsheet .acc-row');
+  const next=rows.map((r,idx)=>{
+    const name=r.querySelector('.nm').value.trim()||('Счёт '+(idx+1));
+    const bal=parseInt((r.querySelector('.bal').value||'').replace(/[^\d-]/g,''),10)||0;
+    const old=ACCTS[+r.dataset.i];
+    return {name,bal,color:(old&&old.color)||'var(--brand)',ic:(old&&old.ic)||'💳'};
+  });
+  ACCTS = next.length?next:[{name:'Наличные',bal:0,color:'var(--brand)',ic:'💵'}];
+  STORE.__empty=false; saveState(); fillCatSelects();
+  $('#accsheet').hidden=true; animated={}; refreshAll(); go('overview'); toast('Счета сохранены');
+}
+// --- Monobank ---
+const MONO_TOKEN_KEY='mono-token';
+const __monoWaiters={};
+window.__monoResolve=function(id,b64){
+  const w=__monoWaiters[id]; if(!w)return; delete __monoWaiters[id];
+  let txt='__HTTP_ERROR__0__decode';
+  try{ const bin=atob(b64); const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0)); txt=new TextDecoder('utf-8').decode(bytes); }catch(e){}
+  w(txt);
+};
+function monoGet(url,token){
+  return new Promise(resolve=>{
+    if(!window.MonoNative||!MonoNative.httpGet){ resolve({err:'мост недоступен'}); return; }
+    const id='m'+Date.now()+Math.random().toString(36).slice(2,7);
+    __monoWaiters[id]=raw=>{
+      if(typeof raw!=='string'){ resolve({err:'нет ответа'}); return; }
+      if(raw.startsWith('__HTTP_ERROR__')){
+        const m=raw.match(/^__HTTP_ERROR__(\d+)__([\s\S]*)$/); let code=m?m[1]:'?', msg=m?m[2]:raw;
+        try{ const j=JSON.parse(msg); if(j.errorDescription) msg=j.errorDescription; }catch(e){}
+        if(code==='429') msg='лимит 1 запрос в минуту — подождите';
+        if(code==='403') msg='неверный токен';
+        resolve({err:msg+' ('+code+')'}); return;
+      }
+      try{ resolve({data:JSON.parse(raw)}); }catch(e){ resolve({err:'некорректный ответ'}); }
+    };
+    try{ MonoNative.httpGet(url,token,id); }catch(e){ resolve({err:String(e)}); }
+  });
+}
+function monoAcctName(a){
+  const masked=(a.maskedPan&&a.maskedPan[0])?(' '+a.maskedPan[0].slice(-4)):'';
+  const map={black:'Чёрная карта',white:'Белая карта',platinum:'Platinum',iron:'Iron',fop:'ФОП',yellow:'Карта',eAid:'єПідтримка'};
+  return (map[a.type]||'Счёт')+masked;
+}
+function mccToCat(mcc){
+  if([5411,5412,5422,5441,5451,5462,5499,5921].includes(mcc)) return 'food';
+  if([5811,5812,5813,5814].includes(mcc)) return 'cafe';
+  if([4111,4121,4131,4011,4784,5541,5542,5983].includes(mcc)) return 'transport';
+  if([7832,7922,7994,7996,7997,7998,5815,5816,5817,5818,4899].includes(mcc)) return 'fun';
+  if([6513,4900,4814,4816].includes(mcc)) return 'home';
+  return 'other';
+}
+function openMono(){
+  try{ $('#monoToken').value=localStorage.getItem(MONO_TOKEN_KEY)||''; }catch(e){}
+  $('#monoStatus').textContent = window.MonoNative ? '' : '⚠ Импорт доступен только в Android-приложении Meridian (в браузере Monobank блокирует запрос).';
+  $('#settings').hidden=true; $('#monosheet').hidden=false;
+}
+async function monoSync(){
+  const token=$('#monoToken').value.trim(), st=$('#monoStatus');
+  if(!token){ st.textContent='Вставьте токен из api.monobank.ua.'; return; }
+  if(!window.MonoNative||!MonoNative.httpGet){ st.textContent='⚠ Импорт работает только в приложении Meridian (Android).'; return; }
+  try{ localStorage.setItem(MONO_TOKEN_KEY,token); }catch(e){}
+  st.textContent='Подключаюсь к Monobank…';
+  const ci=await monoGet('https://api.monobank.ua/personal/client-info',token);
+  if(ci.err){ st.textContent='Ошибка: '+ci.err; return; }
+  const accs=(ci.data.accounts||[]).filter(a=>a.currencyCode===980);
+  if(!accs.length){ st.textContent='Гривневых счетов не найдено.'; return; }
+  MODE='personal'; CATS=MODES.personal.cats; BUDGETS=MODES.personal.budgets.map(b=>({...b}));
+  ACCTS=accs.map(a=>({name:monoAcctName(a),bal:Math.round(a.balance/100),color:'var(--brand)',ic:a.type==='fop'?'🏦':'💳',monoId:a.id}));
+  st.textContent='Счета получены ('+ACCTS.length+'). Загружаю операции за 30 дней…';
+  const to=Math.floor(Date.now()/1000), from=to-30*24*3600, main=accs[0];
+  const sres=await monoGet('https://api.monobank.ua/personal/statement/'+main.id+'/'+from+'/'+to,token);
+  TX=[];
+  if(sres.err){ st.textContent='Счета загружены. Операции: '+sres.err+'. Попробуйте «Обновить» через минуту.'; }
+  else {
+    TX=(sres.data||[]).map(t=>(t&&typeof t.amount==='number')?{
+      id:'mono'+t.id, t:(t.description||'Операция').slice(0,60), cat:mccToCat(t.mcc),
+      type:t.amount>0?'in':'out', amt:Math.round(Math.abs(t.amount)/100), d:unixDate(t.time), ac:ACCTS[0].name
+    }:null).filter(Boolean);
+    st.textContent='Готово: '+ACCTS.length+' счёт(ов), '+TX.length+' операций.';
+  }
+  STORE.__empty=false; CASHFLOW={labels:MONTHS.slice(),income:[0,0,0,0,0,0],expense:[0,0,0,0,0,0]};
+  const bal=ACCTS.reduce((a,b)=>a+b.bal,0); NETWORTH={labels:MONTHS.slice(),v:[bal,bal,bal,bal,bal,bal]};
+  saveState(); setLabels(); fillCatSelects();
+  setTimeout(()=>{ $('#monosheet').hidden=true; animated={}; refreshAll(); go('overview'); toast('Monobank подключён · профиль «Личные»'); }, 800);
+}
+function unixDate(sec){ const d=new Date(sec*1000),p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function bindSheets(){
+  $('#setClose').onclick=()=>$('#settings').hidden=true;
+  $('#openAccounts').onclick=openAccounts;
+  $('#openMono').onclick=openMono;
+  $('#doDemo').onclick=loadDemo;
+  $('#doEmpty').onclick=startEmpty;
+  $('#accCancel').onclick=()=>{$('#accsheet').hidden=true;};
+  $('#accAdd').onclick=addAccRow;
+  $('#accSave').onclick=saveAccounts;
+  $('#monoCancel').onclick=()=>{$('#monosheet').hidden=true;};
+  $('#monoSync').onclick=monoSync;
+  ['settings','accsheet','monosheet'].forEach(id=>{
+    const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;});
+  });
+}
 function init(){
+  if(!localStorage.getItem(LSK)){ STORE.__empty=true; try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
   loadMode(STORE.__mode||'personal');
+  document.body.classList.toggle('is-empty', !!STORE.__empty);
   initTheme();setLabels();fillCatSelects();bind();
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   setComputedCounts();
+  $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   animated.overview=true; runAnim('overview');
