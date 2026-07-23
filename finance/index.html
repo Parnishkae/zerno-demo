@@ -350,6 +350,39 @@
   .empty-chart{display:flex;align-items:center;justify-content:center;text-align:center;
     color:var(--faint);font-size:13px;font-weight:500;min-height:120px;padding:20px}
 
+  /* планы / долги / черновик */
+  .seg.seg3{grid-template-columns:repeat(3,1fr)}
+  .seg button.on[data-dt]{background:var(--surface);color:var(--brand);box-shadow:var(--shadow-sm)}
+  .plan-row{display:flex;align-items:center;gap:12px;padding:12px 4px}
+  .plan-row+.plan-row{border-top:1px solid var(--line)}
+  .plan-row .pd{width:46px;height:46px;flex:none;border-radius:12px;background:var(--surface-2);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+  .plan-row .pd b{font-size:16px;font-weight:750}
+  .plan-row .pd small{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:.02em}
+  .plan-row .pn{min-width:0;flex:1}
+  .plan-row .pn b{font-size:14px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .plan-row .pn small{font-size:12px;color:var(--faint)}
+  .plan-row .pa{font-family:var(--mono);font-weight:700;font-size:14px;white-space:nowrap;color:var(--expense)}
+  .iconbtn-sm{width:32px;height:32px;flex:none;border-radius:9px;display:grid;place-items:center;color:var(--faint);font-size:13px}
+  .iconbtn-sm:hover{background:var(--surface-2);color:var(--ink)}
+  .pay-btn{padding:7px 12px;flex:none;border-radius:9px;background:var(--brand-soft);color:var(--brand);font-weight:650;font-size:12.5px;white-space:nowrap}
+  .pay-btn:hover{filter:brightness(1.03)}
+  .debt-item{padding:14px 0}
+  .debt-item+.debt-item{border-top:1px solid var(--line)}
+  .debt-item .dh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .debt-item .chip-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 8px;border-radius:20px;background:var(--surface-3);color:var(--muted);flex:none}
+  .debt-item .dh b{font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .debt-item .dh .rem{margin-left:auto;text-align:right;font-family:var(--mono);font-weight:700;font-size:13.5px;color:var(--expense);flex:none}
+  .debt-item .dmeta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .debt-item .dmeta .mono{color:var(--ink)}
+  .scr-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .scr-row input{padding:11px 12px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-size:14px;outline:none}
+  .scr-row input:focus{border-color:var(--brand)}
+  .scr-row .nt{flex:1;min-width:0}
+  .scr-row .am{width:110px;flex:none;font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  .scr-row .del{width:34px;height:34px;flex:none;border-radius:9px;color:var(--faint);display:grid;place-items:center;font-size:12px}
+  .scr-row .del:hover{background:var(--neg-soft);color:var(--expense)}
+
   /* мобильные табы + FAB */
   .bottomnav,.fab{display:none}
   @media(max-width:900px){
@@ -409,6 +442,14 @@
     <button class="navlink" data-view="goals">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>
       Цели
+    </button>
+    <button class="navlink" data-view="plans">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v3M16 2.5v3M8 14h3"/></svg>
+      Планы
+    </button>
+    <button class="navlink" data-view="scratch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      Черновик
     </button>
     <button class="navlink" data-view="analytics">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h16"/><path d="M8 16l3.5-4 3 2.5L20 8"/></svg>
@@ -609,6 +650,51 @@
         </div>
       </section>
 
+      <!-- ============ ПЛАНЫ ============ -->
+      <section class="view" data-view="plans" hidden>
+        <div class="grid">
+          <div class="card col-4 stat"><div class="k">Плановые платежи</div><div class="v mono" id="planTotal">0 ₴</div><div class="foot" id="planCount">всего запланировано</div></div>
+          <div class="card col-4 stat"><div class="k">Осталось по долгам</div><div class="v mono" id="debtRemain" style="color:var(--expense)">0 ₴</div><div class="foot" id="debtCount">долги и рассрочки</div></div>
+          <div class="card col-4 stat"><div class="k">Ближайший платёж</div><div class="v mono" id="planNext">—</div><div class="foot" id="planNextName">нет плановых</div></div>
+
+          <div class="card col-7">
+            <div class="card-h"><h3>Плановые платежи</h3><button class="link" id="addPlanBtn">＋ Добавить</button></div>
+            <div id="plansList"></div>
+          </div>
+          <div class="card col-5">
+            <div class="card-h"><h3>Долги · кредиты · рассрочки</h3><button class="link" id="addDebtBtn">＋ Добавить</button></div>
+            <div id="debtsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ЧЕРНОВИК ============ -->
+      <section class="view" data-view="scratch" hidden>
+        <div class="grid">
+          <div class="card col-12" style="padding:16px 20px">
+            <div class="msub" style="margin:0">Быстрый расчёт «на салфетке»: план прихода по датам и список расходов — суммы считаются сами. Ничего не влияет на баланс.</div>
+          </div>
+          <div class="card col-6">
+            <div class="card-h"><h3>Приход (план)</h3><b class="mono" id="scrInTotal" style="margin-left:auto;color:var(--income)">0 ₴</b></div>
+            <div id="scrIncome"></div>
+            <button class="btn-ghost" id="scrAddIn" style="width:100%;margin-top:8px">＋ Строка прихода</button>
+          </div>
+          <div class="card col-6">
+            <div class="card-h"><h3>Расходы</h3><b class="mono" id="scrOutTotal" style="margin-left:auto;color:var(--expense)">0 ₴</b></div>
+            <div id="scrExpense"></div>
+            <button class="btn-ghost" id="scrAddOut" style="width:100%;margin-top:8px">＋ Строка расхода</button>
+          </div>
+          <div class="card col-12" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+            <div>
+              <div class="eyebrow">Итог</div>
+              <div class="mono" id="scrNet" style="font-size:30px;font-weight:770;letter-spacing:-.02em">0 ₴</div>
+              <div id="scrNetLbl" style="color:var(--faint);font-size:12.5px;font-weight:500">приход − расход</div>
+            </div>
+            <button class="btn-cancel" id="scrClear">Очистить черновик</button>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 
@@ -616,9 +702,9 @@
   <nav class="bottomnav">
     <button class="active" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Обзор</button>
     <button data-view="tx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M4 7l3-3M4 7l3 3M20 17H4M20 17l-3-3M20 17l-3 3"/></svg>Операции</button>
-    <button data-view="budgets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 0 9-9v9z"/><path d="M12 3v9l6.4 6.4"/></svg>Бюджеты</button>
-    <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>Цели</button>
-    <button data-view="analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h16"/><path d="M8 16l3.5-4 3 2.5L20 8"/></svg>Аналитика</button>
+    <button data-view="plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v3M16 2.5v3M8 14h3"/></svg>Планы</button>
+    <button data-view="scratch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Черновик</button>
+    <button data-more="1"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Ещё</button>
   </nav>
   <button class="fab" id="fab" aria-label="Добавить операцию">+</button>
 
@@ -698,6 +784,55 @@
         <button class="btn-primary" id="monoSync">Подключить и загрузить</button>
       </div>
       <div class="msub" style="margin-top:12px;font-size:11.5px;line-height:1.5">⚠ Работает в Android-приложении Meridian. Загружает счета и операции за 30 дней. Лимит Monobank — 1 запрос в минуту.</div>
+    </div>
+  </div>
+
+  <!-- ===== ЕЩЁ (моб.) ===== -->
+  <div class="overlay" id="moresheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Ещё">
+      <h2>Ещё</h2>
+      <button class="setrow" data-more-go="budgets"><span>◔&nbsp;&nbsp;Бюджеты</span><span class="chev">›</span></button>
+      <button class="setrow" data-more-go="goals"><span>◎&nbsp;&nbsp;Цели</span><span class="chev">›</span></button>
+      <button class="setrow" data-more-go="analytics"><span>📈&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
+      <button class="setrow" id="moreSettings"><span>⚙️&nbsp;&nbsp;Настройки</span><span class="chev">›</span></button>
+      <div class="modal-actions"><button class="btn-cancel" id="moreClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== ПЛАНОВЫЙ ПЛАТЁЖ ===== -->
+  <div class="overlay" id="plansheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Плановый платёж">
+      <h2>Плановый платёж</h2>
+      <div class="field"><label>Название</label><input id="planName" type="text" placeholder="Напр. «Аренда»" autocomplete="off"></div>
+      <div class="field"><label>Сумма</label><div class="amount-in"><input id="planAmount" type="text" inputmode="numeric" placeholder="0" autocomplete="off"><span>₴</span></div></div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>Дата</label><input id="planDate" type="date"></div>
+        <div class="field" style="width:118px"><label>Время</label><input id="planTime" type="time"></div>
+      </div>
+      <div class="field"><label>Повтор</label><select id="planRepeat"><option value="none">Разово</option><option value="monthly">Каждый месяц</option></select></div>
+      <div class="modal-actions"><button class="btn-cancel" id="planCancel">Отмена</button><button class="btn-primary" id="planSave">Сохранить</button></div>
+    </div>
+  </div>
+
+  <!-- ===== ДОЛГ / КРЕДИТ / РАССРОЧКА ===== -->
+  <div class="overlay" id="debtsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Долг">
+      <h2>Долг · кредит · рассрочка</h2>
+      <div class="seg seg3" id="debtSeg">
+        <button data-dt="debt" class="on">Долг</button>
+        <button data-dt="credit">Кредит</button>
+        <button data-dt="installment">Рассрочка</button>
+      </div>
+      <div class="field"><label>Название</label><input id="debtName" type="text" placeholder="Напр. «Рассрочка на телефон»" autocomplete="off"></div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>Всего</label><div class="amount-in"><input id="debtTotal" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
+        <div class="field" style="flex:1"><label>Выплачено</label><div class="amount-in"><input id="debtPaid" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>Платёж / мес</label><div class="amount-in"><input id="debtMonthly" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
+        <div class="field" style="flex:1"><label>След. платёж</label><input id="debtDate" type="date"></div>
+      </div>
+      <div class="modal-actions"><button class="btn-cancel" id="debtCancel">Отмена</button><button class="btn-primary" id="debtSave">Сохранить</button></div>
     </div>
   </div>
 
@@ -818,14 +953,34 @@ const MODES = {
     nw:[180000,205000,228000,242000,255000,263000]
   }
 };
-let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH;
+let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH, PLANS, DEBTS, SCRATCH;
 /* сохранение прогресса в браузере — операции/цели/баланс не пропадают после перезагрузки */
 const LSK='kasa-state-v1';
 let STORE={};
 try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
-function saveState(){
-  try{STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS};STORE.__mode=MODE;localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
+function persist(){ try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
+function saveState(){ STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS,plans:PLANS,debts:DEBTS}; STORE.__mode=MODE; persist(); }
+const DEMO_PLANS=[
+  {id:'p1',title:'Аренда квартиры',amount:14000,date:'2026-08-01',time:'',cat:'home',repeat:'monthly'},
+  {id:'p2',title:'Netflix',amount:299,date:'2026-07-28',time:'20:00',cat:'fun',repeat:'monthly'},
+  {id:'p3',title:'Интернет + связь',amount:250,date:'2026-08-05',time:'',cat:'other',repeat:'monthly'},
+  {id:'p4',title:'Спортзал',amount:600,date:'2026-08-03',time:'',cat:'other',repeat:'monthly'}
+];
+const DEMO_DEBTS=[
+  {id:'d1',title:'Рассрочка на телефон',type:'installment',total:24000,paid:16000,monthly:2000,nextDate:'2026-08-10'},
+  {id:'d2',title:'Кредит на ноутбук',type:'credit',total:45000,paid:12000,monthly:3500,nextDate:'2026-08-07'},
+  {id:'d3',title:'Долг другу',type:'debt',total:5000,paid:1500,monthly:0,nextDate:'2026-08-15'}
+];
+const DEMO_SCRATCH={
+  income:[{note:'21 · подработка',amount:425},{note:'23 число',amount:700},{note:'24 число',amount:700},{note:'27 число',amount:700},{note:'28 число',amount:700},{note:'29 число',amount:700}],
+  expense:[{note:'Пицца',amount:145},{note:'Сок',amount:70},{note:'Счёт',amount:400},{note:'Билеты',amount:1700},{note:'Проезд',amount:100},{note:'Попкорн',amount:160},{note:'Рассрочка',amount:200},{note:'Аромадиффузор',amount:150}]
+};
+function loadScratch(){
+  if(STORE.__scratch) SCRATCH={income:(STORE.__scratch.income||[]).map(r=>({...r})),expense:(STORE.__scratch.expense||[]).map(r=>({...r}))};
+  else if(STORE.__empty) SCRATCH={income:[{note:'',amount:0}],expense:[{note:'',amount:0}]};
+  else SCRATCH={income:DEMO_SCRATCH.income.map(r=>({...r})),expense:DEMO_SCRATCH.expense.map(r=>({...r}))};
 }
+function saveScratch(){ STORE.__scratch=SCRATCH; persist(); }
 function emptyFor(m){ const d=MODES[m]; return {accts:d.accts.map(a=>({...a,bal:0})), tx:[], goals:[]}; }
 function loadMode(m){
   MODE=m; const d=MODES[m], s=STORE[m];
@@ -837,6 +992,8 @@ function loadMode(m){
   ACCTS=base.accts.map(a=>({...a}));
   TX=base.tx.map(t=>({...t}));
   GOALS=base.goals.map(g=>({...g}));
+  PLANS=(s&&s.plans)?s.plans.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_PLANS.map(x=>({...x})):[]));
+  DEBTS=(s&&s.debts)?s.debts.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_DEBTS.map(x=>({...x})):[]));
   BUDGETS=d.budgets.map(b=>({...b}));
   if(STORE.__empty){
     const bal=ACCTS.reduce((a,b)=>a+b.bal,0);
@@ -1108,7 +1265,8 @@ function renderTopMerch(){
    ================================================================= */
 const state={view:'overview',txFilter:'all',txCat:'all',txQuery:''};
 const TITLES={overview:['Обзор','Вторник, 22 июля 2026'],tx:['Операции','23 операции в июле'],
-  budgets:['Бюджеты','Июль 2026 · 91% лимита'],goals:['Цели','3 активные цели'],analytics:['Аналитика','Июль 2026']};
+  budgets:['Бюджеты','Июль 2026 · 91% лимита'],goals:['Цели','3 активные цели'],analytics:['Аналитика','Июль 2026'],
+  plans:['Планы','платежи, долги и рассрочки'],scratch:['Черновик','быстрый расчёт «на салфетке»']};
 let animated={};
 
 function go(view){
@@ -1116,6 +1274,7 @@ function go(view){
   $$('.view').forEach(v=>v.hidden=v.dataset.view!==view);
   $$('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
   $$('.bottomnav button').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
+  $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics'].includes(view)));
   $('#pageTitle').textContent=TITLES[view][0];
   $('#pageSub').textContent = view==='tx' ? (TX.length+' '+plural(TX.length,'операция','операции','операций')+' в июле') : TITLES[view][1];
   document.querySelector('.content').scrollIntoView({block:'start'});
@@ -1127,6 +1286,8 @@ function runAnim(view){
   if(view==='budgets'){countUp($('[data-view="budgets"]')); requestAnimationFrame(()=>$$('#budgetsFull .fill').forEach(f=>f.style.width=f.dataset.w+'%'));}
   if(view==='analytics'){renderNetworth();renderHbars();renderNetBars();renderTopMerch();}
   if(view==='goals'){renderGoals();}
+  if(view==='plans'){renderPlans();renderDebts();}
+  if(view==='scratch'){renderScratch();}
 }
 function countUp(scope=document){
   $$('[data-count]',scope).forEach(el=>{
@@ -1257,11 +1418,12 @@ function bind(){
   $('#txSearch').addEventListener('input',e=>{state.txQuery=e.target.value;renderTxFull();});
   $$('.js-reset').forEach(b=>b.onclick=openSettings);
   bindSheets();
+  bindPlansScratch();
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -1402,6 +1564,7 @@ function bindSheets(){
 function init(){
   if(!localStorage.getItem(LSK)){ STORE.__empty=true; try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
   loadMode(STORE.__mode||'personal');
+  loadScratch();
   document.body.classList.toggle('is-empty', !!STORE.__empty);
   initTheme();setLabels();fillCatSelects();bind();
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
@@ -1411,6 +1574,132 @@ function init(){
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   animated.overview=true; runAnim('overview');
+}
+/* =================================================================
+   ПЛАНЫ · ДОЛГИ · ЧЕРНОВИК
+   ================================================================= */
+const TODAY='2026-07-22';
+const MSHORT=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+function fmtDate(s){ if(!s)return '—'; const p=s.split('-'); return (+p[2])+' '+(MSHORT[+p[1]-1]||''); }
+function addMonth(s){ const d=new Date((s||TODAY)+'T00:00:00'); d.setMonth(d.getMonth()+1); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+const numFmt=e=>{ e.target.value=e.target.value.replace(/[^\d]/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' '); };
+const parseNum=v=>parseInt(String(v||'').replace(/[^\d]/g,''),10)||0;
+
+function refreshPlanStats(){
+  $('#planTotal').textContent=money(PLANS.reduce((a,b)=>a+b.amount,0));
+  $('#planCount').textContent=PLANS.length?(PLANS.length+' плановых'):'ничего не запланировано';
+  $('#debtRemain').textContent=money(DEBTS.reduce((a,b)=>a+Math.max(b.total-b.paid,0),0));
+  $('#debtCount').textContent=DEBTS.length?(DEBTS.length+' обязательств'):'нет долгов';
+  const up=[...PLANS].sort((a,b)=>(a.date||'').localeCompare(b.date||''))[0];
+  $('#planNext').textContent=up?money(up.amount):'—';
+  $('#planNextName').textContent=up?(fmtDate(up.date)+' · '+up.title):'нет плановых';
+}
+function renderPlans(){
+  const list=[...PLANS].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const box=$('#plansList');
+  box.innerHTML = list.length ? list.map(p=>{
+    const c=CATS[p.cat]||{ic:'•'};
+    return `<div class="plan-row">
+      <div class="pd"><b>${(p.date||'').split('-')[2]||'—'}</b><small>${MSHORT[+((p.date||'').split('-')[1])-1]||''}</small></div>
+      <div class="pn"><b>${esc(p.title)}</b><small>${c.ic} ${p.time?p.time+' · ':''}${p.repeat==='monthly'?'ежемесячно':'разово'}</small></div>
+      <div class="pa">${money(p.amount)}</div>
+      <button class="pay-btn" data-pay="${p.id}">Оплатить</button>
+      <button class="iconbtn-sm" data-delplan="${p.id}" aria-label="Удалить">✕</button></div>`;
+  }).join('') : '<div class="empty" style="padding:30px 12px"><div style="font-size:30px">📅</div><b>Нет плановых платежей</b>Добавьте аренду, подписки, кредиты — чтобы не забыть</div>';
+  $$('#plansList [data-pay]').forEach(b=>b.onclick=()=>payPlan(b.dataset.pay));
+  $$('#plansList [data-delplan]').forEach(b=>b.onclick=()=>{ PLANS=PLANS.filter(x=>x.id!==b.dataset.delplan); saveState(); renderPlans(); });
+  refreshPlanStats();
+}
+function payPlan(id){
+  const p=PLANS.find(x=>x.id===id); if(!p)return;
+  const acct=ACCTS[0]; if(acct)acct.bal-=p.amount;
+  TX.unshift({id:'tx'+Date.now(),t:p.title,cat:p.cat||'other',type:'out',amt:p.amount,d:TODAY,ac:acct?acct.name:''});
+  if(p.repeat==='monthly') p.date=addMonth(p.date); else PLANS=PLANS.filter(x=>x.id!==id);
+  STORE.__empty=false; saveState(); animated={}; renderPlans(); refreshAll(); toast('Оплачено: '+money(p.amount));
+}
+function openPlanSheet(){
+  $('#planName').value=''; $('#planAmount').value=''; $('#planDate').value=TODAY; $('#planTime').value=''; $('#planRepeat').value='none';
+  $('#plansheet').hidden=false; setTimeout(()=>$('#planName').focus(),60);
+}
+function savePlan(){
+  const amt=parseNum($('#planAmount').value), name=$('#planName').value.trim();
+  if(!amt){ $('#plansheet .amount-in').style.borderColor='var(--expense)'; return; }
+  PLANS.push({id:'p'+Date.now(),title:name||'Платёж',amount:amt,date:$('#planDate').value||TODAY,time:$('#planTime').value||'',cat:'other',repeat:$('#planRepeat').value});
+  STORE.__empty=false; saveState(); $('#plansheet').hidden=true; renderPlans(); toast('Плановый платёж добавлен');
+}
+let debtType='debt';
+const DTYPE={debt:'Долг',credit:'Кредит',installment:'Рассрочка'};
+function renderDebts(){
+  const box=$('#debtsList');
+  box.innerHTML = DEBTS.length ? DEBTS.map(d=>{
+    const rem=Math.max(d.total-d.paid,0), pct=d.total?Math.min(d.paid/d.total*100,100):0;
+    return `<div class="debt-item">
+      <div class="dh"><span class="chip-t">${DTYPE[d.type]||'Долг'}</span><b>${esc(d.title)}</b><span class="rem">${money(rem)}</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${rem<=0?'var(--income)':'var(--gold)'}"></div></div>
+      <div class="dmeta"><span>${d.monthly?('по <span class="mono">'+money(d.monthly)+'</span>/мес · '):''}${rem>0?('след. '+fmtDate(d.nextDate)):'закрыто ✓'}</span>
+        <span style="display:flex;gap:6px">${rem>0&&d.monthly?`<button class="pay-btn" data-dpay="${d.id}">Внести</button>`:''}<button class="iconbtn-sm" data-deldebt="${d.id}" aria-label="Удалить">✕</button></span></div></div>`;
+  }).join('') : '<div class="empty" style="padding:30px 12px"><div style="font-size:30px">💳</div><b>Нет долгов и рассрочек</b>Добавьте кредит или рассрочку с датами платежей</div>';
+  $$('#debtsList [data-dpay]').forEach(b=>b.onclick=()=>payDebt(b.dataset.dpay));
+  $$('#debtsList [data-deldebt]').forEach(b=>b.onclick=()=>{ DEBTS=DEBTS.filter(x=>x.id!==b.dataset.deldebt); saveState(); renderDebts(); });
+  refreshPlanStats();
+}
+function payDebt(id){
+  const d=DEBTS.find(x=>x.id===id); if(!d)return;
+  const pay=Math.min(d.monthly, d.total-d.paid); if(pay<=0)return;
+  d.paid+=pay; d.nextDate=addMonth(d.nextDate);
+  const acct=ACCTS[0]; if(acct)acct.bal-=pay;
+  TX.unshift({id:'tx'+Date.now(),t:'Платёж: '+d.title,cat:'other',type:'out',amt:pay,d:TODAY,ac:acct?acct.name:''});
+  STORE.__empty=false; saveState(); animated={}; renderDebts(); refreshAll(); toast('Внесено: '+money(pay));
+}
+function openDebtSheet(){
+  debtType='debt'; $$('#debtSeg button').forEach(x=>x.classList.toggle('on',x.dataset.dt==='debt'));
+  ['#debtName','#debtTotal','#debtPaid','#debtMonthly'].forEach(s=>$(s).value=''); $('#debtDate').value=addMonth(TODAY);
+  $('#debtsheet').hidden=false; setTimeout(()=>$('#debtName').focus(),60);
+}
+function saveDebt(){
+  const total=parseNum($('#debtTotal').value); if(!total)return;
+  DEBTS.push({id:'g'+Date.now(),title:$('#debtName').value.trim()||DTYPE[debtType],type:debtType,total,paid:Math.min(parseNum($('#debtPaid').value),total),monthly:parseNum($('#debtMonthly').value),nextDate:$('#debtDate').value||addMonth(TODAY)});
+  STORE.__empty=false; saveState(); $('#debtsheet').hidden=true; renderDebts(); toast('Добавлено');
+}
+function renderScratch(){
+  const rowHtml=(r,i,kind)=>`<div class="scr-row" data-i="${i}" data-kind="${kind}">
+    <input class="nt" value="${esc(r.note||'')}" placeholder="Что">
+    <input class="am" inputmode="numeric" value="${r.amount?fmt(r.amount):''}" placeholder="0">
+    <button class="del" aria-label="Удалить">✕</button></div>`;
+  $('#scrIncome').innerHTML=SCRATCH.income.map((r,i)=>rowHtml(r,i,'income')).join('');
+  $('#scrExpense').innerHTML=SCRATCH.expense.map((r,i)=>rowHtml(r,i,'expense')).join('');
+  $$('#scrIncome .scr-row').forEach(wireScrRow); $$('#scrExpense .scr-row').forEach(wireScrRow);
+  computeScratch();
+}
+function wireScrRow(row){
+  const kind=row.dataset.kind, i=+row.dataset.i;
+  const nt=row.querySelector('.nt'), am=row.querySelector('.am');
+  nt.addEventListener('input',()=>{ SCRATCH[kind][i].note=nt.value; saveScratch(); });
+  am.addEventListener('input',e=>{ numFmt(e); SCRATCH[kind][i].amount=parseNum(am.value); computeScratch(); saveScratch(); });
+  row.querySelector('.del').onclick=()=>{ SCRATCH[kind].splice(i,1); if(!SCRATCH[kind].length)SCRATCH[kind].push({note:'',amount:0}); saveScratch(); renderScratch(); };
+}
+function computeScratch(){
+  const sin=SCRATCH.income.reduce((a,b)=>a+(b.amount||0),0), sout=SCRATCH.expense.reduce((a,b)=>a+(b.amount||0),0);
+  $('#scrInTotal').textContent=money(sin); $('#scrOutTotal').textContent=money(sout);
+  const net=sin-sout, el=$('#scrNet');
+  el.textContent=(net<0?'− ':'')+money(Math.abs(net)); el.style.color=net<0?'var(--expense)':'var(--income)';
+  $('#scrNetLbl').textContent=net<0?'не хватает на расходы':'остаётся после расходов';
+}
+function addScrRow(kind){ SCRATCH[kind].push({note:'',amount:0}); saveScratch(); renderScratch();
+  const rows=$$('#'+(kind==='income'?'scrIncome':'scrExpense')+' .scr-row'), last=rows[rows.length-1]; if(last)last.querySelector('.nt').focus(); }
+function clearScratch(){ if(!confirm('Очистить черновик?'))return; SCRATCH={income:[{note:'',amount:0}],expense:[{note:'',amount:0}]}; saveScratch(); renderScratch(); }
+function bindPlansScratch(){
+  $('#addPlanBtn').onclick=openPlanSheet; $('#planCancel').onclick=()=>$('#plansheet').hidden=true; $('#planSave').onclick=savePlan;
+  $('#planAmount').addEventListener('input',e=>{numFmt(e);$('#plansheet .amount-in').style.borderColor='';});
+  $('#addDebtBtn').onclick=openDebtSheet; $('#debtCancel').onclick=()=>$('#debtsheet').hidden=true; $('#debtSave').onclick=saveDebt;
+  $$('#debtSeg button').forEach(b=>b.onclick=()=>{debtType=b.dataset.dt;$$('#debtSeg button').forEach(x=>x.classList.toggle('on',x===b));});
+  ['#debtTotal','#debtPaid','#debtMonthly'].forEach(s=>$(s).addEventListener('input',numFmt));
+  $('#scrAddIn').onclick=()=>addScrRow('income'); $('#scrAddOut').onclick=()=>addScrRow('expense'); $('#scrClear').onclick=clearScratch;
+  $$('[data-more]').forEach(b=>b.onclick=()=>{$('#moresheet').hidden=false;});
+  $('#moreClose').onclick=()=>$('#moresheet').hidden=true;
+  $('#moreSettings').onclick=()=>{$('#moresheet').hidden=true;openSettings();};
+  $$('[data-more-go]').forEach(b=>b.onclick=()=>{$('#moresheet').hidden=true;go(b.dataset.moreGo);});
+  ['plansheet','debtsheet','moresheet'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;});});
 }
 if('serviceWorker' in navigator){try{addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}}
 init();
