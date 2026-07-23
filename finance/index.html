@@ -130,6 +130,10 @@
   .btn-primary:hover{filter:brightness(1.04);transform:translateY(-1px)}
   .btn-primary:active{transform:translateY(0)}
 
+  .modeseg{display:inline-flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:3px}
+  .modeseg button{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:650;color:var(--muted);white-space:nowrap}
+  .modeseg button:hover{color:var(--ink)}
+  .modeseg button.on{background:var(--surface);color:var(--brand);box-shadow:var(--shadow-sm)}
   .content{padding:26px 30px 60px;max-width:1180px;width:100%}
   .view[hidden]{display:none}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -377,8 +381,8 @@
       Аналитика
     </button>
     <div class="side-foot">
-      <div class="avatar">А</div>
-      <div class="who">Алекс<small>основной профиль</small></div>
+      <div class="avatar" id="profAvatar">А</div>
+      <div class="who" id="profWho">Алекс<small>основной профиль</small></div>
       <button class="gear" aria-label="Настройки">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2l-.4-2.6H8.9l-.4 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2l.4 2.6h4.2l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z"/></svg>
       </button>
@@ -393,13 +397,18 @@
         <div class="sub" id="pageSub">Вторник, 22 июля 2026</div>
       </div>
       <div class="topbar-actions">
+        <div class="modeseg" id="modeSeg">
+          <button class="on" data-m="personal">Личные</button>
+          <button data-m="family">Семья</button>
+          <button data-m="business">Бизнес</button>
+        </div>
         <button class="pill hide-sm"><span class="month-pill-txt">Июль&nbsp;2026</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <button class="icon-btn" id="themeBtn" aria-label="Сменить тему">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
         </button>
-        <button class="btn-primary" id="addBtn">
+        <button class="btn-primary hide-sm" id="addBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>
           Операция
         </button>
@@ -413,7 +422,7 @@
         <div class="grid">
           <!-- баланс -->
           <div class="card pad-lg col-8 hero-bal">
-            <div class="eyebrow">Общий баланс · 3 счёта</div>
+            <div class="eyebrow" id="balEyebrow">Общий баланс · 3 счёта</div>
             <div class="big mono" data-count="177120">0 ₴</div>
             <div class="row">
               <span class="delta up">▲ 5,4% <span style="opacity:.7;font-weight:600">за месяц</span></span>
@@ -424,40 +433,40 @@
           <!-- платёжная карта -->
           <div class="paycard">
             <div class="pc-top">
-              <span class="pc-brand"><span class="chip"></span>Копейка&nbsp;·&nbsp;Black</span>
+              <span class="pc-brand" id="pcBrand"><span class="chip"></span>Копейка&nbsp;·&nbsp;Black</span>
               <span style="font-size:12px;opacity:.7">VISA</span>
             </div>
-            <div class="pc-label">Основная карта</div>
+            <div class="pc-label" id="pcLabel">Основная карта</div>
             <div class="pc-bal mono">42&nbsp;380&nbsp;₴</div>
             <div class="pc-num"><span class="mono">•••&nbsp;•••&nbsp;4921</span><span class="mc"><i></i><i></i></span></div>
           </div>
 
           <!-- доход -->
           <div class="card col-3 stat">
-            <div class="k"><span class="dot" style="background:var(--income)"></span>Доход · июль</div>
+            <div class="k" id="capIn"><span class="dot" style="background:var(--income)"></span>Доход · июль</div>
             <div class="v mono" id="ovIncome" style="color:var(--income)" data-count="48140" data-suffix=" ₴">0</div>
             <div class="spark" id="sparkIn"></div>
             <div class="foot"><span class="delta up">▲ 4%</span> к среднему</div>
           </div>
           <!-- расход -->
           <div class="card col-3 stat">
-            <div class="k"><span class="dot" style="background:var(--expense)"></span>Расход · июль</div>
+            <div class="k" id="capOut"><span class="dot" style="background:var(--expense)"></span>Расход · июль</div>
             <div class="v mono" id="ovExpense" style="color:var(--expense)" data-count="29899" data-suffix=" ₴">0</div>
             <div class="spark" id="sparkOut"></div>
             <div class="foot"><span class="delta down">▼ 8%</span> к среднему</div>
           </div>
           <!-- норма сбережений -->
           <div class="card col-3 stat">
-            <div class="k">Отложено в июле</div>
+            <div class="k" id="capSaved">Отложено в июле</div>
             <div class="v mono" id="ovSaved" data-count="18241" data-suffix=" ₴">0</div>
-            <div class="spark"><div class="track" style="margin-top:14px"><div class="fill" data-w="38" style="width:0;background:var(--gold)"></div></div></div>
-            <div class="foot">норма сбережений <b style="color:var(--ink);margin-left:4px">38%</b></div>
+            <div class="spark"><div class="track" style="margin-top:14px"><div class="fill" id="savedFill" data-w="38" style="width:0;background:var(--gold)"></div></div></div>
+            <div class="foot" id="capSavedFoot">норма сбережений <b style="color:var(--ink);margin-left:4px">38%</b></div>
           </div>
           <!-- к оплате -->
           <div class="card col-3 stat">
             <div class="k">Скоро списания</div>
-            <div class="v mono" data-count="4998" data-suffix=" ₴">0</div>
-            <div class="spark" style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
+            <div class="v mono" id="upTotal" data-count="14299" data-suffix=" ₴">0</div>
+            <div class="spark" id="upList" style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
               <div class="pay-mini"><span>Аренда · 1 авг</span><b class="mono">14 000&nbsp;₴</b></div>
               <div class="pay-mini"><span>Netflix · 28 июл</span><b class="mono">299&nbsp;₴</b></div>
             </div>
@@ -521,9 +530,9 @@
       <!-- ============ БЮДЖЕТЫ ============ -->
       <section class="view" data-view="budgets" hidden>
         <div class="grid">
-          <div class="card col-4 stat"><div class="k">Лимит на июль</div><div class="v mono" data-count="33000" data-suffix=" ₴">0</div><div class="foot">по 6 категориям</div></div>
+          <div class="card col-4 stat"><div class="k">Лимит на июль</div><div class="v mono" id="budLimit" data-count="33000" data-suffix=" ₴">0</div><div class="foot">по 6 категориям</div></div>
           <div class="card col-4 stat"><div class="k">Уже потрачено</div><div class="v mono" id="budSpent" data-count="29899" data-suffix=" ₴" style="color:var(--expense)">0</div><div class="foot">91% лимита · осталось 9 дней</div></div>
-          <div class="card col-4 stat"><div class="k">Свободно</div><div class="v mono" id="budFree" data-count="3101" data-suffix=" ₴" style="color:var(--income)">0</div><div class="foot">2 категории превышены</div></div>
+          <div class="card col-4 stat"><div class="k">Свободно</div><div class="v mono" id="budFree" data-count="3101" data-suffix=" ₴" style="color:var(--income)">0</div><div class="foot" id="budOverTxt">2 категории превышены</div></div>
           <div class="card col-12">
             <div class="card-h"><h3>Бюджеты по категориям</h3><span class="hint">потрачено из лимита</span></div>
             <div id="budgetsFull"></div>
@@ -539,10 +548,10 @@
       <!-- ============ АНАЛИТИКА ============ -->
       <section class="view" data-view="analytics" hidden>
         <div class="grid">
-          <div class="card col-3"><div class="kpi"><span class="k">Средний доход / мес</span><span class="v mono">42 700 ₴</span></div></div>
-          <div class="card col-3"><div class="kpi"><span class="k">Средний расход / мес</span><span class="v mono">33 200 ₴</span></div></div>
-          <div class="card col-3"><div class="kpi"><span class="k">Норма сбережений</span><span class="v mono" style="color:var(--income)">22%</span></div></div>
-          <div class="card col-3"><div class="kpi"><span class="k">Чистый капитал</span><span class="v mono">177 120 ₴</span></div></div>
+          <div class="card col-3"><div class="kpi"><span class="k">Средний доход / мес</span><span class="v mono" id="kpiAvgIn">42 700 ₴</span></div></div>
+          <div class="card col-3"><div class="kpi"><span class="k">Средний расход / мес</span><span class="v mono" id="kpiAvgOut">33 200 ₴</span></div></div>
+          <div class="card col-3"><div class="kpi"><span class="k">Норма сбережений</span><span class="v mono" id="kpiRate" style="color:var(--income)">22%</span></div></div>
+          <div class="card col-3"><div class="kpi"><span class="k">Чистый капитал</span><span class="v mono" id="kpiNet">177 120 ₴</span></div></div>
 
           <div class="card col-7">
             <div class="card-h"><h3>Рост капитала</h3><span class="hint">чистые активы, 6 мес.</span></div>
@@ -618,60 +627,126 @@
 /* =================================================================
    DATA — демо-данные (все суммы в гривнах, июль 2026)
    ================================================================= */
-const CATS = {
-  food:    {name:'Продукты',       color:'var(--cat-1)', ic:'🛒'},
-  cafe:    {name:'Кафе и рестораны',color:'var(--cat-2)', ic:'🍽️'},
-  transport:{name:'Транспорт',     color:'var(--cat-3)', ic:'🚕'},
-  fun:     {name:'Развлечения',    color:'var(--cat-4)', ic:'🎬'},
-  home:    {name:'Жильё',          color:'var(--cat-5)', ic:'🏠'},
-  other:   {name:'Прочее',         color:'var(--cat-6)', ic:'✨'},
-  income:  {name:'Доход',          color:'var(--income)',ic:'💸'}
+const MONTHS=['Фев','Мар','Апр','Май','Июн','Июл'];
+/* «во все стороны» — три режима одного приложения: личные, семья, бизнес */
+const MODES = {
+  personal:{
+    tab:'Личные', brand:'Копейка · Black', pcLabel:'Основная карта',
+    who:'Алекс', whoSub:'основной профиль', avatar:'А',
+    balEyebrow:'Общий баланс · 3 счёта', capIn:'Доход · июль', capOut:'Расход · июль',
+    capSaved:'Отложено в июле', savedWord:'норма сбережений',
+    cats:{
+      food:{name:'Продукты',color:'var(--cat-1)',ic:'🛒'}, cafe:{name:'Кафе и рестораны',color:'var(--cat-2)',ic:'🍽️'},
+      transport:{name:'Транспорт',color:'var(--cat-3)',ic:'🚕'}, fun:{name:'Развлечения',color:'var(--cat-4)',ic:'🎬'},
+      home:{name:'Жильё',color:'var(--cat-5)',ic:'🏠'}, other:{name:'Прочее',color:'var(--cat-6)',ic:'✨'},
+      income:{name:'Доход',color:'var(--income)',ic:'💸'}},
+    accts:[{name:'Основная карта',bal:42380,color:'var(--brand)',ic:'💳'},{name:'Сбережения',bal:128500,color:'var(--gold)',ic:'🏦'},{name:'Наличные',bal:6240,color:'var(--cat-3)',ic:'💵'}],
+    upcoming:[{t:'Аренда · 1 авг',amt:14000},{t:'Netflix · 28 июл',amt:299}],
+    tx:[
+      {t:'Зарплата',cat:'income',type:'in',amt:38000,d:'2026-07-05',ac:'Основная карта'},
+      {t:'Аренда квартиры',cat:'home',type:'out',amt:14000,d:'2026-07-01',ac:'Основная карта'},
+      {t:'Сільпо',cat:'food',type:'out',amt:1240,d:'2026-07-21',ac:'Основная карта'},
+      {t:'Кофейня «Зерно»',cat:'cafe',type:'out',amt:180,d:'2026-07-22',ac:'Основная карта'},
+      {t:'Uklon',cat:'transport',type:'out',amt:240,d:'2026-07-22',ac:'Основная карта'},
+      {t:'Фриланс-проект',cat:'income',type:'in',amt:9500,d:'2026-07-15',ac:'Основная карта'},
+      {t:'Netflix',cat:'fun',type:'out',amt:299,d:'2026-07-20',ac:'Основная карта'},
+      {t:'АТБ',cat:'food',type:'out',amt:860,d:'2026-07-19',ac:'Наличные'},
+      {t:'Заправка WOG',cat:'transport',type:'out',amt:1800,d:'2026-07-18',ac:'Основная карта'},
+      {t:'Кино «Мультиплекс»',cat:'fun',type:'out',amt:420,d:'2026-07-17',ac:'Основная карта'},
+      {t:'Novus',cat:'food',type:'out',amt:1510,d:'2026-07-16',ac:'Основная карта'},
+      {t:'Steam',cat:'fun',type:'out',amt:780,d:'2026-07-14',ac:'Основная карта'},
+      {t:'Ресторан «Одеса»',cat:'cafe',type:'out',amt:1350,d:'2026-07-13',ac:'Основная карта'},
+      {t:'Аптека',cat:'other',type:'out',amt:540,d:'2026-07-12',ac:'Наличные'},
+      {t:'Zara',cat:'other',type:'out',amt:2300,d:'2026-07-11',ac:'Основная карта'},
+      {t:'Glovo доставка',cat:'cafe',type:'out',amt:620,d:'2026-07-10',ac:'Основная карта'},
+      {t:'Концерт',cat:'fun',type:'out',amt:1200,d:'2026-07-09',ac:'Основная карта'},
+      {t:'Подарок другу',cat:'other',type:'out',amt:1500,d:'2026-07-08',ac:'Наличные'},
+      {t:'Рынок',cat:'food',type:'out',amt:430,d:'2026-07-07',ac:'Наличные'},
+      {t:'Мобильная связь',cat:'other',type:'out',amt:250,d:'2026-07-06',ac:'Основная карта'},
+      {t:'Метро',cat:'transport',type:'out',amt:200,d:'2026-07-04',ac:'Наличные'},
+      {t:'Возврат за билет',cat:'income',type:'in',amt:640,d:'2026-07-03',ac:'Основная карта'},
+      {t:'Кофейня «Зерно»',cat:'cafe',type:'out',amt:180,d:'2026-07-02',ac:'Основная карта'}],
+    budgets:[{cat:'home',limit:14000},{cat:'food',limit:6000},{cat:'other',limit:4000},{cat:'transport',limit:3500},{cat:'cafe',limit:3000},{cat:'fun',limit:2500}],
+    goals:[{name:'Подушка безопасности',target:150000,saved:92000,color:'var(--gold)',ic:'🛡️',eta:'≈ 8 мес.'},{name:'Отпуск в горах',target:45000,saved:28000,color:'var(--cat-5)',ic:'🏔️',eta:'≈ 3 мес.'},{name:'Новый ноутбук',target:55000,saved:41000,color:'var(--cat-3)',ic:'💻',eta:'≈ 2 мес.'}],
+    cfIn:[41200,39800,44500,40100,46300,0], cfOut:[33800,29900,35200,31600,34800,0],
+    nw:[131000,138500,149000,157200,167980,177120]
+  },
+  family:{
+    tab:'Семья', brand:'Копейка · Family', pcLabel:'Общий счёт',
+    who:'Семья Ковальчук', whoSub:'семейный профиль', avatar:'К',
+    balEyebrow:'Общий бюджет · 3 счёта', capIn:'Доходы семьи · июль', capOut:'Расходы · июль',
+    capSaved:'Отложено в июле', savedWord:'норма сбережений',
+    cats:{
+      food:{name:'Продукты',color:'var(--cat-1)',ic:'🛒'}, kids:{name:'Дети',color:'var(--cat-6)',ic:'🧒'},
+      utilities:{name:'Коммуналка',color:'var(--cat-2)',ic:'💡'}, home:{name:'Жильё',color:'var(--cat-5)',ic:'🏠'},
+      transport:{name:'Транспорт',color:'var(--cat-3)',ic:'🚕'}, other:{name:'Прочее',color:'var(--cat-4)',ic:'✨'},
+      income:{name:'Доход',color:'var(--income)',ic:'💸'}},
+    accts:[{name:'Общий счёт',bal:64200,color:'var(--brand)',ic:'👛'},{name:'Карта Алекс',bal:18300,color:'var(--cat-5)',ic:'💳'},{name:'Карта Ника',bal:12900,color:'var(--cat-6)',ic:'💳'}],
+    upcoming:[{t:'Аренда · 1 авг',amt:16000},{t:'Коммуналка · 5 авг',amt:3200}],
+    tx:[
+      {t:'Зарплата · Алекс',cat:'income',type:'in',amt:42000,d:'2026-07-05',ac:'Общий счёт'},
+      {t:'Зарплата · Ника',cat:'income',type:'in',amt:31000,d:'2026-07-07',ac:'Общий счёт'},
+      {t:'Аренда квартиры',cat:'home',type:'out',amt:16000,d:'2026-07-01',ac:'Общий счёт'},
+      {t:'Сільпо · большая закупка',cat:'food',type:'out',amt:2400,d:'2026-07-20',ac:'Общий счёт'},
+      {t:'АТБ',cat:'food',type:'out',amt:1800,d:'2026-07-14',ac:'Карта Ника'},
+      {t:'Садик · оплата',cat:'kids',type:'out',amt:4500,d:'2026-07-03',ac:'Общий счёт'},
+      {t:'Одежда детям',cat:'kids',type:'out',amt:1900,d:'2026-07-16',ac:'Карта Ника'},
+      {t:'Коммуналка',cat:'utilities',type:'out',amt:3200,d:'2026-07-10',ac:'Общий счёт'},
+      {t:'Интернет + моб. связь',cat:'utilities',type:'out',amt:700,d:'2026-07-06',ac:'Общий счёт'},
+      {t:'Такси',cat:'transport',type:'out',amt:1500,d:'2026-07-18',ac:'Карта Алекс'},
+      {t:'Заправка',cat:'transport',type:'out',amt:2000,d:'2026-07-12',ac:'Карта Алекс'},
+      {t:'Аптека и врач',cat:'other',type:'out',amt:1600,d:'2026-07-15',ac:'Общий счёт'},
+      {t:'Кафе всей семьёй',cat:'other',type:'out',amt:1200,d:'2026-07-21',ac:'Карта Алекс'},
+      {t:'Подарок',cat:'other',type:'out',amt:1400,d:'2026-07-09',ac:'Карта Ника'}],
+    budgets:[{cat:'home',limit:16000},{cat:'kids',limit:7000},{cat:'food',limit:5000},{cat:'utilities',limit:4000},{cat:'transport',limit:4000},{cat:'other',limit:4000}],
+    goals:[{name:'Отпуск всей семьёй',target:60000,saved:22000,color:'var(--gold)',ic:'✈️',eta:'≈ 5 мес.'},{name:'Ремонт кухни',target:120000,saved:68000,color:'var(--cat-5)',ic:'🔧',eta:'≈ 6 мес.'},{name:'На учёбу детям',target:300000,saved:95000,color:'var(--cat-3)',ic:'🎓',eta:'долгосрочно'}],
+    cfIn:[68000,71000,69500,73500,70000,0], cfOut:[39000,42000,37500,40000,41000,0],
+    nw:[70000,76000,82000,86000,90000,95400]
+  },
+  business:{
+    tab:'Бизнес', brand:'Зерно · Бизнес', pcLabel:'Расчётный счёт',
+    who:'Кофейня «Зерно»', whoSub:'бизнес-профиль', avatar:'З',
+    balEyebrow:'Деньги на счетах · 3 счёта', capIn:'Выручка · июль', capOut:'Расходы · июль',
+    capSaved:'Прибыль в июле', savedWord:'маржа',
+    cats:{
+      rent:{name:'Аренда',color:'var(--cat-5)',ic:'🏢'}, salary:{name:'Зарплаты',color:'var(--cat-3)',ic:'👥'},
+      supply:{name:'Закупка',color:'var(--cat-1)',ic:'📦'}, marketing:{name:'Маркетинг',color:'var(--cat-6)',ic:'📣'},
+      tax:{name:'Налоги ФОП',color:'var(--cat-2)',ic:'🧾'}, utilities:{name:'Операционка',color:'var(--cat-4)',ic:'💡'},
+      income:{name:'Выручка',color:'var(--income)',ic:'💰'}},
+    accts:[{name:'Расчётный счёт',bal:210400,color:'var(--brand)',ic:'🏦'},{name:'Наличная касса',bal:14600,color:'var(--cat-3)',ic:'💵'},{name:'Резерв на налоги',bal:38000,color:'var(--gold)',ic:'🧾'}],
+    upcoming:[{t:'Аренда · 1 авг',amt:28000},{t:'Зарплаты · 5 авг',amt:54000}],
+    tx:[
+      {t:'Выручка · неделя 1',cat:'income',type:'in',amt:62000,d:'2026-07-07',ac:'Расчётный счёт'},
+      {t:'Выручка · неделя 2',cat:'income',type:'in',amt:58000,d:'2026-07-14',ac:'Расчётный счёт'},
+      {t:'Выручка · неделя 3',cat:'income',type:'in',amt:66000,d:'2026-07-21',ac:'Расчётный счёт'},
+      {t:'Выручка · сегодня',cat:'income',type:'in',amt:9000,d:'2026-07-22',ac:'Наличная касса'},
+      {t:'Аренда помещения',cat:'rent',type:'out',amt:28000,d:'2026-07-01',ac:'Расчётный счёт'},
+      {t:'Зарплаты бариста',cat:'salary',type:'out',amt:54000,d:'2026-07-05',ac:'Расчётный счёт'},
+      {t:'Закупка зерна',cat:'supply',type:'out',amt:18000,d:'2026-07-08',ac:'Расчётный счёт'},
+      {t:'Молоко и сиропы',cat:'supply',type:'out',amt:9500,d:'2026-07-15',ac:'Расчётный счёт'},
+      {t:'Стаканы и упаковка',cat:'supply',type:'out',amt:6200,d:'2026-07-11',ac:'Расчётный счёт'},
+      {t:'Реклама в Instagram',cat:'marketing',type:'out',amt:7000,d:'2026-07-09',ac:'Расчётный счёт'},
+      {t:'Полиграфия и акции',cat:'marketing',type:'out',amt:3000,d:'2026-07-17',ac:'Расчётный счёт'},
+      {t:'Налоги ФОП (ЕП + ЕСВ)',cat:'tax',type:'out',amt:8600,d:'2026-07-19',ac:'Резерв на налоги'},
+      {t:'Коммуналка',cat:'utilities',type:'out',amt:5400,d:'2026-07-10',ac:'Расчётный счёт'},
+      {t:'Эквайринг и банк',cat:'utilities',type:'out',amt:2100,d:'2026-07-20',ac:'Расчётный счёт'}],
+    budgets:[{cat:'salary',limit:54000},{cat:'supply',limit:35000},{cat:'rent',limit:28000},{cat:'marketing',limit:9000},{cat:'tax',limit:9000},{cat:'utilities',limit:7000}],
+    goals:[{name:'Резерв на налоги',target:40000,saved:38000,color:'var(--gold)',ic:'🧾',eta:'≈ 1 мес.'},{name:'Новая кофемашина',target:180000,saved:76000,color:'var(--cat-3)',ic:'☕',eta:'≈ 5 мес.'},{name:'Вторая точка',target:500000,saved:120000,color:'var(--cat-5)',ic:'🏪',eta:'долгосрочно'}],
+    cfIn:[172000,165000,188000,179000,196000,0], cfOut:[138000,132000,151000,144000,150000,0],
+    nw:[180000,205000,228000,242000,255000,263000]
+  }
 };
-const ACCTS = [
-  {name:'Основная карта', bal:42380,  color:'var(--brand)', ic:'💳'},
-  {name:'Сбережения',     bal:128500, color:'var(--gold)',  ic:'🏦'},
-  {name:'Наличные',       bal:6240,   color:'var(--cat-3)', ic:'💵'}
-];
-let TX = [
-  {t:'Зарплата', cat:'income', type:'in', amt:38000, d:'2026-07-05', ac:'Основная карта'},
-  {t:'Аренда квартиры', cat:'home', type:'out', amt:14000, d:'2026-07-01', ac:'Основная карта'},
-  {t:'Сільпо', cat:'food', type:'out', amt:1240, d:'2026-07-21', ac:'Основная карта'},
-  {t:'Кофейня «Зерно»', cat:'cafe', type:'out', amt:180, d:'2026-07-22', ac:'Основная карта'},
-  {t:'Uklon', cat:'transport', type:'out', amt:240, d:'2026-07-22', ac:'Основная карта'},
-  {t:'Фриланс-проект', cat:'income', type:'in', amt:9500, d:'2026-07-15', ac:'Основная карта'},
-  {t:'Netflix', cat:'fun', type:'out', amt:299, d:'2026-07-20', ac:'Основная карта'},
-  {t:'АТБ', cat:'food', type:'out', amt:860, d:'2026-07-19', ac:'Наличные'},
-  {t:'Заправка WOG', cat:'transport', type:'out', amt:1800, d:'2026-07-18', ac:'Основная карта'},
-  {t:'Кино «Мультиплекс»', cat:'fun', type:'out', amt:420, d:'2026-07-17', ac:'Основная карта'},
-  {t:'Novus', cat:'food', type:'out', amt:1510, d:'2026-07-16', ac:'Основная карта'},
-  {t:'Steam', cat:'fun', type:'out', amt:780, d:'2026-07-14', ac:'Основная карта'},
-  {t:'Ресторан «Одеса»', cat:'cafe', type:'out', amt:1350, d:'2026-07-13', ac:'Основная карта'},
-  {t:'Аптека', cat:'other', type:'out', amt:540, d:'2026-07-12', ac:'Наличные'},
-  {t:'Zara', cat:'other', type:'out', amt:2300, d:'2026-07-11', ac:'Основная карта'},
-  {t:'Glovo доставка', cat:'cafe', type:'out', amt:620, d:'2026-07-10', ac:'Основная карта'},
-  {t:'Концерт', cat:'fun', type:'out', amt:1200, d:'2026-07-09', ac:'Основная карта'},
-  {t:'Подарок другу', cat:'other', type:'out', amt:1500, d:'2026-07-08', ac:'Наличные'},
-  {t:'Рынок', cat:'food', type:'out', amt:430, d:'2026-07-07', ac:'Наличные'},
-  {t:'Мобильная связь', cat:'other', type:'out', amt:250, d:'2026-07-06', ac:'Основная карта'},
-  {t:'Метро', cat:'transport', type:'out', amt:200, d:'2026-07-04', ac:'Наличные'},
-  {t:'Возврат за билет', cat:'income', type:'in', amt:640, d:'2026-07-03', ac:'Основная карта'},
-  {t:'Кофейня «Зерно»', cat:'cafe', type:'out', amt:180, d:'2026-07-02', ac:'Основная карта'}
-];
-const BUDGETS = [
-  {cat:'home', limit:14000}, {cat:'food', limit:6000}, {cat:'other', limit:4000},
-  {cat:'transport', limit:3500}, {cat:'cafe', limit:3000}, {cat:'fun', limit:2500}
-];
-const GOALS = [
-  {name:'Подушка безопасности', target:150000, saved:92000, color:'var(--gold)', ic:'🛡️', eta:'≈ 8 мес.'},
-  {name:'Отпуск в горах',       target:45000,  saved:28000, color:'var(--cat-5)', ic:'🏔️', eta:'≈ 3 мес.'},
-  {name:'Новый ноутбук',        target:55000,  saved:41000, color:'var(--cat-3)', ic:'💻', eta:'≈ 2 мес.'}
-];
-const CASHFLOW = {
-  labels:['Фев','Мар','Апр','Май','Июн','Июл'],
-  income: [41200,39800,44500,40100,46300, 0],
-  expense:[33800,29900,35200,31600,34800, 0]
-};
-const NETWORTH = {labels:['Фев','Мар','Апр','Май','Июн','Июл'], v:[131000,138500,149000,157200,167980, 177120]};
+let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH;
+function loadMode(m){
+  MODE=m; const d=MODES[m];
+  CATS=d.cats;
+  ACCTS=d.accts.map(a=>({...a}));
+  TX=d.tx.map(t=>({...t}));
+  BUDGETS=d.budgets.map(b=>({...b}));
+  GOALS=d.goals.map(g=>({...g}));
+  CASHFLOW={labels:MONTHS.slice(), income:d.cfIn.slice(), expense:d.cfOut.slice()};
+  NETWORTH={labels:MONTHS.slice(), v:d.nw.slice()};
+}
 
 /* =================================================================
    ХЕЛПЕРЫ
@@ -922,7 +997,8 @@ function go(view){
   $$('.view').forEach(v=>v.hidden=v.dataset.view!==view);
   $$('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
   $$('.bottomnav button').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
-  $('#pageTitle').textContent=TITLES[view][0]; $('#pageSub').textContent=TITLES[view][1];
+  $('#pageTitle').textContent=TITLES[view][0];
+  $('#pageSub').textContent = view==='tx' ? (TX.length+' '+plural(TX.length,'операция','операции','операций')+' в июле') : TITLES[view][1];
   document.querySelector('.content').scrollIntoView({block:'start'});
   window.scrollTo(0,0);
   if(!animated[view]){animated[view]=true; runAnim(view);}
@@ -971,18 +1047,54 @@ function saveTx(){
   animated={}; refreshAll(); go('overview');
   toast((mType==='in'?'Доход':'Расход')+' добавлен: '+money(amt));
 }
+function plural(n,one,few,many){const m=n%100,d=n%10;if(m>=11&&m<=14)return many;if(d===1)return one;if(d>=2&&d<=4)return few;return many;}
+function setLabels(){
+  const d=MODES[MODE], T=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  T('#balEyebrow',d.balEyebrow); T('#capSaved',d.capSaved); T('#pcLabel',d.pcLabel); T('#profAvatar',d.avatar);
+  $('#capIn').innerHTML='<span class="dot" style="background:var(--income)"></span>'+d.capIn;
+  $('#capOut').innerHTML='<span class="dot" style="background:var(--expense)"></span>'+d.capOut;
+  $('#pcBrand').innerHTML='<span class="chip"></span>'+d.brand;
+  $('#profWho').innerHTML=d.who+'<small>'+d.whoSub+'</small>';
+  $('#upList').innerHTML=d.upcoming.map(u=>`<div class="pay-mini"><span>${u.t}</span><b class="mono">${money(u.amt)}</b></div>`).join('');
+  $('#upTotal').dataset.count=d.upcoming.reduce((a,b)=>a+b.amt,0);
+  $$('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
+}
 function setComputedCounts(){
   const inc=monthIncome(), exp=monthExpense(), bal=ACCTS.reduce((a,b)=>a+b.bal,0);
-  const set=(id,v)=>{const el=$(id); if(el)el.dataset.count=v;};
-  set('#ovIncome',inc); set('#ovExpense',exp); set('#ovSaved',inc-exp);
-  set('#budSpent',exp); set('#budFree',33000-exp);
+  const saved=inc-exp, rate=inc?Math.round(saved/inc*100):0;
+  CASHFLOW.income[5]=inc; CASHFLOW.expense[5]=exp;
+  const set=(id,v)=>{const el=$(id);if(el)el.dataset.count=v;};
+  set('#ovIncome',inc); set('#ovExpense',exp); set('#ovSaved',saved);
   const big=$('.hero-bal .big'); if(big)big.dataset.count=bal;
+  const foot=$('#capSavedFoot'); if(foot)foot.innerHTML=MODES[MODE].savedWord+` <b style="color:var(--ink);margin-left:4px">${rate}%</b>`;
+  const sf=$('#savedFill'); if(sf)sf.dataset.w=Math.max(0,Math.min(rate,100));
+  // бюджеты — заголовок
+  const limit=BUDGETS.reduce((a,b)=>a+b.limit,0), spend=catSpend();
+  const over=BUDGETS.filter(b=>(spend[b.cat]||0)>b.limit).length;
+  set('#budLimit',limit); set('#budSpent',exp); set('#budFree',Math.max(limit-exp,0));
+  const bo=$('#budOverTxt'); if(bo)bo.textContent=over?`${over} ${plural(over,'категория превышена','категории превышены','категорий превышено')}`:'всё в пределах лимитов';
+  const bb=$('#budBadge'); if(bb){bb.textContent=over;bb.style.display=over?'':'none';}
+  // KPI аналитики
+  const avgIn=Math.round(CASHFLOW.income.reduce((a,b)=>a+b,0)/6), avgOut=Math.round(CASHFLOW.expense.reduce((a,b)=>a+b,0)/6);
+  const kRate=avgIn?Math.round((avgIn-avgOut)/avgIn*100):0;
+  const KT=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  KT('#kpiAvgIn',money(avgIn)); KT('#kpiAvgOut',money(avgOut)); KT('#kpiRate',kRate+'%'); KT('#kpiNet',money(bal));
 }
 function refreshAll(){
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
+  spark($('#sparkIn'),CASHFLOW.income,'var(--income)'); spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   setComputedCounts();
   $('.paycard .pc-bal').textContent=money(ACCTS[0].bal);
+}
+function setMode(m){
+  if(m===MODE)return;
+  loadMode(m); animated={};
+  state.txFilter='all'; state.txCat='all'; state.txQuery='';
+  const srch=$('#txSearch'); if(srch)srch.value='';
+  $$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x.dataset.f==='all'));
+  setLabels(); fillCatSelects(); refreshAll(); go(state.view);
+  toast('Режим: '+MODES[m].tab);
 }
 
 /* =================================================================
@@ -1004,6 +1116,7 @@ function initTheme(){
 function bind(){
   $$('.navlink,[data-view]').forEach(el=>{if(el.dataset.view)el.addEventListener('click',()=>go(el.dataset.view));});
   $$('[data-goto]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.goto)));
+  $$('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
   $('#addBtn').onclick=openModal; $('#fab').onclick=openModal;
   $('#mCancel').onclick=closeModal; $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   $('#mSave').onclick=saveTx;
@@ -1015,12 +1128,13 @@ function bind(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 }
 function init(){
-  initTheme();fillCatSelects();bind();
+  loadMode('personal');
+  initTheme();setLabels();fillCatSelects();bind();
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   setComputedCounts();
-  spark($('#sparkIn'),[38,40,37,44,41,48],'var(--income)');
-  spark($('#sparkOut'),[34,30,35,32,35,30],'var(--expense)');
+  spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
+  spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   animated.overview=true; runAnim('overview');
 }
 init();
