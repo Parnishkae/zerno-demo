@@ -459,6 +459,60 @@
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
+
+  /* ===== ИИ-СОВЕТНИК ===== */
+  .adv-wrap{display:flex;flex-direction:column;height:calc(100dvh - 150px);min-height:440px;
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+  .adv-scroll{flex:1;overflow-y:auto;padding:18px 16px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+  .adv-msg{max-width:88%;display:flex;gap:9px;align-items:flex-start}
+  .adv-msg.me{align-self:flex-end;flex-direction:row-reverse}
+  .adv-ava{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;font-size:15px;
+    background:linear-gradient(135deg,var(--brand),var(--gold));color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+  .adv-msg.me .adv-ava{background:var(--surface-3);color:var(--muted)}
+  .adv-bub{padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.5;background:var(--surface-2);
+    border:1px solid var(--line);border-top-left-radius:5px;color:var(--text)}
+  .adv-msg.me .adv-bub{background:color-mix(in srgb,var(--brand) 15%,var(--surface-2));border-top-left-radius:15px;border-top-right-radius:5px}
+  .adv-bub b{font-weight:700} .adv-bub h4{font-size:14px;font-weight:750;margin:2px 0 5px} .adv-bub p{margin:0 0 7px} .adv-bub p:last-child{margin:0}
+  .adv-bub ul{margin:4px 0 6px;padding-left:2px;list-style:none;display:flex;flex-direction:column;gap:5px}
+  .adv-bub li{position:relative;padding-left:18px} .adv-bub li:before{content:'';position:absolute;left:3px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--brand)}
+  .adv-bub .num{color:var(--income);font-weight:750;font-variant-numeric:tabular-nums}
+  .adv-bub .src{margin-top:8px;font-size:11.5px;color:var(--faint);display:flex;align-items:center;gap:5px;border-top:1px dashed var(--line);padding-top:7px}
+  .adv-bub.typing{display:flex;gap:5px;padding:14px} .adv-bub.typing i{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:blink 1.2s infinite both}
+  .adv-bub.typing i:nth-child(2){animation-delay:.2s} .adv-bub.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+  .adv-chips{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;border-top:1px solid var(--line);background:var(--surface)}
+  .adv-chip{flex:0 0 auto;padding:8px 13px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);
+    font-size:12.5px;color:var(--text);cursor:pointer;white-space:nowrap;transition:.15s}
+  .adv-chip:hover{border-color:var(--brand);color:var(--brand)}
+  .adv-input{display:flex;gap:9px;padding:12px 14px;border-top:1px solid var(--line);background:var(--surface);align-items:flex-end}
+  .adv-input textarea{flex:1;resize:none;max-height:120px;min-height:44px;padding:11px 14px;border-radius:14px;border:1.5px solid var(--line);
+    background:var(--surface-2);color:var(--text);font:inherit;font-size:15px;line-height:1.4;outline:none}
+  .adv-input textarea:focus{border-color:var(--brand)}
+  .adv-send{flex:0 0 auto;width:44px;height:44px;border-radius:13px;border:none;background:var(--brand);color:#fff;cursor:pointer;
+    display:grid;place-items:center;transition:.15s} .adv-send:hover{filter:brightness(1.08)} .adv-send:disabled{opacity:.45;cursor:default}
+  .adv-mode{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:650;padding:3px 9px;border-radius:999px}
+  .adv-mode.off{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+  .adv-mode.on{background:color-mix(in srgb,var(--income) 16%,transparent);color:var(--income)}
+
+  /* ===== ПОДСКАЗКИ / ИНСАЙТЫ ===== */
+  .insight{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:var(--surface-2);
+    border:1px solid var(--line);border-left:3px solid var(--brand)}
+  .insight+.insight{margin-top:9px}
+  .insight.warn{border-left-color:var(--expense)} .insight.good{border-left-color:var(--income)} .insight.gold{border-left-color:var(--gold)}
+  .insight .ii{font-size:20px;line-height:1;flex:0 0 auto;margin-top:1px}
+  .insight .it{flex:1;min-width:0} .insight .it b{display:block;font-size:13.5px;margin-bottom:2px}
+  .insight .it small{font-size:12.5px;color:var(--muted);line-height:1.45;display:block}
+  .insight .ib{flex:0 0 auto;align-self:center;font-size:12px;font-weight:650;color:var(--brand);background:none;border:none;cursor:pointer;white-space:nowrap}
+  .adv-launch{display:flex;align-items:center;gap:13px;cursor:pointer}
+  .adv-launch .al-ic{width:44px;height:44px;flex:0 0 44px;border-radius:13px;display:grid;place-items:center;font-size:22px;
+    background:linear-gradient(135deg,var(--brand),var(--gold));box-shadow:0 3px 12px color-mix(in srgb,var(--brand) 40%,transparent)}
+  .adv-launch .al-t{flex:1;min-width:0} .adv-launch .al-t b{display:block;font-size:15px} .adv-launch .al-t small{color:var(--muted);font-size:12.5px}
+  .bell-wrap{position:relative}
+  .bell-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--expense);
+    color:#fff;font-size:10px;font-weight:750;display:grid;place-items:center;line-height:1;box-shadow:0 0 0 2px var(--surface)}
+  .kb-topic{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:12px;cursor:pointer;transition:.15s}
+  .kb-topic:hover{background:var(--surface-2)} .kb-topic .kt-ic{font-size:19px} .kb-topic .kt-t{flex:1} .kb-topic .kt-t b{font-size:13.5px;display:block}
+  .kb-topic .kt-t small{font-size:11.5px;color:var(--faint)} .kb-topic .chev{color:var(--faint)}
 </style>
 </head>
 <body>
@@ -527,6 +581,13 @@
         <button class="pill hide-sm"><span class="month-pill-txt">Июль&nbsp;2026</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
         </button>
+        <button class="icon-btn bell-wrap" id="bellBtn" aria-label="Подсказки">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="bell-badge" id="bellBadge" hidden>0</span>
+        </button>
+        <button class="icon-btn" id="advBtn" aria-label="ИИ-советник" title="ИИ-советник">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3l1.6 3.9L17.5 8l-3.9 1.1L12 13l-1.6-3.9L6.5 8l3.9-1.1zM5 14l.8 2 2 .8-2 .8L5 20l-.8-2.4-2-.8 2-.8zM18 13l1 2.4 2.4 1-2.4 1-1 2.4-1-2.4-2.4-1 2.4-1z"/></svg>
+        </button>
         <button class="icon-btn" id="themeBtn" aria-label="Сменить тему">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
         </button>
@@ -545,6 +606,19 @@
       <!-- ============ ОБЗОР ============ -->
       <section class="view" data-view="overview">
         <div class="grid">
+          <div class="card col-8 adv-launch" id="advLaunch" data-goto="advisor">
+            <div class="al-ic">🤖</div>
+            <div class="al-t"><b>Спросить советника</b><small id="advTeaser">Помогу с бюджетом, долгами и накоплениями</small></div>
+            <span class="chev" style="color:var(--faint);font-size:20px">›</span>
+          </div>
+          <div class="card col-4 stat" id="tipCard" style="cursor:pointer">
+            <div class="k">💡 Совет дня</div>
+            <div class="foot" id="tipToday" style="color:var(--text);font-size:13px;line-height:1.45;margin-top:6px">—</div>
+          </div>
+          <div class="card col-12" id="insightCard" hidden>
+            <div class="card-h"><h3>🔔 Подсказки</h3><button class="link" id="insightMore">Все</button></div>
+            <div id="insightMini"></div>
+          </div>
           <!-- баланс -->
           <div class="card pad-lg col-8 hero-bal">
             <div class="eyebrow" id="balEyebrow">Общий баланс · 3 счёта</div>
@@ -762,6 +836,33 @@
         </div>
       </section>
 
+      <!-- ============ ИИ-СОВЕТНИК ============ -->
+      <section class="view" data-view="advisor" hidden>
+        <div class="grid">
+          <div class="card col-12" style="padding:0;overflow:hidden">
+            <div class="card-h" style="padding:14px 16px 12px">
+              <h3 style="display:flex;align-items:center;gap:8px">🤖 Финансовый советник
+                <span class="adv-mode off" id="advMode">офлайн</span></h3>
+              <button class="link" id="advClear">Очистить</button>
+            </div>
+            <div class="adv-wrap">
+              <div class="adv-scroll" id="advScroll"></div>
+              <div class="adv-chips" id="advChips"></div>
+              <div class="adv-input">
+                <textarea id="advText" rows="1" placeholder="Спросите про бюджет, долги, накопления…" autocomplete="off"></textarea>
+                <button class="adv-send" id="advSend" aria-label="Отправить">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-6 16-2.5-6z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card col-12">
+            <div class="card-h"><h3>База знаний</h3><span class="hint" id="kbCount"></span></div>
+            <div id="kbList"></div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 
@@ -817,6 +918,7 @@
       <div class="msub">Профиль: <b id="setMode">Личные</b></div>
       <button class="setrow" id="openAccounts"><span>💳&nbsp;&nbsp;Мои счета и баланс</span><span class="chev">›</span></button>
       <button class="setrow" id="openMono"><span>🏦&nbsp;&nbsp;Подключить Monobank</span><span class="chev">›</span></button>
+      <button class="setrow" id="openAI"><span>🤖&nbsp;&nbsp;Умный ИИ (свой ключ)</span><span class="chev" id="aiStatusChev">›</span></button>
       <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
       <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
       <div class="modal-actions"><button class="btn-cancel" id="setClose" style="flex:1;justify-content:center">Закрыть</button></div>
@@ -859,12 +961,42 @@
   <div class="overlay" id="moresheet" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-label="Ещё">
       <h2>Ещё</h2>
+      <button class="setrow" data-more-go="advisor"><span>🤖&nbsp;&nbsp;ИИ-советник</span><span class="chev">›</span></button>
+      <button class="setrow" id="moreInsights"><span>🔔&nbsp;&nbsp;Подсказки</span><span class="chev">›</span></button>
       <button class="setrow" data-more-go="budgets"><span>◔&nbsp;&nbsp;Бюджеты</span><span class="chev">›</span></button>
       <button class="setrow" data-more-go="goals"><span>◎&nbsp;&nbsp;Цели</span><span class="chev">›</span></button>
       <button class="setrow" data-more-go="invest"><span>📈&nbsp;&nbsp;Инвестиции</span><span class="chev">›</span></button>
       <button class="setrow" data-more-go="analytics"><span>📊&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
       <button class="setrow" id="moreSettings"><span>⚙️&nbsp;&nbsp;Настройки</span><span class="chev">›</span></button>
       <div class="modal-actions"><button class="btn-cancel" id="moreClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== УМНЫЙ ИИ (КЛЮЧ) ===== -->
+  <div class="overlay" id="aisheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Умный ИИ">
+      <h2>Умный ИИ-режим</h2>
+      <div class="msub">По умолчанию советник работает <b>офлайн</b> на встроенной базе знаний. Чтобы включить полноценный разговорный ИИ, вставьте свой API-ключ <b>Anthropic (Claude)</b> или <b>OpenAI</b>. Ключ хранится только на вашем устройстве и отправляется напрямую провайдеру.</div>
+      <div class="field">
+        <label>API-ключ</label>
+        <input id="aiKey" type="password" inputmode="text" placeholder="sk-ant-… или sk-…" autocomplete="off" autocapitalize="none" spellcheck="false">
+      </div>
+      <div id="aiStatus" class="msub" style="min-height:20px;color:var(--muted)"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="aiClear">Удалить ключ</button>
+        <button class="btn-primary" id="aiSave">Сохранить</button>
+      </div>
+      <div class="msub" style="margin-top:12px;font-size:11.5px;line-height:1.5">🔒 Ключ не покидает устройство и не отправляется нам. Умный режим требует интернета. Ключ Anthropic — console.anthropic.com, OpenAI — platform.openai.com.</div>
+    </div>
+  </div>
+
+  <!-- ===== ПОДСКАЗКИ ===== -->
+  <div class="overlay" id="insightsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Подсказки">
+      <h2>🔔 Подсказки</h2>
+      <div class="msub">Персональные наблюдения по вашим финансам за июль.</div>
+      <div id="insightFull"></div>
+      <div class="modal-actions"><button class="btn-cancel" id="insightClose" style="flex:1;justify-content:center">Закрыть</button></div>
     </div>
   </div>
 
@@ -1385,7 +1517,8 @@ const state={view:'overview',txFilter:'all',txCat:'all',txQuery:'',txAcct:'all'}
 const TITLES={overview:['Обзор','Вторник, 22 июля 2026'],tx:['Операции','23 операции в июле'],
   budgets:['Бюджеты','Июль 2026 · 91% лимита'],goals:['Цели','3 активные цели'],analytics:['Аналитика','Июль 2026'],
   plans:['Планы','платежи, долги и рассрочки'],scratch:['Черновик','быстрый расчёт «на салфетке»'],
-  invest:['Инвестиции','портфель и доходность']};
+  invest:['Инвестиции','портфель и доходность'],
+  advisor:['Советник','ваш финансовый ИИ-помощник']};
 let animated={};
 
 function go(view){
@@ -1393,7 +1526,7 @@ function go(view){
   $$('.view').forEach(v=>v.hidden=v.dataset.view!==view);
   $$('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
   $$('.bottomnav button').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
-  $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics','invest'].includes(view)));
+  $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics','invest','advisor'].includes(view)));
   $('#pageTitle').textContent=TITLES[view][0];
   $('#pageSub').textContent = view==='tx' ? (TX.length+' '+plural(TX.length,'операция','операции','операций')+' в июле') : TITLES[view][1];
   document.querySelector('.content').scrollIntoView({block:'start'});
@@ -1408,6 +1541,7 @@ function runAnim(view){
   if(view==='plans'){renderPlans();renderDebts();}
   if(view==='scratch'){renderScratch();}
   if(view==='invest'){renderInvest();}
+  if(view==='advisor'){ const sc=$('#advScroll'); if(sc)sc.scrollTop=sc.scrollHeight; const ta=$('#advText'); if(ta&&!('ontouchstart'in window))setTimeout(()=>ta.focus(),120); }
 }
 function countUp(scope=document){
   $$('[data-count]',scope).forEach(el=>{
@@ -1504,6 +1638,7 @@ function refreshAll(){
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   renderInvest();
   setComputedCounts();
+  refreshAI();
   $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
 }
 function setMode(m){
@@ -1533,7 +1668,7 @@ function initTheme(){
   };
 }
 function bind(){
-  $$('.navlink,[data-view]').forEach(el=>{if(el.dataset.view)el.addEventListener('click',()=>go(el.dataset.view));});
+  $$('button[data-view]').forEach(el=>{if(el.dataset.view)el.addEventListener('click',()=>go(el.dataset.view));});
   $$('[data-goto]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.goto)));
   $$('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
   $('#addBtn').onclick=openModal; $('#fab').onclick=openModal;
@@ -1549,12 +1684,13 @@ function bind(){
   bindSheets();
   bindPlansScratch();
   bindDeep();
+  bindAI();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -1714,6 +1850,7 @@ function init(){
   $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
+  initAI();
   animated.overview=true; runAnim('overview');
 }
 /* =================================================================
@@ -2018,6 +2155,340 @@ function bindDeep(){
   const ovc=$('#ovInvestCard'); if(ovc)ovc.onclick=()=>go('invest');
 }
 if('serviceWorker' in navigator){try{addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}}
+/* =================================================================
+   ИИ-СОВЕТНИК · БАЗА ЗНАНИЙ · ПОДСКАЗКИ
+   ================================================================= */
+const KB=[
+ {id:'cushion',ic:'🛡️',cat:'Защита',title:'Финансовая подушка безопасности',tags:['подушка','запас','резерв','безопасност','сбереж','форс-мажор','потеря работы'],
+  body:['Подушка — это деньги на 3–6 месяцев ваших обычных расходов, отложенные на случай потери дохода, болезни или срочного ремонта.','Держать её нужно там, откуда можно быстро забрать без потерь: карта с процентом на остаток или короткий депозит с досрочным снятием — не в акциях и не в крипте.'],
+  tips:['Посчитайте месячные расходы и умножьте на 3 — это минимальная цель.','Откладывайте фиксированный процент с каждого дохода автоматически.','Пополняйте подушку раньше, чем инвестируете.']},
+ {id:'r503020',ic:'⚖️',cat:'Бюджет',title:'Правило 50/30/20',tags:['50/30/20','правило','распределение','бюджет','сколько тратить'],
+  body:['Простая схема распределения дохода после налогов: 50% — на обязательное (жильё, еда, транспорт, связь), 30% — на желания (кафе, развлечения, покупки), 20% — на накопления и досрочное погашение долгов.','Это ориентир, а не закон: подстраивайте под свою жизнь, но старайтесь не раздувать блок «желания».'],
+  tips:['Сначала переведите 20% в накопления, потом живите на остальное.','Если обязательное больше 55% — ищите, что можно снизить (аренда, подписки).']},
+ {id:'budget',ic:'📊',cat:'Бюджет',title:'Как составить рабочий бюджет',tags:['бюджет','планировать','лимит','категори','учёт','контроль'],
+  body:['Бюджет — это план, куда пойдут деньги, до того как они потрачены. Начните с трёх шагов: посчитайте доход, выпишите обязательные платежи, задайте лимиты по категориям.','Раз в неделю сверяйтесь: сколько уже потрачено против лимита. Так перерасход виден заранее, а не в конце месяца.'],
+  tips:['Ставьте лимиты по 4–6 главным категориям, а не по 20 мелким.','Заложите строку «непредвиденное» — она всегда случается.','Отдельно планируйте нерегулярные траты (страховка, подарки, ремонт).']},
+ {id:'debt',ic:'🏔️',cat:'Долги',title:'Как гасить долги: лавина и снежный ком',tags:['долг','кредит','рассрочк','погас','лавина','снежный ком','переплата'],
+  body:['Есть две стратегии. «Лавина»: гасите сначала долг с самой высокой ставкой — так меньше переплата. «Снежный ком»: гасите сначала самый маленький остаток — быстрее закрываете счета и получаете мотивацию.','Правило одно: по всем долгам платите минимум, а весь свободный остаток бросайте в один выбранный долг, пока не закроете, затем переходите к следующему.'],
+  tips:['Не берите новые рассрочки, пока гасите текущие.','Даже +500 ₴ сверх минимума заметно сокращают срок и переплату.','Дорогие кредитки и микрозаймы гасите в первую очередь.']},
+ {id:'save',ic:'🐷',cat:'Накопления',title:'Как откладывать больше',tags:['отклад','накопить','сбереж','копить','норма сбережений'],
+  body:['Главный приём — «сначала заплати себе»: откладывайте в день зарплаты, а не то, что останется в конце месяца. Автоперевод на отдельный счёт делает это без усилий.','Норма сбережений (доля отложенного от дохода) важнее размера дохода: 20% — хороший ориентир, 10% — минимум, с которого стоит начать.'],
+  tips:['Настройте автоперевод на накопительный счёт в день зарплаты.','Повышайте процент на 1–2 пункта каждые пару месяцев.','Любую прибавку/премию делите: часть в накопления сразу.']},
+ {id:'invest',ic:'📈',cat:'Инвестиции',title:'Основы инвестирования',tags:['инвест','акци','etf','портфель','вложить','фонд','доходность'],
+  body:['Инвестиции — это способ обгонять инфляцию на длинном горизонте. Начинать стоит только после того, как есть подушка и закрыты дорогие долги.','Для новичка разумная база — широкие индексные фонды (ETF на индекс вроде S&P 500): низкие комиссии, автоматическая диверсификация. Вкладывайте регулярно и надолго, а не пытайтесь угадать момент.'],
+  tips:['Инвестируйте только те деньги, которые не понадобятся 3–5+ лет.','Регулярные небольшие взносы лучше редких крупных.','Не держите всё в одном активе, особенно в крипте.']},
+ {id:'diversify',ic:'🧩',cat:'Инвестиции',title:'Диверсификация и риск',tags:['диверсификац','риск','распределение','портфель','волатильн','крипт'],
+  body:['Диверсификация — не класть все яйца в одну корзину. Разные активы (акции, облигации/депозиты, немного крипты) ведут себя по-разному, поэтому портфель колеблется мягче.','Чем короче ваш горизонт и ниже терпимость к просадкам, тем больше доля надёжного (депозиты, облигации) и меньше — рискованного.'],
+  tips:['Ограничьте долю одного рискового актива (например, крипты) 5–10%.','Раз в год ребалансируйте — возвращайте доли к плану.']},
+ {id:'compound',ic:'⏳',cat:'Инвестиции',title:'Сложный процент',tags:['сложный процент','капитализац','процент','рост','долгосрок'],
+  body:['Сложный процент — это когда доход начинает приносить доход. На длинном сроке эффект огромный: время работает сильнее, чем размер взноса.','Поэтому две вещи решают почти всё: начать раньше и не забирать деньги без нужды.'],
+  tips:['Реинвестируйте проценты и дивиденды, а не тратьте их.','Даже небольшие суммы за 10–20 лет превращаются в значимый капитал.']},
+ {id:'inflation',ic:'🔥',cat:'Защита',title:'Инфляция',tags:['инфляц','обесцен','покупательная способность','цены растут'],
+  body:['Инфляция постепенно снижает ценность денег: на ту же сумму через год купишь меньше. Деньги «под матрасом» тихо теряют стоимость.','Чтобы сберечь покупательную способность, часть денег должна работать: депозит хотя бы частично компенсирует инфляцию, инвестиции на длинном горизонте — обгоняют.'],
+  tips:['Не держите крупные суммы наличными без движения.','Подушку — на процентный счёт, длинные деньги — в инвестиции.']},
+ {id:'deposit',ic:'🏦',cat:'Накопления',title:'Депозит или инвестиции',tags:['депозит','вклад','инвестиции','что выбрать','надёжно'],
+  body:['Депозит — предсказуемый и надёжный, подходит для подушки и денег, которые понадобятся в ближайшие 1–2 года. Доходность обычно около инфляции.','Инвестиции потенциально доходнее, но с просадками — только для денег на 3–5+ лет. Это не «или/или»: короткие цели — на депозит, длинные — в инвестиции.'],
+  tips:['Срочные цели (≤2 лет) — только депозит/накопительный счёт.','Не несите подушку в акции ради пары процентов.']},
+ {id:'credit',ic:'💳',cat:'Долги',title:'Кредит и рассрочка: на что смотреть',tags:['кредит','рассрочк','ставка','переплата','займ','взять кредит'],
+  body:['Перед тем как брать, смотрите не на месячный платёж, а на полную стоимость: ставку, комиссии и общую переплату. «Беспроцентная» рассрочка часто зашита в цену товара.','Здоровое правило: платежи по всем кредитам не должны превышать ~30–40% месячного дохода.'],
+  tips:['Считайте переплату в деньгах за весь срок, а не «сколько в месяц».','Избегайте кредитов на то, что дешевеет или быстро расходуется.','Кредитку гасите полностью до конца льготного периода.']},
+ {id:'subs',ic:'🔁',cat:'Оптимизация',title:'Аудит подписок',tags:['подписк','netflix','spotify','регулярн','сервис','автоплатеж'],
+  body:['Подписки незаметно съедают бюджет: по отдельности мелочь, вместе — заметная сумма в год. Раз в квартал полезно пересматривать все автоплатежи.','Отмените то, чем не пользовались последний месяц. Годовая оплата часто дешевле помесячной для того, что точно нужно.'],
+  tips:['Выпишите все подписки и умножьте на 12 — увидите годовую цену.','Отключите автопродление у сервисов «на пробу».']},
+ {id:'goals',ic:'🎯',cat:'Накопления',title:'Финансовые цели (SMART)',tags:['цел','накопить на','мечта','план','smart'],
+  body:['Цель работает, когда она конкретна и с датой: не «накопить на отпуск», а «45 000 ₴ к июню». Тогда легко посчитать нужный ежемесячный взнос.','Разбейте крупную цель на месячные шаги и автоматизируйте перевод — прогресс станет предсказуемым.'],
+  tips:['Ежемесячный взнос = (сумма цели − уже есть) ÷ число месяцев.','Держите деньги под цель отдельно от повседневных.']},
+ {id:'spendless',ic:'✂️',cat:'Оптимизация',title:'Где сокращать без боли',tags:['сократ','экономи','урезать','меньше тратить','оптимизир'],
+  body:['Наибольший эффект дают крупные регулярные статьи (аренда, кредиты, подписки), а не отказ от кофе. Начните с них.','В переменных тратах (кафе, доставка, спонтанные покупки) помогает пауза: правило 24 часов перед необязательной покупкой снижает импульс.'],
+  tips:['Сравните аренду/тарифы/страховку с рынком — часто переплата.','Готовьте дома чаще: доставка и кафе — самый гибкий резерв.','Ставьте лимит на «желания» и следите за ним.']},
+ {id:'income',ic:'🚀',cat:'Доход',title:'Как растить доход',tags:['доход','зарабат','подработк','повышение','вторая работа','фриланс'],
+  body:['Сокращать расходы можно до предела, а доход — растить почти без потолка. Это второй рычаг бюджета, и часто более сильный.','Варианты: повышение/смена работы, освоение навыка с рыночным спросом, подработка или монетизация умения. Часть нового дохода сразу направляйте в накопления, чтобы не «раствориться».'],
+  tips:['Раз в год оценивайте свою зарплату по рынку.','Прибавку не тратьте целиком — повышайте норму сбережений.']},
+ {id:'fop',ic:'🧾',cat:'Налоги (UA)',title:'ФОП и налоги в Украине (базово)',tags:['фоп','налог','единый налог','есв','предприниматель','бизнес'],
+  body:['ФОП на упрощённой системе платит единый налог и ЕСВ. Группы 1–3 отличаются лимитом дохода, ставкой и разрешёнными видами деятельности; 3-я группа популярна у фрилансеров и ИТ (процент с оборота).','Ставки и лимиты меняются — сверяйтесь с актуальными данными или бухгалтером. Держите налоги отдельно от личных денег и откладывайте их с каждого поступления.'],
+  tips:['Сразу откладывайте налог с каждого дохода на отдельный счёт.','Не смешивайте деньги бизнеса и личные.','Актуальные ставки уточняйте — они периодически меняются.']},
+ {id:'mistakes',ic:'⚠️',cat:'Ошибки',title:'Частые ошибки с деньгами',tags:['ошибк','что нельзя','провал','долги','импульс'],
+  body:['Типичные ловушки: жить без подушки, копить долги по кредиткам, тратить всё до зарплаты, поддаваться импульсным покупкам и «инвестировать» в то, чего не понимаешь.','Ещё одна — не вести учёт: без цифр невозможно управлять. Начните с фиксации доходов и расходов.'],
+  tips:['Сначала подушка и дорогие долги, потом инвестиции.','Не берите в долг на обесценивающиеся вещи.','Решения на крупные суммы принимайте не в моменте.']},
+ {id:'liquidity',ic:'💧',cat:'Защита',title:'Ликвидность: где держать деньги',tags:['ликвидн','где держать','наличные','счёт','быстро снять'],
+  body:['Ликвидность — насколько быстро актив превращается в деньги без потерь. Повседневные и резервные деньги должны быть максимально ликвидны: карта, накопительный счёт.','Долгосрочные деньги можно держать в менее ликвидном (депозит, инвестиции) ради большей доходности. Баланс зависит от того, когда деньги понадобятся.'],
+  tips:['Держите 1 месяц расходов «под рукой», остальную подушку — на процентном счёте.','Не запирайте все деньги в длинных инструментах.']}
+];
+
+let advHistory=[];
+const P=s=>'<p>'+s+'</p>';
+const NUM=n=>'<span class="num">'+money(n)+'</span>';
+const PCT=n=>'<span class="num">'+n+'%</span>';
+const UL=items=>'<ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul>';
+const SRC=t=>'<div class="src">📖 База знаний: «'+esc(t)+'»</div>';
+const kbById=id=>KB.find(k=>k.id===id);
+function kbHtml(k,lead){
+  return (lead?P(lead):'')+'<h4>'+k.ic+' '+esc(k.title)+'</h4>'+k.body.map(P).join('')+
+    (k.tips&&k.tips.length?('<b>Как применить:</b>'+UL(k.tips)):'')+SRC(k.title);
+}
+function daysFrom(s){ const a=new Date(TODAY+'T00:00:00'),b=new Date((s||TODAY)+'T00:00:00'); return Math.round((b-a)/86400000); }
+
+function financeSnapshot(){
+  const inc=monthIncome(),exp=monthExpense(),bal=ACCTS.reduce((a,b)=>a+b.bal,0);
+  const saved=inc-exp,rate=inc?Math.round(saved/inc*100):0,spend=catSpend();
+  const catArr=Object.entries(spend).map(([k,v])=>({cat:k,name:(CATS[k]||{name:k}).name,amt:v})).sort((a,b)=>b.amt-a.amt);
+  const budgets=BUDGETS.map(b=>{const sp=spend[b.cat]||0;return{cat:b.cat,name:(CATS[b.cat]||{name:b.cat}).name,limit:b.limit,spent:sp,over:sp-b.limit};});
+  const overBudgets=budgets.filter(b=>b.over>0).sort((a,b)=>b.over-a.over);
+  const debts=DEBTS.map(d=>({title:d.title,rem:Math.max(d.total-d.paid,0),monthly:d.monthly||0,next:d.nextDate})).filter(d=>d.rem>0);
+  const debtTotal=debts.reduce((a,d)=>a+d.rem,0),debtMonthly=debts.reduce((a,d)=>a+d.monthly,0);
+  const goals=GOALS.map(g=>({name:g.name,target:g.target,saved:g.saved,pct:g.target?Math.round(g.saved/g.target*100):0,rem:Math.max(g.target-g.saved,0)}));
+  const invInvested=INVEST.reduce((a,i)=>a+i.invested,0),invNow=INVEST.reduce((a,i)=>a+i.current,0);
+  const upcoming=[...PLANS].map(p=>({title:p.title,amount:p.amount,date:p.date,days:daysFrom(p.date)})).sort((a,b)=>a.days-b.days);
+  const cushionMonths=exp>0?bal/exp:0;
+  return {inc,exp,bal,saved,rate,catArr,budgets,overBudgets,debts,debtTotal,debtMonthly,goals,invInvested,invNow,upcoming,cushionMonths,accts:ACCTS.map(a=>({name:a.name,bal:a.bal}))};
+}
+
+/* ---- офлайн-движок ---- */
+function kbSearch(q){
+  const w=q.toLowerCase().replace(/[^a-zа-яё0-9/ ]/gi,' ').split(/\s+/).filter(x=>x.length>2);
+  let best=null,bs=0;
+  KB.forEach(k=>{
+    let s=0; const hay=(k.title+' '+k.tags.join(' ')).toLowerCase();
+    k.tags.forEach(t=>{ if(q.toLowerCase().includes(t)) s+=3; });
+    w.forEach(x=>{ if(hay.includes(x)) s+=1; });
+    if(s>bs){bs=s;best=k;}
+  });
+  return bs>=2?best:null;
+}
+function answerOffline(q){
+  const s=financeSnapshot(), t=q.toLowerCase();
+  const has=(...a)=>a.some(x=>t.includes(x));
+  if(has('привет','здравству','хай','добрый')) return P('Привет! 👋 Я ваш финансовый советник. Могу разобрать расходы, подсказать по долгам, накоплениям, бюджету и целям — на основе <b>ваших</b> данных.')+P('Спросите, например: «на что уходят деньги?» или «как гасить долги?»');
+  if(has('что ты умеешь','что умеешь','помощ','help','как пользоват','что можешь'))
+    return P('Я анализирую ваши финансы и подсказываю. Умею:')+UL(['Разложить расходы по категориям','Оценить норму сбережений и подушку','Составить план погашения долгов','Проверить бюджеты и превышения','Рассчитать взнос под цель','Объяснить финансовые темы из базы знаний']);
+  if(has('на что уход','сколько трач','куда уход','расход','мои трат','потрат')){
+    const top=s.catArr.slice(0,5);
+    if(!top.length) return P('Пока нет расходов в этом месяце.');
+    return P('В июле вы потратили '+NUM(s.exp)+'. Крупнейшие категории:')+
+      UL(top.map(c=>c.name+' — '+NUM(c.amt)+' ('+Math.round(c.amt/s.exp*100)+'%)'))+
+      P(s.overBudgets.length?('⚠ Превышен бюджет по: <b>'+s.overBudgets.map(b=>b.name).join(', ')+'</b>.'):'Бюджеты в норме — так держать. 👍');
+  }
+  if(has('сколько зараб','мой доход','доход в','сколько получ','заработал'))
+    return P('Доход в июле: '+NUM(s.inc)+'. Расходы: '+NUM(s.exp)+'. Остаётся '+NUM(s.saved)+' — это норма сбережений '+PCT(s.rate)+'.');
+  if(has('баланс','сколько денег','сколько у меня','мои счета','остаток на'))
+    return P('Общий баланс: '+NUM(s.bal)+' по счетам:')+UL(s.accts.map(a=>a.name+' — '+NUM(a.bal)));
+  if(has('подушк','запас','резерв','финансовая безопасность','форс-мажор')){
+    const m=s.cushionMonths, k=kbById('cushion');
+    const lead='Ваш баланс '+NUM(s.bal)+' покрывает примерно <b>'+m.toFixed(1)+' мес.</b> расходов ('+NUM(s.exp)+'/мес). '+
+      (m>=6?'Отличный запас! 🛡️':m>=3?'Неплохо, можно довести до 6 месяцев.':'Это меньше рекомендуемых 3 месяцев — стоит усилить.');
+    return kbHtml(k,lead);
+  }
+  if(has('долг','кредит','рассрочк','погас','лавина','снежный')){
+    const k=kbById('debt');
+    if(!s.debts.length) return kbHtml(k,'У вас сейчас нет активных долгов — отлично. На будущее:');
+    const bySmall=[...s.debts].sort((a,b)=>a.rem-b.rem);
+    const lead='У вас '+s.debts.length+' долг(а/ов) на '+NUM(s.debtTotal)+', ежемесячно '+NUM(s.debtMonthly)+'. По «снежному кому» гасите в таком порядке:';
+    return P(lead)+UL(bySmall.map((d,i)=>(i+1)+'. '+esc(d.title)+' — остаток '+NUM(d.rem)))+
+      P('Платите минимум по всем, а свободные деньги бросайте в <b>'+esc(bySmall[0].title)+'</b>, пока не закроете, затем — в следующий.')+kbHtml(k);
+  }
+  if(has('50/30/20','503020','правило распредел')){
+    const k=kbById('r503020');
+    const need=Math.round(s.inc*.5),want=Math.round(s.inc*.3),sav=Math.round(s.inc*.2);
+    return kbHtml(k,'При вашем доходе '+NUM(s.inc)+' схема 50/30/20 даёт: обязательное — '+NUM(need)+', желания — '+NUM(want)+', накопления/долги — '+NUM(sav)+'.');
+  }
+  if(has('бюджет','лимит','превыш','перерасход')){
+    const k=kbById('budget');
+    if(s.overBudgets.length) return P('Превышены бюджеты:')+UL(s.overBudgets.map(b=>b.name+' — '+NUM(b.spent)+' из '+NUM(b.limit)+' (перерасход '+NUM(b.over)+')'))+kbHtml(k,'Как вернуть под контроль:');
+    return kbHtml(k,'Все бюджеты в пределах лимитов. 👍 Чтобы держать так и дальше:');
+  }
+  if(has('отклад','накопить','сбереж','копить','норма сбереж')){
+    const k=kbById('save');
+    const lead='Ваша норма сбережений — '+PCT(s.rate)+' ('+NUM(s.saved)+' из '+NUM(s.inc)+'). '+
+      (s.rate>=20?'Отлично, выше ориентира 20%! 🎉':s.rate>=10?'Неплохо, цель — довести до 20%.':'Низковато — начните с автоперевода 10% в день дохода.');
+    return kbHtml(k,lead);
+  }
+  if(has('цел','накопить на','мечта')){
+    const k=kbById('goals');
+    if(!s.goals.length) return kbHtml(k,'Целей пока нет. Добавьте первую в разделе «Цели». А вот как ставить их правильно:');
+    return P('Ваши цели:')+UL(s.goals.map(g=>esc(g.name)+' — '+PCT(g.pct)+' ('+NUM(g.saved)+' из '+NUM(g.target)+', осталось '+NUM(g.rem)+')'))+
+      P('Чтобы закрыть за 6 месяцев, нужно откладывать: '+s.goals.map(g=>'<b>'+NUM(Math.ceil(g.rem/6))+'/мес</b> на «'+esc(g.name)+'»').join(', ')+'.')+kbHtml(k);
+  }
+  if(has('инвест','акци','портфель','доходность','вложить','etf','фонд','крипт')){
+    const k=kbById('invest');
+    if(!s.invInvested) return kbHtml(k,'Портфель пуст. Прежде чем инвестировать — соберите подушку и закройте дорогие долги. Основы:');
+    const pnl=s.invNow-s.invInvested,pct=s.invInvested?Math.round(pnl/s.invInvested*100):0;
+    return kbHtml(k,'Портфель: вложено '+NUM(s.invInvested)+', сейчас '+NUM(s.invNow)+' — '+(pnl>=0?'прибыль +':'убыток ')+NUM(Math.abs(pnl))+' ('+pct+'%).');
+  }
+  if(has('сократ','экономи','урезать','меньше трат','где сэконом')){
+    const k=kbById('spendless'), disc=s.catArr.filter(c=>['cafe','fun','other'].includes(c.cat));
+    const lead=disc.length?('Самый гибкий резерв у вас — '+disc.slice(0,3).map(c=>c.name+' ('+NUM(c.amt)+')').join(', ')+'. Здесь проще всего ужаться без потери качества жизни.'):'Разберём, где сокращать эффективнее всего.';
+    return kbHtml(k,lead);
+  }
+  if(has('подписк','netflix','spotify','автоплат')){
+    const k=kbById('subs'), subs=PLANS.filter(p=>p.repeat==='monthly');
+    const lead=subs.length?('Ваши регулярные платежи: '+subs.map(p=>esc(p.title)+' ('+NUM(p.amount)+')').join(', ')+'. За год это '+NUM(subs.reduce((a,p)=>a+p.amount,0)*12)+'.'):'Проверим ваши подписки.';
+    return kbHtml(k,lead);
+  }
+  if(has('план','предстоящ','скоро плат','ближайш платеж','что оплатить')){
+    if(!s.upcoming.length) return P('Плановых платежей нет.');
+    return P('Ближайшие плановые платежи:')+UL(s.upcoming.slice(0,5).map(u=>esc(u.title)+' — '+NUM(u.amount)+' ('+(u.days<=0?'сегодня/просрочен':'через '+u.days+' дн.')+')'));
+  }
+  if(has('инфляц','обесцен')) return kbHtml(kbById('inflation'));
+  if(has('депозит','вклад')) return kbHtml(kbById('deposit'));
+  if(has('доход раст','зарабат больше','повышение','подработ','вторая работа')) return kbHtml(kbById('income'));
+  if(has('фоп','налог','есв','единый налог')) return kbHtml(kbById('fop'));
+  if(has('сложный процент','капитализац')) return kbHtml(kbById('compound'));
+  if(has('диверсиф','риск')) return kbHtml(kbById('diversify'));
+  if(has('ошибк')) return kbHtml(kbById('mistakes'));
+  const hit=kbSearch(q);
+  if(hit) return kbHtml(hit,'Вот что нашёл по теме:');
+  return P('Не совсем понял вопрос, но вот что я умею:')+
+    UL(['«на что уходят деньги?» — разбор расходов','«как гасить долги?» — план погашения','«хватает ли подушки?» — оценка запаса','«как больше откладывать?» — норма сбережений','«правило 50/30/20» и другие темы из базы знаний'])+
+    P('Спросите своими словами — я постараюсь помочь.');
+}
+
+/* ---- умный режим (свой ключ) ---- */
+function getKey(){return STORE.__aikey||'';}
+function providerOf(k){return k.indexOf('sk-ant')===0?'anthropic':'openai';}
+function advisorSystem(s){
+  const kb=KB.map(k=>'• '+k.title+': '+k.tips.join(' ')).join('\n');
+  return 'Ты — персональный финансовый советник внутри мобильного приложения Meridian. Отвечай по-русски, кратко и по делу, дружелюбно, без воды. Валюта — украинская гривна (₴). Опирайся на данные пользователя ниже и давай конкретные, применимые советы. Форматируй ответ в лёгком markdown (заголовки #, списки -, **жирный**). Не выдумывай цифры, которых нет в данных. Не давай индивидуальных юридических/налоговых гарантий — рекомендуй свериться с актуальными источниками.\n\nБАЗА ЗНАНИЙ (принципы):\n'+kb+'\n\nФИНАНСЫ ПОЛЬЗОВАТЕЛЯ (июль, ₴):\n'+JSON.stringify(s);
+}
+async function answerSmart(q){
+  const key=getKey(), prov=providerOf(key), sys=advisorSystem(financeSnapshot());
+  const hist=advHistory.slice(-8);
+  let url,opts;
+  if(prov==='anthropic'){
+    url='https://api.anthropic.com/v1/messages';
+    opts={method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-3-5-haiku-latest',max_tokens:700,system:sys,messages:hist.concat([{role:'user',content:q}])})};
+  } else {
+    url='https://api.openai.com/v1/chat/completions';
+    opts={method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+key},
+      body:JSON.stringify({model:'gpt-4o-mini',max_tokens:700,messages:[{role:'system',content:sys}].concat(hist,[{role:'user',content:q}])})};
+  }
+  const r=await fetch(url,opts);
+  if(!r.ok){ const e=await r.text().catch(()=>''); throw new Error('HTTP '+r.status+' '+e.slice(0,120)); }
+  const d=await r.json();
+  const txt=prov==='anthropic'?(d.content&&d.content[0]&&d.content[0].text):(d.choices&&d.choices[0]&&d.choices[0].message.content);
+  return txt||'';
+}
+function mdLite(t){
+  const lines=esc(t).split('\n'); let html='',inUl=false;
+  const flush=()=>{if(inUl){html+='</ul>';inUl=false;}};
+  lines.forEach(raw=>{
+    let ln=raw.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'$1');
+    if(/^\s*#{1,4}\s+/.test(ln)){flush();html+='<h4>'+ln.replace(/^\s*#{1,4}\s+/,'')+'</h4>';}
+    else if(/^\s*[-•*]\s+/.test(ln)){if(!inUl){html+='<ul>';inUl=true;}html+='<li>'+ln.replace(/^\s*[-•*]\s+/,'')+'</li>';}
+    else if(/^\s*\d+[.)]\s+/.test(ln)){if(!inUl){html+='<ul>';inUl=true;}html+='<li>'+ln.replace(/^\s*\d+[.)]\s+/,'')+'</li>';}
+    else if(ln.trim()===''){flush();}
+    else{flush();html+='<p>'+ln+'</p>';}
+  });
+  flush(); return html;
+}
+
+/* ---- чат UI ---- */
+function advNode(role){ const w=document.createElement('div'); w.className='adv-msg '+(role==='me'?'me':'');
+  w.innerHTML='<div class="adv-ava">'+(role==='me'?'🙂':'🤖')+'</div><div class="adv-bub"></div>'; return w; }
+function advPush(role,html){
+  const sc=$('#advScroll'); if(!sc)return; const n=advNode(role); n.querySelector('.adv-bub').innerHTML=html; sc.appendChild(n); sc.scrollTop=sc.scrollHeight; return n;
+}
+function advTyping(){ const sc=$('#advScroll'); const n=advNode('ai'); const b=n.querySelector('.adv-bub'); b.className='adv-bub typing'; b.innerHTML='<i></i><i></i><i></i>'; sc.appendChild(n); sc.scrollTop=sc.scrollHeight; return n; }
+function advSendMsg(text){
+  text=(text||'').trim(); if(!text)return;
+  advPush('me',esc(text)); advHistory.push({role:'user',content:text});
+  const ta=$('#advText'); if(ta){ta.value='';ta.style.height='auto';}
+  const smart=!!getKey(); const typ=advTyping();
+  const finish=html=>{ typ.remove(); advPush('ai',html); advHistory.push({role:'assistant',content:html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,600)}); };
+  if(smart){
+    answerSmart(text).then(txt=>finish(mdLite(txt))).catch(()=>finish(answerOffline(text)+'<div class="src">⚠ Умный режим недоступен — ответ из офлайн-базы</div>'));
+  } else {
+    setTimeout(()=>finish(answerOffline(text)), 380);
+  }
+}
+function advWelcome(){
+  const sc=$('#advScroll'); if(!sc)return; sc.innerHTML=''; advHistory=[];
+  const on=!!getKey();
+  advPush('ai',P('Привет! 👋 Я ваш финансовый советник'+(on?' <b>(умный режим)</b>':'')+'. Разберу ваши расходы, долги, накопления и цели — и подскажу, что улучшить.')+P('Спросите своими словами или выберите тему ниже 👇'));
+}
+function renderChips(){
+  const box=$('#advChips'); if(!box)return;
+  const chips=['Сколько я трачу?','Как гасить долги?','Где сократить расходы?','Хватает ли подушки?','Как больше откладывать?','Правило 50/30/20','Проверь мои бюджеты','Мои цели'];
+  box.innerHTML=chips.map(c=>'<button class="adv-chip">'+esc(c)+'</button>').join('');
+  $$('#advChips .adv-chip').forEach(b=>b.onclick=()=>advSendMsg(b.textContent));
+}
+function renderKBList(){
+  const box=$('#kbList'); if(!box)return;
+  box.innerHTML=KB.map(k=>'<div class="kb-topic" data-kb="'+k.id+'"><span class="kt-ic">'+k.ic+'</span><span class="kt-t"><b>'+esc(k.title)+'</b><small>'+esc(k.cat)+'</small></span><span class="chev">›</span></div>').join('');
+  $$('#kbList [data-kb]').forEach(r=>r.onclick=()=>{ const k=kbById(r.dataset.kb); if(!k)return; go('advisor'); advPush('ai',kbHtml(k)); });
+  const c=$('#kbCount'); if(c)c.textContent=KB.length+' тем';
+}
+function refreshAIMode(){
+  const on=!!getKey(), m=$('#advMode'); if(m){m.textContent=on?'умный ИИ':'офлайн'; m.className='adv-mode '+(on?'on':'off');}
+  const cv=$('#aiStatusChev'); if(cv)cv.textContent=on?'вкл ✓':'›';
+}
+
+/* ---- подсказки / инсайты ---- */
+let INSIGHTS=[];
+function buildInsights(){
+  const s=financeSnapshot(), out=[];
+  s.overBudgets.slice(0,2).forEach(b=>out.push({tone:'warn',ic:'⚠️',title:'Превышен бюджет: '+b.name,text:'Потрачено '+money(b.spent)+' из '+money(b.limit)+' — перерасход '+money(b.over)+'.',q:'Проверь мои бюджеты'}));
+  if(s.inc>0){ if(s.rate<10)out.push({tone:'warn',ic:'🐷',title:'Низкая норма сбережений',text:'Откладываете '+s.rate+'%. Ориентир — 20%. Спросите, как поднять.',q:'Как больше откладывать?'});
+    else if(s.rate>=20)out.push({tone:'good',ic:'🎉',title:'Отличная норма сбережений',text:'Вы откладываете '+s.rate+'% дохода — так держать!'}); }
+  const soon=s.upcoming.filter(u=>u.days>=0&&u.days<=5)[0];
+  if(soon)out.push({tone:soon.days<=2?'warn':'',ic:'📅',title:'Скоро платёж: '+soon.title,text:money(soon.amount)+' — '+(soon.days===0?'сегодня':'через '+soon.days+' дн.')+'.'});
+  if(s.debtTotal>0)out.push({tone:'gold',ic:'🏔️',title:'Долги: '+money(s.debtTotal),text:'Ежемесячно '+money(s.debtMonthly)+'. Составлю план погашения.',q:'Как гасить долги?'});
+  if(s.cushionMonths>0&&s.cushionMonths<3)out.push({tone:'warn',ic:'🛡️',title:'Подушка меньше 3 месяцев',text:'Баланс покрывает '+s.cushionMonths.toFixed(1)+' мес. расходов. Стоит усилить.',q:'Хватает ли подушки?'});
+  const disc=s.catArr.filter(c=>['cafe','fun'].includes(c.cat)).reduce((a,c)=>a+c.amt,0);
+  if(disc>0&&s.exp>0&&disc/s.exp>=.22)out.push({tone:'gold',ic:'✂️',title:'Много на кафе и развлечения',text:money(disc)+' в июле ('+Math.round(disc/s.exp*100)+'% расходов). Есть где оптимизировать.',q:'Где сократить расходы?'});
+  const near=s.goals.filter(g=>g.pct>=80&&g.pct<100).sort((a,b)=>b.pct-a.pct)[0];
+  if(near)out.push({tone:'good',ic:'🎯',title:'Цель почти достигнута: '+near.name,text:'Готово на '+near.pct+'%, осталось '+money(near.rem)+'.'});
+  INSIGHTS=out; return out;
+}
+function insightHtml(x){ return '<div class="insight '+(x.tone||'')+'"><span class="ii">'+x.ic+'</span><span class="it"><b>'+esc(x.title)+'</b><small>'+esc(x.text)+'</small></span>'+(x.q?'<button class="ib" data-iq="'+esc(x.q)+'">Спросить</button>':'')+'</div>'; }
+function renderInsightsAll(){
+  buildInsights();
+  const card=$('#insightCard'); if(card)card.hidden=INSIGHTS.length===0;
+  const mini=$('#insightMini'); if(mini)mini.innerHTML=INSIGHTS.slice(0,3).map(insightHtml).join('');
+  const full=$('#insightFull'); if(full)full.innerHTML=INSIGHTS.length?INSIGHTS.map(insightHtml).join(''):'<div class="empty" style="padding:24px 12px"><div style="font-size:26px">✅</div><b>Всё под контролем</b>Серьёзных наблюдений нет</div>';
+  $$('[data-iq]').forEach(b=>b.onclick=()=>{ const q=b.dataset.iq; $('#insightsheet').hidden=true; go('advisor'); advSendMsg(q); });
+}
+function updateBell(){
+  const n=INSIGHTS.filter(x=>x.tone==='warn'||x.tone==='gold').length, b=$('#bellBadge');
+  if(b){ if(n>0){b.hidden=false;b.textContent=n;} else b.hidden=true; }
+}
+function renderTip(){
+  const allTips=[]; KB.forEach(k=>k.tips.forEach(t=>allTips.push({t,k})));
+  const day=+TODAY.split('-')[2], pick=allTips[day%allTips.length]; if(!pick)return;
+  const el=$('#tipToday'); if(el)el.textContent=pick.t;
+  const card=$('#tipCard'); if(card)card.onclick=()=>{ go('advisor'); advPush('ai',kbHtml(pick.k)); };
+}
+function updateTeaser(){
+  const el=$('#advTeaser'); if(!el)return;
+  const top=(INSIGHTS[0]);
+  el.textContent=top?('💡 '+top.title):'Помогу с бюджетом, долгами и накоплениями';
+}
+function refreshAI(){ renderInsightsAll(); updateBell(); renderTip(); updateTeaser(); refreshAIMode(); }
+
+function initAI(){
+  renderChips(); renderKBList(); advWelcome(); refreshAI();
+}
+function bindAI(){
+  const bA=$('#advBtn'); if(bA)bA.onclick=()=>go('advisor');
+  const bel=$('#bellBtn'); if(bel)bel.onclick=()=>{ renderInsightsAll(); $('#insightsheet').hidden=false; };
+  const mi=$('#moreInsights'); if(mi)mi.onclick=()=>{ $('#moresheet').hidden=true; renderInsightsAll(); $('#insightsheet').hidden=false; };
+  const im=$('#insightMore'); if(im)im.onclick=()=>{ renderInsightsAll(); $('#insightsheet').hidden=false; };
+  const ic=$('#insightClose'); if(ic)ic.onclick=()=>$('#insightsheet').hidden=true;
+  const send=$('#advSend'); if(send)send.onclick=()=>advSendMsg($('#advText').value);
+  const clr=$('#advClear'); if(clr)clr.onclick=advWelcome;
+  const ta=$('#advText');
+  if(ta){ ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px';});
+    ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();advSendMsg(ta.value);} }); }
+  // умный режим (ключ)
+  const oAI=$('#openAI'); if(oAI)oAI.onclick=()=>{ $('#settings').hidden=true; $('#aiKey').value=getKey(); const st=$('#aiStatus'); if(st)st.textContent=getKey()?'✓ Ключ сохранён — умный режим включён.':'Ключ не задан — работает офлайн-советник.'; $('#aisheet').hidden=false; };
+  const aS=$('#aiSave'); if(aS)aS.onclick=()=>{ const v=($('#aiKey').value||'').trim(); const st=$('#aiStatus');
+    if(v&&!/^sk-/.test(v)){ if(st)st.textContent='⚠ Ключ обычно начинается с «sk-ant-» (Anthropic) или «sk-» (OpenAI).'; return; }
+    STORE.__aikey=v; if(!v)delete STORE.__aikey; persist(); refreshAIMode();
+    if(st)st.textContent=v?'✓ Сохранено — умный режим включён.':'Ключ удалён — работает офлайн.'; toast(v?'Умный ИИ включён':'Ключ удалён'); setTimeout(()=>$('#aisheet').hidden=true,700); };
+  const aC=$('#aiClear'); if(aC)aC.onclick=()=>{ delete STORE.__aikey; persist(); $('#aiKey').value=''; refreshAIMode(); const st=$('#aiStatus'); if(st)st.textContent='Ключ удалён — работает офлайн.'; toast('Ключ удалён'); };
+  ['aisheet','insightsheet'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
+}
+
 init();
 </script>
 </body>
