@@ -460,6 +460,23 @@
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
 
+  /* ===== ПЕРЕВОДЫ / КАТЕГОРИИ ===== */
+  #mSeg{grid-template-columns:repeat(3,1fr)}
+  .seg button.on[data-t="transfer"]{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand)}
+  .cat-row{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}
+  .cat-row+.cat-row{margin-top:8px}
+  .cat-row .cr-ic{width:36px;height:36px;flex:0 0 36px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+  .cat-row .cr-t{flex:1;min-width:0} .cat-row .cr-t b{font-size:14px;display:block} .cat-row .cr-t small{font-size:11.5px;color:var(--faint)}
+  .cat-row .cr-btn{flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+    color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:14px} .cat-row .cr-btn:hover{border-color:var(--line-strong)}
+  .cat-row .cr-btn.del:hover{color:var(--expense);border-color:var(--expense)}
+  .emoji-pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .emoji-pick button{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface-2);font-size:19px;cursor:pointer;transition:.12s}
+  .emoji-pick button.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent)}
+  .color-pick{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
+  .color-pick button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:.12s}
+  .color-pick button.on{border-color:var(--ink);transform:scale(1.12)}
+
   /* ===== ИИ-СОВЕТНИК ===== */
   .adv-wrap{display:flex;flex-direction:column;height:calc(100dvh - 150px);min-height:440px;
     background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
@@ -880,28 +897,31 @@
   <div class="overlay" id="modal" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-label="Новая операция">
       <h2>Новая операция</h2>
-      <div class="msub">Добавьте доход или расход — баланс и графики обновятся сразу.</div>
+      <div class="msub" id="mSub">Добавьте доход или расход — баланс и графики обновятся сразу.</div>
       <div class="seg" id="mSeg">
         <button data-t="out" class="on">Расход</button>
         <button data-t="in">Доход</button>
+        <button data-t="transfer">Перевод</button>
       </div>
       <div class="field">
         <label>Сумма</label>
         <div class="amount-in"><input id="mAmount" type="text" inputmode="numeric" placeholder="0" autocomplete="off"><span>₴</span></div>
       </div>
-      <div class="field">
+      <div class="field" id="mTitleField">
         <label>Описание</label>
         <input id="mTitle" type="text" placeholder="Напр. «Продукты в Сільпо»" autocomplete="off">
       </div>
-      <div class="field">
+      <div class="field" id="mCatField">
         <label>Категория</label>
         <select id="mCat"></select>
       </div>
-      <div class="field">
+      <div class="field" id="mAcctField">
         <label>Счёт</label>
-        <select id="mAcct">
-          <option>Основная карта</option><option>Сбережения</option><option>Наличные</option>
-        </select>
+        <select id="mAcct"></select>
+      </div>
+      <div class="field" id="mAcct2Field" hidden>
+        <label>На счёт</label>
+        <select id="mAcct2"></select>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" id="mDelete" hidden style="color:var(--expense)">Удалить</button>
@@ -918,6 +938,7 @@
       <div class="msub">Профиль: <b id="setMode">Личные</b></div>
       <button class="setrow" id="openAccounts"><span>💳&nbsp;&nbsp;Мои счета и баланс</span><span class="chev">›</span></button>
       <button class="setrow" id="openMono"><span>🏦&nbsp;&nbsp;Подключить Monobank</span><span class="chev">›</span></button>
+      <button class="setrow" id="openCats"><span>🏷&nbsp;&nbsp;Категории</span><span class="chev">›</span></button>
       <button class="setrow" id="openAI"><span>🤖&nbsp;&nbsp;Умный ИИ (свой ключ)</span><span class="chev" id="aiStatusChev">›</span></button>
       <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
       <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
@@ -969,6 +990,40 @@
       <button class="setrow" data-more-go="analytics"><span>📊&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
       <button class="setrow" id="moreSettings"><span>⚙️&nbsp;&nbsp;Настройки</span><span class="chev">›</span></button>
       <div class="modal-actions"><button class="btn-cancel" id="moreClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== КАТЕГОРИИ ===== -->
+  <div class="overlay" id="catsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Категории">
+      <h2>Категории</h2>
+      <div class="msub">Добавляйте, переименовывайте и меняйте иконки/цвета. Изменения применяются к операциям, бюджетам и графикам.</div>
+      <div id="catList" style="max-height:52vh;overflow-y:auto"></div>
+      <button class="btn-ghost" id="catAdd" style="width:100%;margin-top:8px">＋ Добавить категорию</button>
+      <div class="modal-actions"><button class="btn-cancel" id="catClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== РЕДАКТОР КАТЕГОРИИ ===== -->
+  <div class="overlay" id="catedit" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Категория">
+      <h2 id="catEditTitle">Категория</h2>
+      <div class="field">
+        <label>Название</label>
+        <input id="catName" type="text" placeholder="Напр. «Здоровье»" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Иконка</label>
+        <div class="emoji-pick" id="catEmoji"></div>
+      </div>
+      <div class="field">
+        <label>Цвет</label>
+        <div class="color-pick" id="catColor"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="catEditCancel">Отмена</button>
+        <button class="btn-primary" id="catEditSave">Сохранить</button>
+      </div>
     </div>
   </div>
 
@@ -1183,7 +1238,7 @@ const LSK='meridian-v2';
 let STORE={};
 try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
 function persist(){ try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
-function saveState(){ STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS,plans:PLANS,debts:DEBTS,invest:INVEST}; STORE.__mode=MODE; persist(); }
+function saveState(){ STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS,plans:PLANS,debts:DEBTS,invest:INVEST,cats:CATS,budgets:BUDGETS}; STORE.__mode=MODE; persist(); }
 const DEMO_INVEST=[
   {id:'i1',name:'Apple (AAPL)',type:'stock',invested:12000,current:14300},
   {id:'i2',name:'S&P 500 ETF',type:'stock',invested:20000,current:22800},
@@ -1214,7 +1269,8 @@ function saveScratch(){ STORE.__scratch=SCRATCH; persist(); }
 function emptyFor(m){ const d=MODES[m]; return {accts:d.accts.map(a=>({...a,bal:0})), tx:[], goals:[]}; }
 function loadMode(m){
   MODE=m; const d=MODES[m], s=STORE[m];
-  CATS=d.cats;
+  CATS=(s&&s.cats)?JSON.parse(JSON.stringify(s.cats)):JSON.parse(JSON.stringify(d.cats));
+  if(!CATS.income)CATS.income=JSON.parse(JSON.stringify((d.cats.income)||{name:'Доход',color:'var(--income)',ic:'💸'}));
   let base;
   if(s&&s.accts) base={accts:s.accts, tx:s.tx||[], goals:s.goals||[]};
   else if(STORE.__empty) base=emptyFor(m);
@@ -1225,7 +1281,7 @@ function loadMode(m){
   PLANS=(s&&s.plans)?s.plans.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_PLANS.map(x=>({...x})):[]));
   DEBTS=(s&&s.debts)?s.debts.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_DEBTS.map(x=>({...x})):[]));
   INVEST=(s&&s.invest)?s.invest.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_INVEST.map(x=>({...x})):[]));
-  BUDGETS=d.budgets.map(b=>({...b}));
+  BUDGETS=(s&&s.budgets)?s.budgets.map(b=>({...b})):d.budgets.map(b=>({...b}));
   if(STORE.__empty){
     const bal=ACCTS.reduce((a,b)=>a+b.bal,0);
     CASHFLOW={labels:MONTHS.slice(), income:[0,0,0,0,0,0], expense:[0,0,0,0,0,0]};
@@ -1416,6 +1472,12 @@ function renderHbars(){
    ================================================================= */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function txRow(t,full){
+  if(t.type==='transfer'){
+    return `<div class="tx tappable" data-id="${t.id}"><div class="tic" style="background:color-mix(in srgb,var(--brand) 15%,transparent)">↔</div>
+      <div class="tt"><b>Перевод</b><small>${esc(t.ac)} → ${esc(t.ac2||'')}</small></div>
+      <div class="amt mono" style="color:var(--muted)">${fmt(t.amt)} ₴</div>
+      ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
+  }
   const c=CATS[t.cat]||{color:'var(--faint)',ic:'•',name:'—'};
   return `<div class="tx tappable" data-id="${t.id}"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
     <div class="tt"><b>${esc(t.t)}</b><small>${c.name} · ${t.ac}</small></div>
@@ -1448,7 +1510,7 @@ function renderTxFull(){
     else banner.hidden=true;
   }
   let rows=[...TX].sort((a,b)=>b.d.localeCompare(a.d))
-    .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(ac==='all'||t.ac===ac)&&(!q||t.t.toLowerCase().includes(q)));
+    .filter(t=>(f==='all'||t.type===f)&&(state.txCat==='all'||t.cat===state.txCat)&&(ac==='all'||t.ac===ac||t.ac2===ac)&&(!q||t.t.toLowerCase().includes(q)||(t.type==='transfer'&&'перевод'.includes(q))));
   if(!rows.length){
     $('#txFull').innerHTML = TX.length
       ? `<div class="empty"><div style="font-size:34px">🔍</div><b>Ничего не найдено</b>Измените фильтры или запрос</div>`
@@ -1563,27 +1625,50 @@ function fillCatSelects(){
   $('#mCat').innerHTML=opts;
   const all=Object.entries(CATS).filter(([k])=>k!=='income').map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');
   $('#txCat').innerHTML='<option value="all">Все категории</option>'+all;
-  $('#mAcct').innerHTML=ACCTS.map(a=>`<option>${a.name}</option>`).join('');
+  const acctOpts=ACCTS.map(a=>`<option>${esc(a.name)}</option>`).join('');
+  $('#mAcct').innerHTML=acctOpts;
+  const a2=$('#mAcct2'); if(a2)a2.innerHTML=acctOpts;
 }
-function openModal(){ openModalFor(mType||'out'); }
+function applyTxType(){
+  const tr=mType==='transfer';
+  const tf=$('#mTitleField'),cf=$('#mCatField'),a2=$('#mAcct2Field'),al=$('#mAcctField');
+  if(tf)tf.hidden=tr; if(cf)cf.hidden=tr; if(a2)a2.hidden=!tr;
+  if(al){const lb=al.querySelector('label'); if(lb)lb.textContent=tr?'Со счёта':'Счёт';}
+  const sub=$('#mSub'); if(sub)sub.textContent=tr?'Переместите деньги между своими счетами — на общий баланс не влияет.':'Добавьте доход или расход — баланс и графики обновятся сразу.';
+  const sv=$('#mSave'); if(sv&&!editTxId)sv.textContent=tr?'Перевести':'Добавить операцию';
+  if(tr){ const a=$('#mAcct'),b=$('#mAcct2'); if(a&&b&&a.value===b.value&&b.options.length>1)b.selectedIndex=(a.selectedIndex+1)%b.options.length; }
+}
+function openModal(){ openModalFor('out'); }
 function closeModal(){ $('#modal').hidden=true; $('#mAmount').value=''; $('#mTitle').value=''; editTxId=null; setModalMode(false); }
 function toast(msg){const t=$('#toast');$('#toastMsg').textContent=msg;t.hidden=false;requestAnimationFrame(()=>t.classList.add('show'));
   clearTimeout(toast._t);toast._t=setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.hidden=true,260);},2400);}
 
+function applyTxBal(t,sign){
+  if(t.type==='transfer'){ const fa=ACCTS.find(a=>a.name===t.ac),ta=ACCTS.find(a=>a.name===t.ac2);
+    if(fa)fa.bal-=sign*t.amt; if(ta)ta.bal+=sign*t.amt; }
+  else { const a=ACCTS.find(a=>a.name===t.ac); if(a)a.bal+=sign*(t.type==='in'?t.amt:-t.amt); }
+}
 function saveTx(){
   const amt=parseInt(($('#mAmount').value||'').replace(/\D/g,''),10);
   if(!amt){$('#mAmount').focus();$('.amount-in').style.borderColor='var(--expense)';return;}
+  const wasEdit=!!editTxId;
+  if(mType==='transfer'){
+    const from=$('#mAcct').value, to=$('#mAcct2').value;
+    if(from===to){ toast('Выберите разные счета'); return; }
+    if(editTxId){ const t=TX.find(x=>x.id===editTxId);
+      if(t){ applyTxBal(t,-1); delete t.ac2; Object.assign(t,{t:'Перевод',cat:'transfer',type:'transfer',amt,ac:from,ac2:to}); applyTxBal(t,1);} editTxId=null;
+    } else { const t={id:'tx'+Date.now(),t:'Перевод',cat:'transfer',type:'transfer',amt,d:TODAY,ac:from,ac2:to}; TX.unshift(t); applyTxBal(t,1); }
+    STORE.__empty=false; saveState(); closeModal(); animated={}; refreshAll(); runAnim(state.view);
+    toast(wasEdit?'Перевод изменён':('Перевод: '+money(amt))); return;
+  }
   const title=$('#mTitle').value.trim()||CATS[$('#mCat').value].name;
-  const cat=$('#mCat').value, ac=$('#mAcct').value, wasEdit=!!editTxId;
+  const cat=$('#mCat').value, ac=$('#mAcct').value;
   if(editTxId){
     const t=TX.find(x=>x.id===editTxId);
-    if(t){ const oa=ACCTS.find(a=>a.name===t.ac); if(oa)oa.bal-=(t.type==='in'?t.amt:-t.amt);
-      Object.assign(t,{t:title,cat,type:mType,amt,ac});
-      const na=ACCTS.find(a=>a.name===ac); if(na)na.bal+=(mType==='in'?amt:-amt); }
+    if(t){ applyTxBal(t,-1); delete t.ac2; Object.assign(t,{t:title,cat,type:mType,amt,ac}); applyTxBal(t,1); }
     editTxId=null;
   } else {
-    TX.unshift({id:'tx'+Date.now(),t:title,cat,type:mType,amt,d:TODAY,ac});
-    const na=ACCTS.find(a=>a.name===ac); if(na)na.bal+=mType==='in'?amt:-amt;
+    const t={id:'tx'+Date.now(),t:title,cat,type:mType,amt,d:TODAY,ac}; TX.unshift(t); applyTxBal(t,1);
   }
   STORE.__empty=false; saveState(); closeModal();
   animated={}; refreshAll();
@@ -1592,10 +1677,10 @@ function saveTx(){
 }
 function deleteTx(id){
   const t=TX.find(x=>x.id===id); if(!t)return;
-  const acct=ACCTS.find(a=>a.name===t.ac); if(acct)acct.bal-=(t.type==='in'?t.amt:-t.amt);
+  applyTxBal(t,-1);
   TX=TX.filter(x=>x.id!==id);
   saveState(); animated.overview=false; animated.analytics=false; refreshAll();
-  toast('Операция удалена');
+  toast(t.type==='transfer'?'Перевод удалён':'Операция удалена');
 }
 function plural(n,one,few,many){const m=n%100,d=n%10;if(m>=11&&m<=14)return many;if(d===1)return one;if(d>=2&&d<=4)return few;return many;}
 function setLabels(){
@@ -1676,7 +1761,8 @@ function bind(){
   $('#mCancel').onclick=closeModal; $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   $('#mSave').onclick=saveTx;
   $('#mAmount').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');$('.amount-in').style.borderColor='';});
-  $$('#mSeg button').forEach(b=>b.onclick=()=>{mType=b.dataset.t;$$('#mSeg button').forEach(x=>x.classList.toggle('on',x===b));fillCatSelects();});
+  $$('#mSeg button').forEach(b=>b.onclick=()=>{mType=b.dataset.t;$$('#mSeg button').forEach(x=>x.classList.toggle('on',x===b));fillCatSelects();applyTxType();});
+  const a1=$('#mAcct'); if(a1)a1.onchange=()=>{ if(mType==='transfer')applyTxType(); };
   $$('#txChips .chip-btn').forEach(b=>b.onclick=()=>{state.txFilter=b.dataset.f;$$('#txChips .chip-btn').forEach(x=>x.classList.toggle('active',x===b));renderTxFull();});
   $('#txCat').addEventListener('change',e=>{state.txCat=e.target.value;renderTxFull();});
   $('#txSearch').addEventListener('input',e=>{state.txQuery=e.target.value;renderTxFull();});
@@ -1685,12 +1771,13 @@ function bind(){
   bindPlansScratch();
   bindDeep();
   bindAI();
+  bindCats();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -2005,16 +2092,18 @@ function setModalMode(edit){
 function openModalFor(type,acct){
   editTxId=null; mType=type||'out'; setModalMode(false);
   $$('#mSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===mType));
-  fillCatSelects(); $('#mAmount').value=''; $('#mTitle').value=''; $('.amount-in').style.borderColor='';
-  if(acct){ const s=$('#mAcct'); if([...s.options].some(o=>o.value===acct||o.text===acct)) s.value=acct; }
+  fillCatSelects(); applyTxType(); $('#mAmount').value=''; $('#mTitle').value=''; $('.amount-in').style.borderColor='';
+  if(acct){ const s=$('#mAcct'); if([...s.options].some(o=>o.value===acct||o.text===acct)) s.value=acct; applyTxType(); }
   $('#modal').hidden=false; setTimeout(()=>$('#mAmount').focus(),50);
 }
 function editTx(id){
   const t=TX.find(x=>x.id===id); if(!t)return;
   editTxId=id; mType=t.type; setModalMode(true);
   $$('#mSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===mType));
-  fillCatSelects();
-  $('#mAmount').value=fmt(t.amt); $('#mTitle').value=t.t; $('#mCat').value=t.cat; $('#mAcct').value=t.ac;
+  fillCatSelects(); applyTxType();
+  $('#mAmount').value=fmt(t.amt); $('#mAcct').value=t.ac;
+  if(t.type==='transfer'){ const b=$('#mAcct2'); if(b)b.value=t.ac2; }
+  else { $('#mTitle').value=t.t; $('#mCat').value=t.cat; }
   $('.amount-in').style.borderColor='';
   $('#modal').hidden=false;
 }
@@ -2022,8 +2111,13 @@ function editTx(id){
 /* --- счёт: детали --- */
 function openAcctDetail(name){
   const i=ACCTS.findIndex(a=>a.name===name); if(i<0)return; const a=ACCTS[i];
-  const ops=TX.filter(t=>t.ac===a.name).sort((x,y)=>y.d.localeCompare(x.d));
-  const list=ops.slice(0,6).map(t=>`<div class="dt-kv"><span class="kk">${esc(t.t)} · ${dayLabel(t.d)}</span><b class="vv" style="color:${t.type==='in'?'var(--income)':'var(--ink)'}">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</b></div>`).join('')||'<div class="dt-kv"><span class="kk">Пока нет операций</span></div>';
+  const ops=TX.filter(t=>t.ac===a.name||t.ac2===a.name).sort((x,y)=>y.d.localeCompare(x.d));
+  const list=ops.slice(0,6).map(t=>{
+    let inc,label;
+    if(t.type==='transfer'){ const out=t.ac===a.name; inc=!out; label='Перевод '+(out?'→ '+esc(t.ac2||''):'← '+esc(t.ac)); }
+    else { inc=t.type==='in'; label=esc(t.t); }
+    return `<div class="dt-kv"><span class="kk">${label} · ${dayLabel(t.d)}</span><b class="vv" style="color:${inc?'var(--income)':'var(--ink)'}">${inc?'+ ':'− '}${fmt(t.amt)} ₴</b></div>`;
+  }).join('')||'<div class="dt-kv"><span class="kk">Пока нет операций</span></div>';
   openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${a.color}">${a.ic}</div>
       <div><h2>${esc(a.name)}</h2><div class="msub" style="margin:0">${a.monoId?'Monobank · ':''}${ops.length} операций</div></div></div>
     <div class="dt-bal mono">${money(a.bal)}</div>
@@ -2487,6 +2581,59 @@ function bindAI(){
     if(st)st.textContent=v?'✓ Сохранено — умный режим включён.':'Ключ удалён — работает офлайн.'; toast(v?'Умный ИИ включён':'Ключ удалён'); setTimeout(()=>$('#aisheet').hidden=true,700); };
   const aC=$('#aiClear'); if(aC)aC.onclick=()=>{ delete STORE.__aikey; persist(); $('#aiKey').value=''; refreshAIMode(); const st=$('#aiStatus'); if(st)st.textContent='Ключ удалён — работает офлайн.'; toast('Ключ удалён'); };
   ['aisheet','insightsheet'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
+}
+
+/* ================= КАТЕГОРИИ (редактор) ================= */
+const CAT_EMOJIS=['🛒','🍽️','🚕','🎬','🏠','💡','🧒','🎁','💊','👕','✈️','📱','🐾','⚽','📚','💼','☕','🍺','⛽','🏥','💇','🌿','✨','💰'];
+const CAT_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)','var(--gold)','var(--income)','var(--expense)','var(--brand)'];
+let catEditKey=null, catPickIc='✨', catPickColor='var(--cat-1)';
+const catUsage=key=>TX.filter(t=>t.cat===key).length;
+function renderCatList(){
+  const box=$('#catList'); if(!box)return;
+  const keys=Object.keys(CATS).filter(k=>k!=='income').concat(CATS.income?['income']:[]);
+  box.innerHTML=keys.map(k=>{ const c=CATS[k],inc=k==='income',use=catUsage(k);
+    return `<div class="cat-row"><div class="cr-ic" style="background:color-mix(in srgb,${c.color} 18%,transparent)">${c.ic}</div>
+      <div class="cr-t"><b>${esc(c.name)}</b><small>${inc?'системная · доходы':use+' '+plural(use,'операция','операции','операций')}</small></div>
+      <button class="cr-btn" data-cedit="${k}" aria-label="Изменить">✎</button>
+      ${inc?'':`<button class="cr-btn del" data-cdel="${k}" aria-label="Удалить">✕</button>`}</div>`;
+  }).join('');
+  $$('#catList [data-cedit]').forEach(b=>b.onclick=()=>openCatEdit(b.dataset.cedit));
+  $$('#catList [data-cdel]').forEach(b=>b.onclick=()=>deleteCat(b.dataset.cdel));
+}
+function openCatSheet(){ renderCatList(); $('#catsheet').hidden=false; }
+function openCatEdit(key){
+  catEditKey=key||null; const c=key?CATS[key]:null;
+  $('#catEditTitle').textContent=key?'Изменить категорию':'Новая категория';
+  $('#catName').value=c?c.name:'';
+  catPickIc=c?c.ic:CAT_EMOJIS[0]; catPickColor=c?c.color:CAT_COLORS[0];
+  $('#catEmoji').innerHTML=CAT_EMOJIS.map(e=>`<button data-e="${e}" class="${e===catPickIc?'on':''}">${e}</button>`).join('');
+  $('#catColor').innerHTML=CAT_COLORS.map(col=>`<button data-c="${col}" class="${col===catPickColor?'on':''}" style="background:${col}"></button>`).join('');
+  $$('#catEmoji [data-e]').forEach(b=>b.onclick=()=>{catPickIc=b.dataset.e;$$('#catEmoji button').forEach(x=>x.classList.toggle('on',x===b));});
+  $$('#catColor [data-c]').forEach(b=>b.onclick=()=>{catPickColor=b.dataset.c;$$('#catColor button').forEach(x=>x.classList.toggle('on',x===b));});
+  $('#catedit').hidden=false; setTimeout(()=>$('#catName').focus(),50);
+}
+function saveCat(){
+  const name=($('#catName').value||'').trim(); if(!name){ $('#catName').focus(); return; }
+  if(catEditKey&&CATS[catEditKey]){ CATS[catEditKey].name=name; CATS[catEditKey].ic=catPickIc; CATS[catEditKey].color=catPickColor; }
+  else { CATS['c'+Date.now()]={name,ic:catPickIc,color:catPickColor}; }
+  STORE.__empty=false; saveState(); $('#catedit').hidden=true; fillCatSelects(); renderCatList();
+  animated={}; refreshAll(); runAnim(state.view); toast('Категория сохранена');
+}
+function deleteCat(key){
+  if(key==='income')return; const c=CATS[key]; if(!c)return;
+  const use=catUsage(key), fallback=Object.keys(CATS).find(k=>k!=='income'&&k!==key)||'income';
+  if(!confirm('Удалить категорию «'+c.name+'»?'+(use?(' '+use+' операц. перейдут в «'+((CATS[fallback]||{}).name||'Прочее')+'».'):'')))return;
+  TX.forEach(t=>{ if(t.cat===key)t.cat=fallback; });
+  BUDGETS=BUDGETS.filter(b=>b.cat!==key); delete CATS[key];
+  saveState(); fillCatSelects(); renderCatList(); animated={}; refreshAll(); runAnim(state.view); toast('Категория удалена');
+}
+function bindCats(){
+  const o=$('#openCats'); if(o)o.onclick=()=>{ $('#settings').hidden=true; openCatSheet(); };
+  const cc=$('#catClose'); if(cc)cc.onclick=()=>$('#catsheet').hidden=true;
+  const ca=$('#catAdd'); if(ca)ca.onclick=()=>openCatEdit(null);
+  const cs=$('#catEditSave'); if(cs)cs.onclick=saveCat;
+  const cx=$('#catEditCancel'); if(cx)cx.onclick=()=>$('#catedit').hidden=true;
+  ['catsheet','catedit'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
 }
 
 init();
