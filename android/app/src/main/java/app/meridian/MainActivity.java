@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -54,6 +55,7 @@ public class MainActivity extends Activity {
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);   // без «резинки» и сдвигов
         web.setHorizontalScrollBarEnabled(false);
         web.setWebViewClient(new WebViewClient());
+        web.setWebChromeClient(new WebChromeClient());   // включает alert/confirm/prompt
         web.addJavascriptInterface(new MonoBridge(), "MonoNative");
 
         if (savedInstanceState != null) {

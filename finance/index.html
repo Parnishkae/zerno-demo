@@ -396,6 +396,35 @@
   .scr-row .del{width:34px;height:34px;flex:none;border-radius:9px;color:var(--faint);display:grid;place-items:center;font-size:12px}
   .scr-row .del:hover{background:var(--neg-soft);color:var(--expense)}
 
+  /* панель деталей */
+  .dt-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .dt-head .dt-ic{width:46px;height:46px;flex:none;border-radius:13px;display:grid;place-items:center;font-size:20px;color:#fff}
+  .dt-head h2{font-size:19px;font-weight:750;line-height:1.15}
+  .dt-bal{font-size:32px;font-weight:770;letter-spacing:-.02em;margin-bottom:2px}
+  .dt-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+  .dt-act{padding:13px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-weight:650;font-size:14px;color:var(--ink)}
+  .dt-act:hover{border-color:var(--line-strong)}
+  .dt-act.primary{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+  .dt-act.danger{color:var(--expense)}
+  .dt-act.wide{grid-column:1 / -1}
+  .dt-list{margin-top:14px;border-top:1px solid var(--line);padding-top:4px;max-height:min(36vh,300px);overflow-y:auto}
+  .dt-kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;font-size:13.5px}
+  .dt-kv+.dt-kv{border-top:1px solid var(--line)}
+  .dt-kv .kk{color:var(--muted)} .dt-kv .vv{font-family:var(--mono);font-weight:650}
+  /* инвестиции */
+  .inv-item{display:flex;align-items:center;gap:12px;padding:13px 4px;cursor:pointer}
+  .inv-item+.inv-item{border-top:1px solid var(--line)}
+  .inv-item .ii{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:18px;background:var(--surface-2)}
+  .inv-item .in{flex:1;min-width:0}
+  .inv-item .in b{font-size:14px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inv-item .in small{font-size:12px;color:var(--faint)}
+  .inv-item .iv{text-align:right;flex:none}
+  .inv-item .iv b{font-family:var(--mono);font-weight:700;font-size:14px;display:block}
+  .inv-item .iv small{font-family:var(--mono);font-size:12px;font-weight:650}
+  .up{color:var(--income)} .down{color:var(--expense)}
+  .tx.tappable{cursor:pointer}
+  .goal.tappable{cursor:pointer}
+
   /* мобильные табы + FAB */
   .bottomnav,.fab{display:none}
   @media(max-width:900px){
@@ -464,6 +493,10 @@
     <button class="navlink" data-view="scratch">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       Черновик
+    </button>
+    <button class="navlink" data-view="invest">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 18l5-5 3 3 8-8"/><path d="M15 8h5v5"/></svg>
+      Инвестиции
     </button>
     <button class="navlink" data-view="analytics">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h16"/><path d="M8 16l3.5-4 3 2.5L20 8"/></svg>
@@ -564,6 +597,12 @@
             </div>
             <div class="foot" style="margin-top:12px">3 регулярных платежа</div>
           </div>
+          <!-- инвестиции (мини) -->
+          <div class="card col-3 stat" id="ovInvestCard" style="cursor:pointer">
+            <div class="k">📈 Инвестиции</div>
+            <div class="v mono" id="ovInvestVal">0&nbsp;₴</div>
+            <div class="foot" id="ovInvestFoot">нажми, чтобы открыть</div>
+          </div>
 
           <!-- денежный поток -->
           <div class="card col-8">
@@ -627,7 +666,7 @@
           <div class="card col-4 stat"><div class="k">Уже потрачено</div><div class="v mono" id="budSpent" data-count="29899" data-suffix=" ₴" style="color:var(--expense)">0</div><div class="foot">91% лимита · осталось 9 дней</div></div>
           <div class="card col-4 stat"><div class="k">Свободно</div><div class="v mono" id="budFree" data-count="3101" data-suffix=" ₴" style="color:var(--income)">0</div><div class="foot" id="budOverTxt">2 категории превышены</div></div>
           <div class="card col-12">
-            <div class="card-h"><h3>Бюджеты по категориям</h3><span class="hint">потрачено из лимита</span></div>
+            <div class="card-h"><h3>Бюджеты по категориям</h3><button class="link" id="addBudgetBtn">＋ Добавить</button></div>
             <div id="budgetsFull"></div>
           </div>
         </div>
@@ -710,6 +749,19 @@
         </div>
       </section>
 
+      <!-- ============ ИНВЕСТИЦИИ ============ -->
+      <section class="view" data-view="invest" hidden>
+        <div class="grid">
+          <div class="card col-4 stat"><div class="k">Вложено</div><div class="v mono" id="invInvested">0 ₴</div><div class="foot" id="invCount">портфель пуст</div></div>
+          <div class="card col-4 stat"><div class="k">Сейчас стоит</div><div class="v mono" id="invNow">0 ₴</div><div class="foot">текущая стоимость</div></div>
+          <div class="card col-4 stat"><div class="k">Доходность</div><div class="v mono" id="invProfit">0 ₴</div><div class="foot" id="invPct">0%</div></div>
+          <div class="card col-12">
+            <div class="card-h"><h3>Активы</h3><button class="link" id="addInvBtn">＋ Добавить актив</button></div>
+            <div id="invList"></div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 
@@ -751,6 +803,7 @@
         </select>
       </div>
       <div class="modal-actions">
+        <button class="btn-cancel" id="mDelete" hidden style="color:var(--expense)">Удалить</button>
         <button class="btn-cancel" id="mCancel">Отмена</button>
         <button class="btn-primary" id="mSave">Добавить операцию</button>
       </div>
@@ -808,7 +861,8 @@
       <h2>Ещё</h2>
       <button class="setrow" data-more-go="budgets"><span>◔&nbsp;&nbsp;Бюджеты</span><span class="chev">›</span></button>
       <button class="setrow" data-more-go="goals"><span>◎&nbsp;&nbsp;Цели</span><span class="chev">›</span></button>
-      <button class="setrow" data-more-go="analytics"><span>📈&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
+      <button class="setrow" data-more-go="invest"><span>📈&nbsp;&nbsp;Инвестиции</span><span class="chev">›</span></button>
+      <button class="setrow" data-more-go="analytics"><span>📊&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
       <button class="setrow" id="moreSettings"><span>⚙️&nbsp;&nbsp;Настройки</span><span class="chev">›</span></button>
       <div class="modal-actions"><button class="btn-cancel" id="moreClose" style="flex:1;justify-content:center">Закрыть</button></div>
     </div>
@@ -848,6 +902,29 @@
         <div class="field" style="flex:1"><label>След. платёж</label><input id="debtDate" type="date"></div>
       </div>
       <div class="modal-actions"><button class="btn-cancel" id="debtCancel">Отмена</button><button class="btn-primary" id="debtSave">Сохранить</button></div>
+    </div>
+  </div>
+
+  <!-- ===== УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЕТАЛЕЙ ===== -->
+  <div class="overlay" id="detail" hidden>
+    <div class="modal" id="detailBody" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- ===== ИНВЕСТИЦИЯ (добавить/изменить) ===== -->
+  <div class="overlay" id="invSheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Актив">
+      <h2 id="invTitle">Актив</h2>
+      <div class="seg seg3" id="invSeg">
+        <button data-it="stock" class="on">Акции/ETF</button>
+        <button data-it="crypto">Крипто</button>
+        <button data-it="deposit">Депозит</button>
+      </div>
+      <div class="field"><label>Название</label><input id="invName" type="text" placeholder="Напр. «Apple», «BTC», «Депозит»" autocomplete="off"></div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>Вложено</label><div class="amount-in"><input id="invIn" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
+        <div class="field" style="flex:1"><label>Сейчас стоит</label><div class="amount-in"><input id="invCur" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
+      </div>
+      <div class="modal-actions"><button class="btn-cancel" id="invDelete" hidden style="color:var(--expense)">Удалить</button><button class="btn-cancel" id="invCancel">Отмена</button><button class="btn-primary" id="invSave">Сохранить</button></div>
     </div>
   </div>
 
@@ -968,13 +1045,19 @@ const MODES = {
     nw:[180000,205000,228000,242000,255000,263000]
   }
 };
-let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH, PLANS, DEBTS, SCRATCH;
+let MODE='personal', CATS, ACCTS, TX, BUDGETS, GOALS, CASHFLOW, NETWORTH, PLANS, DEBTS, SCRATCH, INVEST;
 /* сохранение прогресса в браузере — операции/цели/баланс не пропадают после перезагрузки */
 const LSK='meridian-v2';
 let STORE={};
 try{STORE=JSON.parse(localStorage.getItem(LSK))||{};}catch(e){STORE={};}
 function persist(){ try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
-function saveState(){ STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS,plans:PLANS,debts:DEBTS}; STORE.__mode=MODE; persist(); }
+function saveState(){ STORE[MODE]={accts:ACCTS,tx:TX,goals:GOALS,plans:PLANS,debts:DEBTS,invest:INVEST}; STORE.__mode=MODE; persist(); }
+const DEMO_INVEST=[
+  {id:'i1',name:'Apple (AAPL)',type:'stock',invested:12000,current:14300},
+  {id:'i2',name:'S&P 500 ETF',type:'stock',invested:20000,current:22800},
+  {id:'i3',name:'Bitcoin',type:'crypto',invested:15000,current:12600},
+  {id:'i4',name:'Депозит 12%',type:'deposit',invested:30000,current:31800}
+];
 const DEMO_PLANS=[
   {id:'p1',title:'Аренда квартиры',amount:14000,date:'2026-08-01',time:'',cat:'home',repeat:'monthly'},
   {id:'p2',title:'Netflix',amount:299,date:'2026-07-28',time:'20:00',cat:'fun',repeat:'monthly'},
@@ -1009,6 +1092,7 @@ function loadMode(m){
   GOALS=base.goals.map(g=>({...g}));
   PLANS=(s&&s.plans)?s.plans.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_PLANS.map(x=>({...x})):[]));
   DEBTS=(s&&s.debts)?s.debts.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_DEBTS.map(x=>({...x})):[]));
+  INVEST=(s&&s.invest)?s.invest.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_INVEST.map(x=>({...x})):[]));
   BUDGETS=d.budgets.map(b=>({...b}));
   if(STORE.__empty){
     const bal=ACCTS.reduce((a,b)=>a+b.bal,0);
@@ -1201,7 +1285,7 @@ function renderHbars(){
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function txRow(t,full){
   const c=CATS[t.cat]||{color:'var(--faint)',ic:'•',name:'—'};
-  return `<div class="tx"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
+  return `<div class="tx tappable" data-id="${t.id}"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
     <div class="tt"><b>${esc(t.t)}</b><small>${c.name} · ${t.ac}</small></div>
     <div class="amt ${t.type==='in'?'in':''} mono">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</div>
     ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
@@ -1209,11 +1293,12 @@ function txRow(t,full){
 function renderRecent(){
   if(!TX.length){ $('#recentTx').innerHTML='<div class="empty" style="padding:28px 12px"><div style="font-size:30px">🧾</div><b>Пока нет операций</b>Нажмите «+ Операция» или подключите Monobank в настройках ⚙️</div>'; return; }
   $('#recentTx').innerHTML=[...TX].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6).map(txRow).join('');
+  $$('#recentTx .tx').forEach(r=>r.onclick=()=>editTx(r.dataset.id));
 }
 function renderAcctChips(){
   $('#acctChips').innerHTML=ACCTS.map(a=>
     `<button class="acct-chip" data-acct="${esc(a.name)}"><span class="ac-ic" style="background:${a.color}">${a.ic}</span>${esc(a.name)}<small class="mono">${money(a.bal)}</small></button>`).join('');
-  $$('#acctChips [data-acct]').forEach(b=>b.onclick=()=>openAcct(b.dataset.acct));
+  $$('#acctChips [data-acct]').forEach(b=>b.onclick=()=>openAcctDetail(b.dataset.acct));
 }
 function openAcct(name){
   state.txAcct=name; state.txFilter='all'; state.txQuery='';
@@ -1241,48 +1326,52 @@ function renderTxFull(){
   let html='',cur='';
   rows.forEach(t=>{if(t.d!==cur){cur=t.d;html+=`<div class="day-label">${dayLabel(t.d)}</div>`;}html+=txRow(t,true);});
   $('#txFull').innerHTML=html;
-  $$('#txFull [data-del]').forEach(b=>b.onclick=()=>deleteTx(b.dataset.del));
+  $$('#txFull [data-del]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); deleteTx(b.dataset.del); });
+  $$('#txFull .tx').forEach(r=>r.onclick=e=>{ if(e.target.closest('[data-del]'))return; editTx(r.dataset.id); });
 }
 function renderBudgets(target,mini){
   const spend=catSpend();
-  const list=BUDGETS.map(b=>({...b,spent:spend[b.cat]||0})).filter(b=>!mini||true);
-  const arr=mini?list.slice(0,4):list;
-  $(target).innerHTML=arr.map(b=>{
-    const c=CATS[b.cat], pct=Math.min(b.spent/b.limit*100,100), over=b.spent>b.limit;
+  const arr=(mini?BUDGETS.slice(0,4):BUDGETS).map(b=>({...b,spent:spend[b.cat]||0}));
+  $(target).innerHTML=(arr.length?arr.map(b=>{
+    const c=CATS[b.cat]||{ic:'•',name:b.cat,color:'var(--faint)'}, pct=Math.min(b.spent/b.limit*100,100), over=b.spent>b.limit;
     const col=over?'var(--expense)':(pct>85?'var(--gold)':c.color);
-    return `<div class="bud ${over?'over':''}">
+    return `<div class="bud ${over?'over':''}" data-budcat="${b.cat}" style="cursor:pointer">
       <div class="bh"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
         <b>${c.name}</b>
         <div class="r"><span class="mono ${over?'amt-over':''}">${fmt(b.spent)} ₴</span><small class="mono">из ${fmt(b.limit)} ₴</small></div></div>
       <div class="track"><div class="fill" data-w="${pct}" style="width:0;background:${col}"></div></div>
       ${over?`<div class="warnrow">⚠ Превышение на ${money(b.spent-b.limit)}</div>`:''}
     </div>`;
-  }).join('');
+  }).join(''):'<div class="empty" style="padding:26px 12px"><div style="font-size:28px">◔</div><b>Нет бюджетов</b>Задайте лимиты по категориям</div>');
+  $$(target+' [data-budcat]').forEach(r=>r.onclick=()=>openBudgetDetail(r.dataset.budcat));
 }
 function renderGoals(){
   const size=132,sw=11,r=(size-sw)/2,c=2*Math.PI*r,cx=size/2;
   $('#goalsGrid').innerHTML=GOALS.map((g,i)=>{
     const pct=g.saved/g.target, off=c*(1-pct);
-    return `<div class="card col-4"><div class="goal">
+    return `<div class="card col-4" data-goalopen="${i}" style="cursor:pointer"><div class="goal tappable">
       <div class="ring"><svg width="${size}" height="${size}">
         <circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="var(--surface-3)" stroke-width="${sw}"/>
         <circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${g.color}" stroke-width="${sw}" stroke-linecap="round"
           stroke-dasharray="${c}" stroke-dashoffset="${c}" transform="rotate(-90 ${cx} ${cx})"
           style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)" data-off="${off}"/></svg>
         <div class="lbl"><b>${Math.round(pct*100)}%</b><small>${g.ic} накоплено</small></div></div>
-      <div class="gname">${g.name}</div>
+      <div class="gname">${esc(g.name)}</div>
       <div class="gsum"><b class="mono">${fmt(g.saved)} ₴</b> из <span class="mono">${fmt(g.target)} ₴</span></div>
-      <div class="eta">Осталось ${money(g.target-g.saved)} · ${g.eta}</div>
-      <button class="btn-ghost" data-goal="${i}">＋ Пополнить</button>
+      <div class="eta">Осталось ${money(g.target-g.saved)}${g.eta?' · '+g.eta:''}</div>
+      <div class="btn-ghost" style="pointer-events:none">Открыть →</div>
     </div></div>`;
   }).join('')+`<div class="card col-4"><button class="goal-add" id="addGoal" style="width:100%;height:100%">
       <span style="font-size:30px">＋</span><span>Новая цель</span></button></div>`;
   requestAnimationFrame(()=>$$('#goalsGrid circle[data-off]').forEach(c=>c.style.strokeDashoffset=c.dataset.off));
-  $$('#goalsGrid [data-goal]').forEach(b=>b.onclick=()=>{
-    const g=GOALS[+b.dataset.goal]; g.saved=Math.min(g.saved+5000,g.target);
-    saveState(); renderGoals(); toast(`+5 000 ₴ в цель «${g.name}»`);
-  });
-  $('#addGoal').onclick=()=>toast('Демо: создание цели');
+  $$('#goalsGrid [data-goalopen]').forEach(b=>b.onclick=()=>openGoalDetail(+b.dataset.goalopen));
+  $('#addGoal').onclick=()=>{
+    const name=prompt('Название цели:','Новая цель'); if(!name)return;
+    const target=parseNum(prompt('Целевая сумма, ₴:','50000')); if(!target)return;
+    const palette=['var(--gold)','var(--cat-5)','var(--cat-3)','var(--cat-1)','var(--cat-6)'];
+    GOALS.push({name:name.trim(),target,saved:0,color:palette[GOALS.length%palette.length],ic:'🎯',eta:''});
+    STORE.__empty=false; saveState(); renderGoals(); toast('Цель добавлена');
+  };
 }
 function renderTopMerch(){
   const top=[...TX].filter(t=>t.type==='out').sort((a,b)=>b.amt-a.amt).slice(0,6);
@@ -1295,7 +1384,8 @@ function renderTopMerch(){
 const state={view:'overview',txFilter:'all',txCat:'all',txQuery:'',txAcct:'all'};
 const TITLES={overview:['Обзор','Вторник, 22 июля 2026'],tx:['Операции','23 операции в июле'],
   budgets:['Бюджеты','Июль 2026 · 91% лимита'],goals:['Цели','3 активные цели'],analytics:['Аналитика','Июль 2026'],
-  plans:['Планы','платежи, долги и рассрочки'],scratch:['Черновик','быстрый расчёт «на салфетке»']};
+  plans:['Планы','платежи, долги и рассрочки'],scratch:['Черновик','быстрый расчёт «на салфетке»'],
+  invest:['Инвестиции','портфель и доходность']};
 let animated={};
 
 function go(view){
@@ -1303,7 +1393,7 @@ function go(view){
   $$('.view').forEach(v=>v.hidden=v.dataset.view!==view);
   $$('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
   $$('.bottomnav button').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
-  $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics'].includes(view)));
+  $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics','invest'].includes(view)));
   $('#pageTitle').textContent=TITLES[view][0];
   $('#pageSub').textContent = view==='tx' ? (TX.length+' '+plural(TX.length,'операция','операции','операций')+' в июле') : TITLES[view][1];
   document.querySelector('.content').scrollIntoView({block:'start'});
@@ -1317,6 +1407,7 @@ function runAnim(view){
   if(view==='goals'){renderGoals();}
   if(view==='plans'){renderPlans();renderDebts();}
   if(view==='scratch'){renderScratch();}
+  if(view==='invest'){renderInvest();}
 }
 function countUp(scope=document){
   $$('[data-count]',scope).forEach(el=>{
@@ -1340,8 +1431,8 @@ function fillCatSelects(){
   $('#txCat').innerHTML='<option value="all">Все категории</option>'+all;
   $('#mAcct').innerHTML=ACCTS.map(a=>`<option>${a.name}</option>`).join('');
 }
-function openModal(){$('#modal').hidden=false;setTimeout(()=>$('#mAmount').focus(),50);}
-function closeModal(){$('#modal').hidden=true;$('#mAmount').value='';$('#mTitle').value='';}
+function openModal(){ openModalFor(mType||'out'); }
+function closeModal(){ $('#modal').hidden=true; $('#mAmount').value=''; $('#mTitle').value=''; editTxId=null; setModalMode(false); }
 function toast(msg){const t=$('#toast');$('#toastMsg').textContent=msg;t.hidden=false;requestAnimationFrame(()=>t.classList.add('show'));
   clearTimeout(toast._t);toast._t=setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.hidden=true,260);},2400);}
 
@@ -1349,14 +1440,21 @@ function saveTx(){
   const amt=parseInt(($('#mAmount').value||'').replace(/\D/g,''),10);
   if(!amt){$('#mAmount').focus();$('.amount-in').style.borderColor='var(--expense)';return;}
   const title=$('#mTitle').value.trim()||CATS[$('#mCat').value].name;
-  const nt={id:'tx'+Date.now(),t:title,cat:$('#mCat').value,type:mType,amt,d:'2026-07-22',ac:$('#mAcct').value};
-  TX.unshift(nt);
-  const acct=ACCTS.find(a=>a.name===nt.ac); if(acct)acct.bal+=mType==='in'?amt:-amt;
-  saveState();
-  closeModal();
-  // пересчёт видимых чисел
-  animated={}; refreshAll(); go('overview');
-  toast((mType==='in'?'Доход':'Расход')+' добавлен: '+money(amt));
+  const cat=$('#mCat').value, ac=$('#mAcct').value, wasEdit=!!editTxId;
+  if(editTxId){
+    const t=TX.find(x=>x.id===editTxId);
+    if(t){ const oa=ACCTS.find(a=>a.name===t.ac); if(oa)oa.bal-=(t.type==='in'?t.amt:-t.amt);
+      Object.assign(t,{t:title,cat,type:mType,amt,ac});
+      const na=ACCTS.find(a=>a.name===ac); if(na)na.bal+=(mType==='in'?amt:-amt); }
+    editTxId=null;
+  } else {
+    TX.unshift({id:'tx'+Date.now(),t:title,cat,type:mType,amt,d:TODAY,ac});
+    const na=ACCTS.find(a=>a.name===ac); if(na)na.bal+=mType==='in'?amt:-amt;
+  }
+  STORE.__empty=false; saveState(); closeModal();
+  animated={}; refreshAll();
+  if(!wasEdit&&state.view==='overview'){ runAnim('overview'); } else { runAnim(state.view); }
+  toast(wasEdit?'Операция изменена':((mType==='in'?'Доход':'Расход')+' добавлен: '+money(amt)));
 }
 function deleteTx(id){
   const t=TX.find(x=>x.id===id); if(!t)return;
@@ -1404,8 +1502,9 @@ function refreshAll(){
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)'); spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
+  renderInvest();
   setComputedCounts();
-  $('.paycard .pc-bal').textContent=money(ACCTS[0].bal);
+  $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
 }
 function setMode(m){
   if(m===MODE)return;
@@ -1438,7 +1537,7 @@ function bind(){
   $$('[data-goto]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.goto)));
   $$('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
   $('#addBtn').onclick=openModal; $('#fab').onclick=openModal;
-  const pc=$('.paycard'); if(pc)pc.onclick=()=>{ if(ACCTS[0])openAcct(ACCTS[0].name); };
+  const pc=$('.paycard'); if(pc)pc.onclick=()=>{ if(ACCTS[0])openAcctDetail(ACCTS[0].name); };
   $('#mCancel').onclick=closeModal; $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   $('#mSave').onclick=saveTx;
   $('#mAmount').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');$('.amount-in').style.borderColor='';});
@@ -1449,11 +1548,13 @@ function bind(){
   $$('.js-reset').forEach(b=>b.onclick=openSettings);
   bindSheets();
   bindPlansScratch();
+  bindDeep();
+  const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -1608,6 +1709,7 @@ function init(){
   initTheme();setLabels();fillCatSelects();bind();
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
+  renderInvest();
   setComputedCounts();
   $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
@@ -1638,15 +1740,16 @@ function renderPlans(){
   const box=$('#plansList');
   box.innerHTML = list.length ? list.map(p=>{
     const c=CATS[p.cat]||{ic:'•'};
-    return `<div class="plan-row">
+    return `<div class="plan-row" data-planid="${p.id}" style="cursor:pointer">
       <div class="pd"><b>${(p.date||'').split('-')[2]||'—'}</b><small>${MSHORT[+((p.date||'').split('-')[1])-1]||''}</small></div>
       <div class="pn"><b>${esc(p.title)}</b><small>${c.ic} ${p.time?p.time+' · ':''}${p.repeat==='monthly'?'ежемесячно':'разово'}</small></div>
       <div class="pa">${money(p.amount)}</div>
       <button class="pay-btn" data-pay="${p.id}">Оплатить</button>
       <button class="iconbtn-sm" data-delplan="${p.id}" aria-label="Удалить">✕</button></div>`;
   }).join('') : '<div class="empty" style="padding:30px 12px"><div style="font-size:30px">📅</div><b>Нет плановых платежей</b>Добавьте аренду, подписки, кредиты — чтобы не забыть</div>';
-  $$('#plansList [data-pay]').forEach(b=>b.onclick=()=>payPlan(b.dataset.pay));
-  $$('#plansList [data-delplan]').forEach(b=>b.onclick=()=>{ PLANS=PLANS.filter(x=>x.id!==b.dataset.delplan); saveState(); renderPlans(); });
+  $$('#plansList [data-pay]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); payPlan(b.dataset.pay); });
+  $$('#plansList [data-delplan]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); PLANS=PLANS.filter(x=>x.id!==b.dataset.delplan); saveState(); renderPlans(); });
+  $$('#plansList [data-planid]').forEach(r=>r.onclick=e=>{ if(e.target.closest('[data-pay],[data-delplan]'))return; const i=PLANS.findIndex(x=>x.id===r.dataset.planid); if(i>=0)openPlanSheet(i); });
   refreshPlanStats();
 }
 function payPlan(id){
@@ -1656,32 +1759,37 @@ function payPlan(id){
   if(p.repeat==='monthly') p.date=addMonth(p.date); else PLANS=PLANS.filter(x=>x.id!==id);
   STORE.__empty=false; saveState(); animated={}; renderPlans(); refreshAll(); toast('Оплачено: '+money(p.amount));
 }
-function openPlanSheet(){
-  $('#planName').value=''; $('#planAmount').value=''; $('#planDate').value=TODAY; $('#planTime').value=''; $('#planRepeat').value='none';
+let planEdit=null;
+function openPlanSheet(idx){
+  planEdit=(typeof idx==='number')?idx:null; const p=planEdit!=null?PLANS[planEdit]:null;
+  $('#planName').value=p?p.title:''; $('#planAmount').value=p?fmt(p.amount):''; $('#planDate').value=p?(p.date||TODAY):TODAY;
+  $('#planTime').value=p?(p.time||''):''; $('#planRepeat').value=p?p.repeat:'none'; $('#plansheet .amount-in').style.borderColor='';
   $('#plansheet').hidden=false; setTimeout(()=>$('#planName').focus(),60);
 }
 function savePlan(){
   const amt=parseNum($('#planAmount').value), name=$('#planName').value.trim();
   if(!amt){ $('#plansheet .amount-in').style.borderColor='var(--expense)'; return; }
-  PLANS.push({id:'p'+Date.now(),title:name||'Платёж',amount:amt,date:$('#planDate').value||TODAY,time:$('#planTime').value||'',cat:'other',repeat:$('#planRepeat').value});
-  STORE.__empty=false; saveState(); $('#plansheet').hidden=true; renderPlans(); toast('Плановый платёж добавлен');
+  const obj={title:name||'Платёж',amount:amt,date:$('#planDate').value||TODAY,time:$('#planTime').value||'',repeat:$('#planRepeat').value};
+  if(planEdit!=null) PLANS[planEdit]={...PLANS[planEdit],...obj}; else PLANS.push({id:'p'+Date.now(),cat:'other',...obj});
+  STORE.__empty=false; saveState(); $('#plansheet').hidden=true; renderPlans(); toast('Сохранено');
 }
-let debtType='debt';
+let debtType='debt', debtEdit=null;
 const DTYPE={debt:'Долг',credit:'Кредит',installment:'Рассрочка'};
 function renderDebts(){
   const box=$('#debtsList');
-  box.innerHTML = DEBTS.length ? DEBTS.map(d=>{
+  box.innerHTML = DEBTS.length ? DEBTS.map((d,i)=>{
     const rem=Math.max(d.total-d.paid,0), pct=d.total?Math.min(d.paid/d.total*100,100):0;
-    return `<div class="debt-item">
+    return `<div class="debt-item" data-debtopen="${i}">
       <div class="dh"><span class="chip-t">${DTYPE[d.type]||'Долг'}</span><b>${esc(d.title)}</b><span class="rem">${money(rem)}</span></div>
       <div class="track"><div class="fill" style="width:${pct}%;background:${rem<=0?'var(--income)':'var(--gold)'}"></div></div>
       <div class="dmeta"><span>${d.monthly?('по <span class="mono">'+money(d.monthly)+'</span>/мес · '):''}${rem>0?('след. '+fmtDate(d.nextDate)):'закрыто ✓'}</span>
-        <span style="display:flex;gap:6px">${rem>0&&d.monthly?`<button class="pay-btn" data-dpay="${d.id}">Внести</button>`:''}<button class="iconbtn-sm" data-deldebt="${d.id}" aria-label="Удалить">✕</button></span></div></div>`;
+        <span style="display:flex;gap:6px;align-items:center">${rem>0&&d.monthly?`<button class="pay-btn" data-dpay="${i}">Внести</button>`:''}<span class="chev" style="color:var(--faint)">›</span></span></div></div>`;
   }).join('') : '<div class="empty" style="padding:30px 12px"><div style="font-size:30px">💳</div><b>Нет долгов и рассрочек</b>Добавьте кредит или рассрочку с датами платежей</div>';
-  $$('#debtsList [data-dpay]').forEach(b=>b.onclick=()=>payDebt(b.dataset.dpay));
-  $$('#debtsList [data-deldebt]').forEach(b=>b.onclick=()=>{ DEBTS=DEBTS.filter(x=>x.id!==b.dataset.deldebt); saveState(); renderDebts(); });
+  $$('#debtsList [data-debtopen]').forEach(r=>r.onclick=e=>{ if(e.target.closest('[data-dpay]'))return; openDebtDetail(+r.dataset.debtopen); });
+  $$('#debtsList [data-dpay]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); payDebtIdx(+b.dataset.dpay); });
   refreshPlanStats();
 }
+function payDebtIdx(i){ const d=DEBTS[i]; if(d)payDebt(d.id); }
 function payDebt(id){
   const d=DEBTS.find(x=>x.id===id); if(!d)return;
   const pay=Math.min(d.monthly, d.total-d.paid); if(pay<=0)return;
@@ -1690,15 +1798,18 @@ function payDebt(id){
   TX.unshift({id:'tx'+Date.now(),t:'Платёж: '+d.title,cat:'other',type:'out',amt:pay,d:TODAY,ac:acct?acct.name:''});
   STORE.__empty=false; saveState(); animated={}; renderDebts(); refreshAll(); toast('Внесено: '+money(pay));
 }
-function openDebtSheet(){
-  debtType='debt'; $$('#debtSeg button').forEach(x=>x.classList.toggle('on',x.dataset.dt==='debt'));
-  ['#debtName','#debtTotal','#debtPaid','#debtMonthly'].forEach(s=>$(s).value=''); $('#debtDate').value=addMonth(TODAY);
+function openDebtSheet(idx){
+  debtEdit=(typeof idx==='number')?idx:null; const d=debtEdit!=null?DEBTS[debtEdit]:null;
+  debtType=d?d.type:'debt'; $$('#debtSeg button').forEach(x=>x.classList.toggle('on',x.dataset.dt===debtType));
+  $('#debtName').value=d?d.title:''; $('#debtTotal').value=d?fmt(d.total):''; $('#debtPaid').value=d?fmt(d.paid):'';
+  $('#debtMonthly').value=d?fmt(d.monthly||0):''; $('#debtDate').value=d?(d.nextDate||addMonth(TODAY)):addMonth(TODAY);
   $('#debtsheet').hidden=false; setTimeout(()=>$('#debtName').focus(),60);
 }
 function saveDebt(){
   const total=parseNum($('#debtTotal').value); if(!total)return;
-  DEBTS.push({id:'g'+Date.now(),title:$('#debtName').value.trim()||DTYPE[debtType],type:debtType,total,paid:Math.min(parseNum($('#debtPaid').value),total),monthly:parseNum($('#debtMonthly').value),nextDate:$('#debtDate').value||addMonth(TODAY)});
-  STORE.__empty=false; saveState(); $('#debtsheet').hidden=true; renderDebts(); toast('Добавлено');
+  const obj={title:$('#debtName').value.trim()||DTYPE[debtType],type:debtType,total,paid:Math.min(parseNum($('#debtPaid').value),total),monthly:parseNum($('#debtMonthly').value),nextDate:$('#debtDate').value||addMonth(TODAY)};
+  if(debtEdit!=null) DEBTS[debtEdit]={...DEBTS[debtEdit],...obj}; else DEBTS.push({id:'g'+Date.now(),...obj});
+  STORE.__empty=false; saveState(); $('#debtsheet').hidden=true; renderDebts(); toast('Сохранено');
 }
 function renderScratch(){
   const rowHtml=(r,i,kind)=>`<div class="scr-row" data-i="${i}" data-kind="${kind}">
@@ -1739,6 +1850,172 @@ function bindPlansScratch(){
   $('#moreSettings').onclick=()=>{$('#moresheet').hidden=true;openSettings();};
   $$('[data-more-go]').forEach(b=>b.onclick=()=>{$('#moresheet').hidden=true;go(b.dataset.moreGo);});
   ['plansheet','debtsheet','moresheet'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;});});
+}
+/* =================================================================
+   ГЛУБОКИЙ ЭКРАН · детали и редактирование всего
+   ================================================================= */
+const parseSigned=v=>parseInt(String(v==null?'':v).replace(/[^\d-]/g,''),10)||0;
+function openDetail(html){ $('#detailBody').innerHTML=html; $('#detail').hidden=false; }
+function closeDetail(){ $('#detail').hidden=true; }
+
+/* --- операции: добавление с преднастройкой + редактирование --- */
+let editTxId=null;
+function setModalMode(edit){
+  $('#modal h2').textContent=edit?'Изменить операцию':'Новая операция';
+  $('#mSave').textContent=edit?'Сохранить':'Добавить операцию';
+  const del=$('#mDelete'); if(del)del.hidden=!edit;
+}
+function openModalFor(type,acct){
+  editTxId=null; mType=type||'out'; setModalMode(false);
+  $$('#mSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===mType));
+  fillCatSelects(); $('#mAmount').value=''; $('#mTitle').value=''; $('.amount-in').style.borderColor='';
+  if(acct){ const s=$('#mAcct'); if([...s.options].some(o=>o.value===acct||o.text===acct)) s.value=acct; }
+  $('#modal').hidden=false; setTimeout(()=>$('#mAmount').focus(),50);
+}
+function editTx(id){
+  const t=TX.find(x=>x.id===id); if(!t)return;
+  editTxId=id; mType=t.type; setModalMode(true);
+  $$('#mSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===mType));
+  fillCatSelects();
+  $('#mAmount').value=fmt(t.amt); $('#mTitle').value=t.t; $('#mCat').value=t.cat; $('#mAcct').value=t.ac;
+  $('.amount-in').style.borderColor='';
+  $('#modal').hidden=false;
+}
+
+/* --- счёт: детали --- */
+function openAcctDetail(name){
+  const i=ACCTS.findIndex(a=>a.name===name); if(i<0)return; const a=ACCTS[i];
+  const ops=TX.filter(t=>t.ac===a.name).sort((x,y)=>y.d.localeCompare(x.d));
+  const list=ops.slice(0,6).map(t=>`<div class="dt-kv"><span class="kk">${esc(t.t)} · ${dayLabel(t.d)}</span><b class="vv" style="color:${t.type==='in'?'var(--income)':'var(--ink)'}">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</b></div>`).join('')||'<div class="dt-kv"><span class="kk">Пока нет операций</span></div>';
+  openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${a.color}">${a.ic}</div>
+      <div><h2>${esc(a.name)}</h2><div class="msub" style="margin:0">${a.monoId?'Monobank · ':''}${ops.length} операций</div></div></div>
+    <div class="dt-bal mono">${money(a.bal)}</div>
+    <div class="dt-actions">
+      <button class="dt-act" data-a="inc">＋ Доход</button>
+      <button class="dt-act" data-a="exp">− Расход</button>
+      <button class="dt-act" data-a="bal">Изменить баланс</button>
+      <button class="dt-act" data-a="ren">Переименовать</button>
+      <button class="dt-act wide" data-a="ops">Все операции счёта →</button>
+      <button class="dt-act danger wide" data-a="del">Удалить счёт</button></div>
+    <div class="dt-list">${list}</div>`);
+  const B=s=>$('#detailBody [data-a="'+s+'"]');
+  B('inc').onclick=()=>{ closeDetail(); openModalFor('in',a.name); };
+  B('exp').onclick=()=>{ closeDetail(); openModalFor('out',a.name); };
+  B('bal').onclick=()=>{ const v=prompt('Текущий баланс, ₴:',a.bal); if(v!==null){ a.bal=parseSigned(v); STORE.__empty=false; saveState(); animated={}; refreshAll(); runAnim(state.view); openAcctDetail(a.name);} };
+  B('ren').onclick=()=>{ const v=prompt('Название счёта:',a.name); if(v&&v.trim()){ a.name=v.trim(); saveState(); fillCatSelects(); refreshAll(); openAcctDetail(v.trim());} };
+  B('ops').onclick=()=>{ closeDetail(); openAcct(a.name); };
+  B('del').onclick=()=>{ if(confirm('Удалить счёт «'+a.name+'»? Операции останутся.')){ ACCTS.splice(i,1); if(!ACCTS.length)ACCTS.push({name:'Наличные',bal:0,color:'var(--brand)',ic:'💵'}); saveState(); fillCatSelects(); closeDetail(); animated={}; refreshAll(); runAnim(state.view);} };
+}
+
+/* --- цель: детали --- */
+function openGoalDetail(i){
+  const g=GOALS[i]; if(!g)return; const pct=g.target?Math.round(g.saved/g.target*100):0;
+  openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${g.color}">${g.ic}</div>
+      <div><h2>${esc(g.name)}</h2><div class="msub" style="margin:0">${pct}%${g.eta?' · '+g.eta:''}</div></div></div>
+    <div class="dt-bal mono">${fmt(g.saved)} / ${fmt(g.target)} ₴</div>
+    <div class="track" style="margin:8px 0 2px"><div class="fill" style="width:${Math.min(pct,100)}%;background:${g.color}"></div></div>
+    <div class="dt-actions">
+      <button class="dt-act primary" data-a="add">＋ Пополнить</button>
+      <button class="dt-act" data-a="wd">− Снять</button>
+      <button class="dt-act" data-a="tgt">Изменить сумму</button>
+      <button class="dt-act" data-a="ren">Переименовать</button>
+      <button class="dt-act danger wide" data-a="del">Удалить цель</button></div>`);
+  const B=s=>$('#detailBody [data-a="'+s+'"]');
+  B('add').onclick=()=>{ const n=parseNum(prompt('Сколько добавить, ₴:','5000')); if(n){ g.saved=Math.min(g.saved+n,g.target); saveState(); renderGoals(); openGoalDetail(i); toast('+ '+money(n));} };
+  B('wd').onclick=()=>{ const n=parseNum(prompt('Сколько снять, ₴:','1000')); if(n){ g.saved=Math.max(g.saved-n,0); saveState(); renderGoals(); openGoalDetail(i);} };
+  B('tgt').onclick=()=>{ const n=parseNum(prompt('Целевая сумма, ₴:',g.target)); if(n){ g.target=n; saveState(); renderGoals(); openGoalDetail(i);} };
+  B('ren').onclick=()=>{ const v=prompt('Название цели:',g.name); if(v&&v.trim()){ g.name=v.trim(); saveState(); renderGoals(); openGoalDetail(i);} };
+  B('del').onclick=()=>{ if(confirm('Удалить цель «'+g.name+'»?')){ GOALS.splice(i,1); saveState(); closeDetail(); renderGoals();} };
+}
+
+/* --- долг/кредит/рассрочка: детали --- */
+function openDebtDetail(i){
+  const d=DEBTS[i]; if(!d)return; const rem=Math.max(d.total-d.paid,0), pct=d.total?Math.round(d.paid/d.total*100):0;
+  openDetail(`<div class="dt-head"><div class="dt-ic" style="background:var(--gold)">${d.type==='installment'?'🧾':(d.type==='credit'?'🏦':'🤝')}</div>
+      <div><h2>${esc(d.title)}</h2><div class="msub" style="margin:0">${DTYPE[d.type]||'Долг'} · ${pct}% выплачено</div></div></div>
+    <div class="dt-bal mono">${money(rem)} <span style="font-size:14px;color:var(--muted);font-weight:600">осталось</span></div>
+    <div class="track" style="margin:8px 0 2px"><div class="fill" style="width:${pct}%;background:${rem<=0?'var(--income)':'var(--gold)'}"></div></div>
+    <div class="dt-list">
+      <div class="dt-kv"><span class="kk">Всего</span><b class="vv">${money(d.total)}</b></div>
+      <div class="dt-kv"><span class="kk">Выплачено</span><b class="vv">${money(d.paid)}</b></div>
+      <div class="dt-kv"><span class="kk">Платёж / мес</span><b class="vv">${money(d.monthly||0)}</b></div>
+      <div class="dt-kv"><span class="kk">Следующий</span><b class="vv">${fmtDate(d.nextDate)}</b></div></div>
+    <div class="dt-actions">
+      <button class="dt-act primary" data-a="pay">Внести платёж</button>
+      <button class="dt-act" data-a="edit">Изменить</button>
+      <button class="dt-act danger wide" data-a="del">Удалить</button></div>`);
+  const B=s=>$('#detailBody [data-a="'+s+'"]');
+  B('pay').onclick=()=>{ const n=parseNum(prompt('Сумма платежа, ₴:',d.monthly||'')); if(n){ d.paid=Math.min(d.paid+n,d.total); d.nextDate=addMonth(d.nextDate); const ac=ACCTS[0]; if(ac)ac.bal-=n; TX.unshift({id:'tx'+Date.now(),t:'Платёж: '+d.title,cat:'other',type:'out',amt:n,d:TODAY,ac:ac?ac.name:''}); STORE.__empty=false; saveState(); animated={}; renderDebts(); refreshAll(); openDebtDetail(i); toast('Внесено: '+money(n));} };
+  B('edit').onclick=()=>{ closeDetail(); openDebtSheet(i); };
+  B('del').onclick=()=>{ if(confirm('Удалить «'+d.title+'»?')){ DEBTS.splice(i,1); saveState(); closeDetail(); renderDebts();} };
+}
+
+/* --- бюджеты: детали и добавление --- */
+function openBudgetDetail(cat){
+  const b=BUDGETS.find(x=>x.cat===cat); if(!b)return; const c=CATS[cat]||{ic:'•',name:cat}; const spent=catSpend()[cat]||0;
+  openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${c.color||'var(--brand)'}">${c.ic}</div>
+      <div><h2>${c.name}</h2><div class="msub" style="margin:0">потрачено ${money(spent)} из ${money(b.limit)}</div></div></div>
+    <div class="dt-actions">
+      <button class="dt-act primary wide" data-a="lim">Изменить лимит</button>
+      <button class="dt-act danger wide" data-a="del">Удалить бюджет</button></div>`);
+  $('#detailBody [data-a="lim"]').onclick=()=>{ const n=parseNum(prompt('Лимит для «'+c.name+'», ₴:',b.limit)); if(n){ b.limit=n; saveState(); renderBudgets('#budgetMini',true); renderBudgets('#budgetsFull',false); setComputedCounts(); closeDetail();} };
+  $('#detailBody [data-a="del"]').onclick=()=>{ const i=BUDGETS.findIndex(x=>x.cat===cat); if(i>=0){BUDGETS.splice(i,1); saveState(); renderBudgets('#budgetMini',true); renderBudgets('#budgetsFull',false); setComputedCounts(); closeDetail();} };
+}
+function addBudget(){
+  const free=Object.keys(CATS).filter(k=>k!=='income'&&!BUDGETS.some(b=>b.cat===k));
+  if(!free.length){ toast('Все категории уже с бюджетом'); return; }
+  openDetail(`<h2>Новый бюджет</h2><div class="msub">Выберите категорию:</div>
+    <div class="dt-actions" style="grid-template-columns:1fr 1fr">${free.map(k=>`<button class="dt-act" data-cat="${k}">${CATS[k].ic} ${CATS[k].name}</button>`).join('')}</div>`);
+  $$('#detailBody [data-cat]').forEach(btn=>btn.onclick=()=>{ const n=parseNum(prompt('Лимит для «'+CATS[btn.dataset.cat].name+'», ₴:','3000')); if(n){ BUDGETS.push({cat:btn.dataset.cat,limit:n}); saveState(); renderBudgets('#budgetMini',true); renderBudgets('#budgetsFull',false); setComputedCounts(); closeDetail();} });
+}
+
+/* --- инвестиции --- */
+function investStats(){ const inv=INVEST.reduce((a,b)=>a+(b.invested||0),0), cur=INVEST.reduce((a,b)=>a+(b.current||0),0); return {inv,cur,profit:cur-inv,pct:inv?((cur-inv)/inv*100):0}; }
+const INV_IC={stock:'📈',crypto:'🪙',deposit:'🏦',other:'💼'};
+function renderInvest(){
+  const s=investStats();
+  $('#invInvested').textContent=money(s.inv); $('#invNow').textContent=money(s.cur);
+  const p=$('#invProfit'); p.textContent=(s.profit<0?'− ':'+ ')+money(Math.abs(s.profit)); p.style.color=s.profit<0?'var(--expense)':'var(--income)';
+  $('#invPct').textContent=(s.pct>=0?'+':'')+s.pct.toFixed(1)+'%';
+  $('#invCount').textContent=INVEST.length?(INVEST.length+' актив(ов)'):'портфель пуст';
+  $('#invList').innerHTML = INVEST.length ? INVEST.map((v,i)=>{
+    const pf=(v.current||0)-(v.invested||0), pct=v.invested?((pf/v.invested)*100):0;
+    return `<div class="inv-item" data-inv="${i}"><div class="ii">${INV_IC[v.type]||'💼'}</div>
+      <div class="in"><b>${esc(v.name)}</b><small>вложено ${money(v.invested)}</small></div>
+      <div class="iv"><b>${money(v.current)}</b><small class="${pf<0?'down':'up'}">${pf<0?'−':'+'}${fmt(Math.abs(pf))} · ${pct>=0?'+':''}${pct.toFixed(1)}%</small></div></div>`;
+  }).join('') : '<div class="empty" style="padding:30px 12px"><div style="font-size:30px">📈</div><b>Портфель пуст</b>Добавьте акции, крипту или депозит — увидите доходность</div>';
+  $$('#invList [data-inv]').forEach(b=>b.onclick=()=>openInvSheet(+b.dataset.inv));
+  const ov=$('#ovInvestVal'), ovf=$('#ovInvestFoot');
+  if(ov){ ov.textContent=money(s.cur); if(ovf){ ovf.textContent=INVEST.length?((s.profit>=0?'▲ +':'▼ ')+s.pct.toFixed(1)+'%'):'нажми, чтобы открыть'; ovf.style.color=INVEST.length?(s.profit<0?'var(--expense)':'var(--income)'):''; } }
+}
+let invEdit=null, invType='stock';
+function openInvSheet(idx){
+  invEdit=(typeof idx==='number')?idx:null; const v=invEdit!=null?INVEST[invEdit]:null;
+  $('#invTitle').textContent=v?'Изменить актив':'Новый актив';
+  invType=v?v.type:'stock'; $$('#invSeg button').forEach(x=>x.classList.toggle('on',x.dataset.it===invType));
+  $('#invName').value=v?v.name:''; $('#invIn').value=v?fmt(v.invested):''; $('#invCur').value=v?fmt(v.current):'';
+  const del=$('#invDelete'); if(del)del.hidden=(invEdit==null);
+  $('#invSheet').hidden=false; setTimeout(()=>$('#invName').focus(),50);
+}
+function saveInv(){
+  const name=$('#invName').value.trim(), inv=parseNum($('#invIn').value), cur=parseNum($('#invCur').value);
+  if(!name&&!inv&&!cur){ $('#invName').focus(); return; }
+  const obj={name:name||'Актив',type:invType,invested:inv,current:cur||inv};
+  if(invEdit!=null) INVEST[invEdit]={...INVEST[invEdit],...obj}; else INVEST.push({id:'v'+Date.now(),...obj});
+  STORE.__empty=false; saveState(); $('#invSheet').hidden=true; renderInvest(); toast('Сохранено');
+}
+function delInv(){ if(invEdit==null)return; if(confirm('Удалить актив?')){ INVEST.splice(invEdit,1); invEdit=null; saveState(); $('#invSheet').hidden=true; renderInvest(); } }
+
+function bindDeep(){
+  const del=$('#mDelete'); if(del)del.onclick=()=>{ if(editTxId){ deleteTx(editTxId); editTxId=null; closeModal(); } };
+  $('#detail').addEventListener('click',e=>{ if(e.target.id==='detail')closeDetail(); });
+  $('#addInvBtn').onclick=()=>openInvSheet();
+  $('#invCancel').onclick=()=>$('#invSheet').hidden=true; $('#invSave').onclick=saveInv;
+  const idel=$('#invDelete'); if(idel)idel.onclick=delInv;
+  $$('#invSeg button').forEach(b=>b.onclick=()=>{invType=b.dataset.it;$$('#invSeg button').forEach(x=>x.classList.toggle('on',x===b));});
+  ['#invIn','#invCur'].forEach(s=>$(s).addEventListener('input',numFmt));
+  $('#invSheet').addEventListener('click',e=>{ if(e.target.id==='invSheet')$('#invSheet').hidden=true; });
+  const ovc=$('#ovInvestCard'); if(ovc)ovc.onclick=()=>go('invest');
 }
 if('serviceWorker' in navigator){try{addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}}
 init();
