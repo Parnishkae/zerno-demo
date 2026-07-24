@@ -1,7 +1,13 @@
 package app.meridian;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -57,6 +63,15 @@ public class MainActivity extends Activity {
         web.setWebViewClient(new WebViewClient());
         web.setWebChromeClient(new WebChromeClient());   // включает alert/confirm/prompt
         web.addJavascriptInterface(new MonoBridge(), "MonoNative");
+        web.addJavascriptInterface(new NotifyBridge(), "NotifyNative");
+
+        NotificationReceiver.ensureChannel(this);
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 101);
+            }
+        }
 
         if (savedInstanceState != null) {
             web.restoreState(savedInstanceState);
@@ -146,6 +161,71 @@ public class MainActivity extends Activity {
                     c.disconnect();
                 }
             }
+        }
+    }
+
+    /**
+     * Мост локальных уведомлений для веб-части.
+     * schedule(id, title, text, whenMs) ставит будильник через AlarmManager;
+     * уведомление показывается, даже если приложение закрыто.
+     */
+    class NotifyBridge {
+        @JavascriptInterface
+        public String available() {
+            return "1";
+        }
+
+        @JavascriptInterface
+        public void notifyNow(String title, String text) {
+            Intent i = new Intent(MainActivity.this, NotificationReceiver.class);
+            i.putExtra("id", 999);
+            i.putExtra("title", title);
+            i.putExtra("text", text);
+            sendBroadcast(i);
+        }
+
+        @JavascriptInterface
+        public void schedule(String id, String title, String text, String whenMs) {
+            try {
+                int nid = stableId(id);
+                long when = Long.parseLong(whenMs);
+                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                if (am == null) return;
+                PendingIntent pi = buildPi(nid, title, text);
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+            } catch (Exception e) {
+                // молча игнорируем — уведомления не критичны
+            }
+        }
+
+        @JavascriptInterface
+        public void cancel(String id) {
+            try {
+                int nid = stableId(id);
+                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                PendingIntent pi = buildPi(nid, "", "");
+                if (am != null) am.cancel(pi);
+                NotificationManager nm =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                if (nm != null) nm.cancel(nid);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        private PendingIntent buildPi(int nid, String title, String text) {
+            Intent i = new Intent(MainActivity.this, NotificationReceiver.class);
+            i.putExtra("id", nid);
+            i.putExtra("title", title);
+            i.putExtra("text", text);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
+            return PendingIntent.getBroadcast(MainActivity.this, nid, i, flags);
+        }
+
+        private int stableId(String s) {
+            if (s == null) return 1;
+            return (s.hashCode() & 0x7fffffff) % 100000 + 1000;
         }
     }
 }

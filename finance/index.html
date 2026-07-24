@@ -492,6 +492,12 @@
   .leak .lv{font-weight:700;font-variant-numeric:tabular-nums;color:var(--expense);white-space:nowrap}
   .plan-row.due{background:color-mix(in srgb,var(--gold) 8%,transparent);border-radius:12px}
   .due-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--gold);background:color-mix(in srgb,var(--gold) 16%,transparent);padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:middle}
+  .ntf-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-top:1px solid var(--line)}
+  .ntf-row span{display:flex;flex-direction:column} .ntf-row b{font-size:14px} .ntf-row small{font-size:12px;color:var(--muted)}
+  .ntf-row input[type=checkbox]{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:999px;background:var(--surface-3);position:relative;cursor:pointer;transition:.2s;flex:0 0 auto}
+  .ntf-row input[type=checkbox]:checked{background:var(--brand)}
+  .ntf-row input[type=checkbox]:before{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+  .ntf-row input[type=checkbox]:checked:before{transform:translateX(18px)}
 
   /* ===== ИИ-СОВЕТНИК ===== */
   .adv-wrap{display:flex;flex-direction:column;height:calc(100dvh - 150px);min-height:440px;
@@ -973,6 +979,7 @@
       <button class="setrow" id="openMono"><span>🏦&nbsp;&nbsp;Подключить Monobank</span><span class="chev">›</span></button>
       <button class="setrow" id="openCats"><span>🏷&nbsp;&nbsp;Категории</span><span class="chev">›</span></button>
       <button class="setrow" id="openAI"><span>🤖&nbsp;&nbsp;Умный ИИ (свой ключ)</span><span class="chev" id="aiStatusChev">›</span></button>
+      <button class="setrow" id="openNotif"><span>🔔&nbsp;&nbsp;Уведомления на телефоне</span><span class="chev" id="notifChev">›</span></button>
       <button class="setrow" id="openExport"><span>📤&nbsp;&nbsp;Экспорт и резервная копия</span><span class="chev">›</span></button>
       <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
       <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
@@ -1024,6 +1031,25 @@
       <button class="setrow" data-more-go="analytics"><span>📊&nbsp;&nbsp;Аналитика</span><span class="chev">›</span></button>
       <button class="setrow" id="moreSettings"><span>⚙️&nbsp;&nbsp;Настройки</span><span class="chev">›</span></button>
       <div class="modal-actions"><button class="btn-cancel" id="moreClose" style="flex:1;justify-content:center">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- ===== УВЕДОМЛЕНИЯ ===== -->
+  <div class="overlay" id="notifsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Уведомления">
+      <h2>🔔 Уведомления</h2>
+      <div class="msub" id="notifIntro">Напоминания о плановых платежах и ежедневный совет — прямо на телефон, даже когда приложение закрыто.</div>
+      <div id="notifWarn" class="msub" style="color:var(--gold);display:none">⚠ Системные уведомления работают только в приложении Meridian на Android. В браузере настройки сохранятся, но срабатывать не будут.</div>
+      <label class="ntf-row"><span><b>Напоминать о платежах</b><small>перед плановыми списаниями</small></span><input type="checkbox" id="ntfPlans"></label>
+      <div class="field" style="margin:2px 0 8px"><label>За сколько дней предупреждать</label>
+        <select id="ntfDays"><option value="0">В день платежа</option><option value="1">За 1 день</option><option value="2">За 2 дня</option><option value="3">За 3 дня</option></select></div>
+      <label class="ntf-row"><span><b>Совет дня</b><small>короткая подсказка каждый день</small></span><input type="checkbox" id="ntfTip"></label>
+      <div class="field" style="margin:2px 0 8px"><label>Время совета</label><input id="ntfTime" type="time" value="09:00"></div>
+      <div id="ntfStatus" class="msub" style="min-height:18px;color:var(--muted)"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="ntfTest">Проверить сейчас</button>
+        <button class="btn-primary" id="ntfSave">Сохранить</button>
+      </div>
     </div>
   </div>
 
@@ -1824,6 +1850,7 @@ function refreshAll(){
   renderInvest();
   setComputedCounts();
   refreshAI();
+  if(hasNotify())syncNotifications();
   $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
 }
 function setMode(m){
@@ -1873,12 +1900,13 @@ function bind(){
   bindAI();
   bindCats();
   bindExport();
+  bindNotif();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet','#notifsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -2039,6 +2067,7 @@ function init(){
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   initAI();
+  refreshNotifChev(); syncNotifications();
   animated.overview=true; runAnim('overview');
 }
 /* =================================================================
@@ -2795,6 +2824,61 @@ function bindExport(){
   const b=$('#expJSON'); if(b)b.onclick=exportJSON;
   const d=$('#impDo'); if(d)d.onclick=importJSON;
   const el=$('#exportsheet'); if(el)el.addEventListener('click',e=>{if(e.target.id==='exportsheet')el.hidden=true;});
+}
+
+/* ================= PUSH-УВЕДОМЛЕНИЯ (мост NotifyNative) ================= */
+function hasNotify(){ try{ return !!(window.NotifyNative && NotifyNative.available && NotifyNative.available()==='1'); }catch(e){ return false; } }
+function loadNotif(){ return Object.assign({plans:false,days:1,tip:false,time:'09:00'}, STORE.__notif||{}); }
+function schedTimeMs(dateStr,hhmm,dayOffset){
+  const p=(dateStr||'').split('-').map(Number), hm=(hhmm||'10:00').split(':').map(Number);
+  const t=new Date(p[0],(p[1]||1)-1,p[2]||1,hm[0]||10,hm[1]||0,0,0); if(dayOffset)t.setDate(t.getDate()-dayOffset); return t.getTime();
+}
+function syncNotifications(){
+  if(!hasNotify())return;
+  const cfg=loadNotif(), now=Date.now(), ids=[];
+  (STORE.__notifIds||[]).forEach(id=>{ try{ NotifyNative.cancel(id); }catch(e){} });
+  if(cfg.plans){
+    PLANS.forEach(p=>{
+      if(!p.date||p.type==='in')return;
+      const when=schedTimeMs(p.date,'10:00',+cfg.days);
+      if(when>now){ const id='plan_'+p.id, d=+cfg.days;
+        const txt=money(p.amount)+' — '+(d===0?'сегодня':(d===1?'завтра':'через '+d+' дн.'));
+        try{ NotifyNative.schedule(id,'💳 '+p.title,txt,String(when)); ids.push(id); }catch(e){}
+      }
+    });
+  }
+  if(cfg.tip){
+    const hm=(cfg.time||'09:00').split(':').map(Number);
+    let t=new Date(); t.setHours(hm[0]||9,hm[1]||0,0,0); if(t.getTime()<=now)t.setDate(t.getDate()+1);
+    const tips=[]; KB.forEach(k=>k.tips.forEach(x=>tips.push(x)));
+    const tip=tips[new Date().getDate()%(tips.length||1)]||'Проверьте бюджет и отложите на цель.';
+    try{ NotifyNative.schedule('tip_daily','💡 Совет дня',tip,String(t.getTime())); ids.push('tip_daily'); }catch(e){}
+  }
+  STORE.__notifIds=ids; persist();
+}
+function refreshNotifChev(){ const c=$('#notifChev'); if(c){ const cfg=loadNotif(); c.textContent=(cfg.plans||cfg.tip)?'вкл ✓':'›'; } }
+function openNotifSheet(){
+  const cfg=loadNotif(), native=hasNotify();
+  $('#ntfPlans').checked=!!cfg.plans; $('#ntfDays').value=String(cfg.days); $('#ntfTip').checked=!!cfg.tip; $('#ntfTime').value=cfg.time||'09:00';
+  $('#notifWarn').style.display=native?'none':'block';
+  $('#ntfStatus').textContent=native?'✓ Уведомления доступны на этом устройстве.':'';
+  $('#settings').hidden=true; $('#notifsheet').hidden=false;
+}
+function saveNotif(){
+  STORE.__notif={plans:$('#ntfPlans').checked,days:+$('#ntfDays').value,tip:$('#ntfTip').checked,time:$('#ntfTime').value||'09:00'};
+  persist(); syncNotifications(); refreshNotifChev();
+  $('#ntfStatus').textContent=hasNotify()?('✓ Сохранено. Запланировано напоминаний: '+((STORE.__notifIds||[]).length)+'.'):'Сохранено. Заработает в приложении Meridian на Android.';
+  toast('Уведомления сохранены'); setTimeout(()=>$('#notifsheet').hidden=true,1000);
+}
+function testNotif(){
+  if(hasNotify()){ try{ NotifyNative.notifyNow('Meridian','🔔 Тестовое уведомление работает!'); $('#ntfStatus').textContent='✓ Отправлено — проверьте шторку уведомлений.'; }catch(e){ $('#ntfStatus').textContent='Ошибка: '+e.message; } }
+  else $('#ntfStatus').textContent='Доступно только в приложении Meridian на Android.';
+}
+function bindNotif(){
+  const o=$('#openNotif'); if(o)o.onclick=openNotifSheet;
+  const s=$('#ntfSave'); if(s)s.onclick=saveNotif;
+  const t=$('#ntfTest'); if(t)t.onclick=testNotif;
+  const el=$('#notifsheet'); if(el)el.addEventListener('click',e=>{if(e.target.id==='notifsheet')el.hidden=true;});
 }
 
 init();
