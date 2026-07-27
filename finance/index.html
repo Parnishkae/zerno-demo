@@ -460,6 +460,30 @@
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
 
+  /* ===== КАЛЬКУЛЯТОР ДОЛГА ===== */
+  .dt-note{background:color-mix(in srgb,var(--brand) 9%,transparent);border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.5;color:var(--text);margin-top:12px}
+  .dt-note.warn{background:color-mix(in srgb,var(--expense) 11%,transparent);color:var(--text)}
+  .dt-extra{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .dt-extra span{font-size:12px;color:var(--muted);margin-right:2px}
+  .dt-extra button{padding:7px 12px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--text);cursor:pointer}
+  .dt-extra button.on{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+
+  /* ===== ЭКРАН БЛОКИРОВКИ (PIN) ===== */
+  #lockscreen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center}
+  .lock-box{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:320px;padding:24px}
+  .lock-logo{font-size:44px}
+  .lock-title{font-size:17px;font-weight:650;color:var(--text)}
+  .lock-title.err{color:var(--expense);animation:lshake .35s}
+  @keyframes lshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+  .lock-dots{display:flex;gap:14px;margin:2px 0 6px}
+  .lock-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line-strong);transition:.15s}
+  .lock-dots i.on{background:var(--brand);border-color:var(--brand)}
+  .lock-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%}
+  .lock-pad button{aspect-ratio:1;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);
+    font-size:24px;font-weight:600;color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.12s}
+  .lock-pad button:hover{background:var(--surface-3)} .lock-pad button:active{transform:scale(.94)}
+  .lock-pad button.blank{background:none;border:none;cursor:default} .lock-pad button.act{font-size:18px;color:var(--muted)}
+
   /* ===== ПЕРЕКЛЮЧАТЕЛЬ МЕСЯЦА ===== */
   .mo-nav{display:inline-flex;align-items:center;gap:1px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:2px}
   .mo-nav button{display:grid;place-items:center;color:var(--muted);padding:6px;border-radius:7px;cursor:pointer}
@@ -989,6 +1013,7 @@
       <button class="setrow" id="openCats"><span>🏷&nbsp;&nbsp;Категории</span><span class="chev">›</span></button>
       <button class="setrow" id="openAI"><span>🤖&nbsp;&nbsp;Умный ИИ (свой ключ)</span><span class="chev" id="aiStatusChev">›</span></button>
       <button class="setrow" id="openNotif"><span>🔔&nbsp;&nbsp;Уведомления на телефоне</span><span class="chev" id="notifChev">›</span></button>
+      <button class="setrow" id="openPin"><span>🔒&nbsp;&nbsp;Код-пароль на вход</span><span class="chev" id="pinChev">›</span></button>
       <button class="setrow" id="openExport"><span>📤&nbsp;&nbsp;Экспорт и резервная копия</span><span class="chev">›</span></button>
       <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
       <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
@@ -1059,6 +1084,28 @@
         <button class="btn-cancel" id="ntfTest">Проверить сейчас</button>
         <button class="btn-primary" id="ntfSave">Сохранить</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== ЭКРАН БЛОКИРОВКИ ===== -->
+  <div id="lockscreen" hidden>
+    <div class="lock-box">
+      <div class="lock-logo">🪙</div>
+      <div class="lock-title" id="lockTitle">Введите код-пароль</div>
+      <div class="lock-dots" id="lockDots"><i></i><i></i><i></i><i></i></div>
+      <div class="lock-pad" id="lockPad"></div>
+    </div>
+  </div>
+
+  <!-- ===== КОД-ПАРОЛЬ ===== -->
+  <div class="overlay" id="pinsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Код-пароль">
+      <h2>🔒 Код-пароль</h2>
+      <div class="msub" id="pinSub">Защитите приложение 4-значным кодом. Он спрашивается при открытии и запрашивается заново, когда вы сворачиваете приложение.</div>
+      <div id="pinStatus" class="msub" style="min-height:18px;color:var(--muted)"></div>
+      <button class="setrow" id="pinSet"><span>🔑&nbsp;&nbsp;<span id="pinSetLabel">Задать код</span></span><span class="chev">›</span></button>
+      <button class="setrow danger" id="pinRemove" hidden><span>🗑&nbsp;&nbsp;Удалить код</span><span class="chev">›</span></button>
+      <div class="modal-actions"><button class="btn-cancel" id="pinClose" style="flex:1;justify-content:center">Закрыть</button></div>
     </div>
   </div>
 
@@ -1176,8 +1223,9 @@
       </div>
       <div style="display:flex;gap:10px">
         <div class="field" style="flex:1"><label>Платёж / мес</label><div class="amount-in"><input id="debtMonthly" type="text" inputmode="numeric" placeholder="0"><span>₴</span></div></div>
-        <div class="field" style="flex:1"><label>След. платёж</label><input id="debtDate" type="date"></div>
+        <div class="field" style="flex:1"><label>Ставка, % годовых</label><div class="amount-in"><input id="debtRate" type="text" inputmode="decimal" placeholder="0"><span>%</span></div></div>
       </div>
+      <div class="field"><label>След. платёж</label><input id="debtDate" type="date"></div>
       <div class="modal-actions"><button class="btn-cancel" id="debtCancel">Отмена</button><button class="btn-primary" id="debtSave">Сохранить</button></div>
     </div>
   </div>
@@ -1965,6 +2013,7 @@ function bind(){
   bindExport();
   bindNotif();
   bindMonth();
+  bindPin();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
@@ -2133,8 +2182,9 @@ function init(){
   spark($('#sparkIn'),CASHFLOW.income,'var(--income)');
   spark($('#sparkOut'),CASHFLOW.expense,'var(--expense)');
   initAI();
-  refreshNotifChev(); syncNotifications();
+  refreshNotifChev(); syncNotifications(); refreshPinRow();
   animated.overview=true; runAnim('overview');
+  if(hasPin())lockOpen('unlock');
 }
 /* =================================================================
    ПЛАНЫ · ДОЛГИ · ЧЕРНОВИК
@@ -2230,11 +2280,13 @@ function openDebtSheet(idx){
   debtType=d?d.type:'debt'; $$('#debtSeg button').forEach(x=>x.classList.toggle('on',x.dataset.dt===debtType));
   $('#debtName').value=d?d.title:''; $('#debtTotal').value=d?fmt(d.total):''; $('#debtPaid').value=d?fmt(d.paid):'';
   $('#debtMonthly').value=d?fmt(d.monthly||0):''; $('#debtDate').value=d?(d.nextDate||addMonth(TODAY)):addMonth(TODAY);
+  $('#debtRate').value=d&&d.rate?String(d.rate):'';
   $('#debtsheet').hidden=false; setTimeout(()=>$('#debtName').focus(),60);
 }
 function saveDebt(){
   const total=parseNum($('#debtTotal').value); if(!total)return;
-  const obj={title:$('#debtName').value.trim()||DTYPE[debtType],type:debtType,total,paid:Math.min(parseNum($('#debtPaid').value),total),monthly:parseNum($('#debtMonthly').value),nextDate:$('#debtDate').value||addMonth(TODAY)};
+  const rate=parseFloat(($('#debtRate').value||'').replace(',','.'))||0;
+  const obj={title:$('#debtName').value.trim()||DTYPE[debtType],type:debtType,total,paid:Math.min(parseNum($('#debtPaid').value),total),monthly:parseNum($('#debtMonthly').value),rate,nextDate:$('#debtDate').value||addMonth(TODAY)};
   if(debtEdit!=null) DEBTS[debtEdit]={...DEBTS[debtEdit],...obj}; else DEBTS.push({id:'g'+Date.now(),...obj});
   STORE.__empty=false; saveState(); $('#debtsheet').hidden=true; renderDebts(); toast('Сохранено');
 }
@@ -2364,8 +2416,30 @@ function openGoalDetail(i){
 }
 
 /* --- долг/кредит/рассрочка: детали --- */
+function payoff(B,P,annualRate){
+  if(B<=0)return{months:0,interest:0,never:false};
+  if(!P||P<=0)return{never:true};
+  const r=(annualRate||0)/100/12;
+  if(r<=0)return{months:Math.ceil(B/P),interest:0,never:false};
+  if(P<=B*r+0.001)return{never:true};
+  let bal=B,interest=0,cnt=0;
+  while(bal>0.01&&cnt<1200){ const int=bal*r; interest+=int; bal=bal+int-P; cnt++; }
+  return {months:cnt,interest:Math.max(0,Math.round(interest)),never:false};
+}
+function monthsLater(n){ const d=new Date(TODAY+'T00:00:00'); d.setMonth(d.getMonth()+n); return MO_NOM[d.getMonth()].replace(/^./,c=>c.toUpperCase())+' '+d.getFullYear(); }
+let debtExtra=0;
+function renderDebtCalc(d,rem){
+  const box=$('#dtCalc'); if(!box)return;
+  const P=(d.monthly||0)+debtExtra;
+  if(!d.monthly){ box.innerHTML='<div class="dt-note">Укажите платёж/мес (кнопка «Изменить»), чтобы рассчитать срок закрытия.</div>'; return; }
+  const res=payoff(rem,P,d.rate||0);
+  if(res.never){ box.innerHTML='<div class="dt-note warn">⚠ Платежа '+money(P)+'/мес не хватает даже на проценты ('+(d.rate||0)+'% годовых) — долг не гасится. Увеличьте платёж.</div>'; return; }
+  box.innerHTML='<div class="dt-note"><b>Закроете за '+res.months+' '+plural(res.months,'месяц','месяца','месяцев')+'</b> — к '+monthsLater(res.months)+
+    '.<br>Платёж '+money(P)+'/мес'+(debtExtra?(' <span style="color:var(--income)">(+'+money(debtExtra)+')</span>'):'')+
+    (d.rate?(' · переплата процентов ≈ <b>'+money(res.interest)+'</b>'):'')+'.</div>';
+}
 function openDebtDetail(i){
-  const d=DEBTS[i]; if(!d)return; const rem=Math.max(d.total-d.paid,0), pct=d.total?Math.round(d.paid/d.total*100):0;
+  const d=DEBTS[i]; if(!d)return; const rem=Math.max(d.total-d.paid,0), pct=d.total?Math.round(d.paid/d.total*100):0; debtExtra=0;
   openDetail(`<div class="dt-head"><div class="dt-ic" style="background:var(--gold)">${d.type==='installment'?'🧾':(d.type==='credit'?'🏦':'🤝')}</div>
       <div><h2>${esc(d.title)}</h2><div class="msub" style="margin:0">${DTYPE[d.type]||'Долг'} · ${pct}% выплачено</div></div></div>
     <div class="dt-bal mono">${money(rem)} <span style="font-size:14px;color:var(--muted);font-weight:600">осталось</span></div>
@@ -2374,11 +2448,16 @@ function openDebtDetail(i){
       <div class="dt-kv"><span class="kk">Всего</span><b class="vv">${money(d.total)}</b></div>
       <div class="dt-kv"><span class="kk">Выплачено</span><b class="vv">${money(d.paid)}</b></div>
       <div class="dt-kv"><span class="kk">Платёж / мес</span><b class="vv">${money(d.monthly||0)}</b></div>
+      ${d.rate?('<div class="dt-kv"><span class="kk">Ставка</span><b class="vv">'+d.rate+'% годовых</b></div>'):''}
       <div class="dt-kv"><span class="kk">Следующий</span><b class="vv">${fmtDate(d.nextDate)}</b></div></div>
+    ${rem>0?`<div class="dt-calc" id="dtCalc"></div>
+    <div class="dt-extra"><span>Доплата к платежу:</span><button data-ex="0" class="on">0</button><button data-ex="500">+500</button><button data-ex="1000">+1000</button><button data-ex="2000">+2000</button></div>`:''}
     <div class="dt-actions">
       <button class="dt-act primary" data-a="pay">Внести платёж</button>
       <button class="dt-act" data-a="edit">Изменить</button>
       <button class="dt-act danger wide" data-a="del">Удалить</button></div>`);
+  if(rem>0){ renderDebtCalc(d,rem);
+    $$('#detailBody [data-ex]').forEach(b=>b.onclick=()=>{ debtExtra=+b.dataset.ex; $$('#detailBody [data-ex]').forEach(x=>x.classList.toggle('on',x===b)); renderDebtCalc(d,rem); }); }
   const B=s=>$('#detailBody [data-a="'+s+'"]');
   B('pay').onclick=()=>{ const n=parseNum(prompt('Сумма платежа, ₴:',d.monthly||'')); if(n){ d.paid=Math.min(d.paid+n,d.total); d.nextDate=addMonth(d.nextDate); const ac=ACCTS[0]; if(ac)ac.bal-=n; TX.unshift({id:'tx'+Date.now(),t:'Платёж: '+d.title,cat:'other',type:'out',amt:n,d:TODAY,ac:ac?ac.name:''}); STORE.__empty=false; saveState(); animated={}; renderDebts(); refreshAll(); openDebtDetail(i); toast('Внесено: '+money(n));} };
   B('edit').onclick=()=>{ closeDetail(); openDebtSheet(i); };
@@ -2841,6 +2920,54 @@ function bindCats(){
   const cs=$('#catEditSave'); if(cs)cs.onclick=saveCat;
   const cx=$('#catEditCancel'); if(cx)cx.onclick=()=>$('#catedit').hidden=true;
   ['catsheet','catedit'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
+}
+
+/* ================= КОД-ПАРОЛЬ (PIN) ================= */
+function pinHash(s){ let h=0x811c9dc5>>>0; const str='mrdn7:'+s; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return ('0000000'+h.toString(16)).slice(-8); }
+const hasPin=()=>!!STORE.__pin;
+let lockMode='unlock', lockBuf='', lockFirst='';
+function buildPad(){
+  const pad=$('#lockPad'); if(!pad||pad.dataset.built)return; pad.dataset.built='1';
+  ['1','2','3','4','5','6','7','8','9','blank','0','del'].forEach(v=>{
+    const b=document.createElement('button');
+    if(v==='blank'){ b.className='blank'; b.disabled=true; }
+    else if(v==='del'){ b.className='act'; b.textContent='⌫'; b.onclick=()=>padPress('del'); }
+    else { b.textContent=v; b.onclick=()=>padPress(v); }
+    pad.appendChild(b);
+  });
+}
+function lockDots(){ $$('#lockDots i').forEach((d,i)=>d.classList.toggle('on',i<lockBuf.length)); }
+function lockOpen(mode){
+  buildPad(); lockMode=mode||'unlock'; lockBuf=''; lockFirst='';
+  $('#lockTitle').textContent = lockMode==='set'?'Придумайте код':'Введите код-пароль';
+  $('#lockTitle').classList.remove('err'); lockDots(); $('#lockscreen').hidden=false;
+}
+function lockFail(msg){ const t=$('#lockTitle'); t.textContent=msg; t.classList.add('err'); lockBuf=''; lockDots(); setTimeout(()=>t.classList.remove('err'),400); }
+function padPress(v){
+  if(v==='del'){ lockBuf=lockBuf.slice(0,-1); lockDots(); return; }
+  if(lockBuf.length>=4)return; lockBuf+=v; lockDots();
+  if(lockBuf.length<4)return;
+  const val=lockBuf;
+  setTimeout(()=>{
+    if(lockMode==='unlock'){ if(pinHash(val)===STORE.__pin){ $('#lockscreen').hidden=true; } else lockFail('Неверный код'); }
+    else if(lockMode==='set'){ lockFirst=val; lockBuf=''; lockMode='confirm'; $('#lockTitle').textContent='Повторите код'; lockDots(); }
+    else if(lockMode==='confirm'){ if(val===lockFirst){ STORE.__pin=pinHash(val); persist(); $('#lockscreen').hidden=true; refreshPinRow(); toast('Код-пароль установлен'); } else { lockMode='set'; lockFirst=''; lockFail('Коды не совпали'); } }
+  },90);
+}
+function refreshPinRow(){
+  const on=hasPin();
+  const c=$('#pinChev'); if(c)c.textContent=on?'вкл ✓':'›';
+  const st=$('#pinStatus'); if(st)st.textContent=on?'✓ Код установлен — приложение под защитой.':'Код не установлен.';
+  const lbl=$('#pinSetLabel'); if(lbl)lbl.textContent=on?'Изменить код':'Задать код';
+  const rm=$('#pinRemove'); if(rm)rm.hidden=!on;
+}
+function bindPin(){
+  const o=$('#openPin'); if(o)o.onclick=()=>{ $('#settings').hidden=true; refreshPinRow(); $('#pinsheet').hidden=false; };
+  const s=$('#pinSet'); if(s)s.onclick=()=>{ $('#pinsheet').hidden=true; lockOpen('set'); };
+  const r=$('#pinRemove'); if(r)r.onclick=()=>{ if(confirm('Удалить код-пароль?')){ delete STORE.__pin; persist(); refreshPinRow(); toast('Код-пароль удалён'); } };
+  const c=$('#pinClose'); if(c)c.onclick=()=>$('#pinsheet').hidden=true;
+  const el=$('#pinsheet'); if(el)el.addEventListener('click',e=>{if(e.target.id==='pinsheet')el.hidden=true;});
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'&&hasPin())lockOpen('unlock'); });
 }
 
 /* ================= ЭКСПОРТ / РЕЗЕРВНАЯ КОПИЯ ================= */
