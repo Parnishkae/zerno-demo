@@ -468,6 +468,18 @@
   .dt-extra button{padding:7px 12px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--text);cursor:pointer}
   .dt-extra button.on{background:var(--brand);color:var(--brand-ink);border-color:transparent}
 
+  /* ===== ОНБОРДИНГ / ВАЛЮТА ===== */
+  #onboard{position:fixed;inset:0;z-index:210;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow-y:auto}
+  .ob-box{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:360px;padding:32px 24px;text-align:center}
+  .ob-logo{width:76px;height:76px;border-radius:20px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,var(--brand),var(--gold));box-shadow:0 8px 24px color-mix(in srgb,var(--brand) 40%,transparent)}
+  .ob-box h1{font-size:26px;font-weight:780;letter-spacing:-.02em;margin-top:6px}
+  .ob-box p{color:var(--muted);font-size:14px;line-height:1.5;max-width:300px}
+  .ob-label{align-self:flex-start;font-size:12px;font-weight:650;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-top:14px}
+  .cur-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%}
+  .cur-chip{padding:9px 14px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line);font-size:14px;font-weight:600;color:var(--text);cursor:pointer;transition:.12s}
+  .cur-chip.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent);color:var(--brand)}
+  .ob-box .btn-primary,.ob-box .btn-ghost{width:100%;justify-content:center;padding:14px;font-size:15px;margin-top:4px}
+
   /* ===== ЭКРАН БЛОКИРОВКИ (PIN) ===== */
   #lockscreen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center}
   .lock-box{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:320px;padding:24px}
@@ -1014,6 +1026,7 @@
       <button class="setrow" id="openAI"><span>🤖&nbsp;&nbsp;Умный ИИ (свой ключ)</span><span class="chev" id="aiStatusChev">›</span></button>
       <button class="setrow" id="openNotif"><span>🔔&nbsp;&nbsp;Уведомления на телефоне</span><span class="chev" id="notifChev">›</span></button>
       <button class="setrow" id="openPin"><span>🔒&nbsp;&nbsp;Код-пароль на вход</span><span class="chev" id="pinChev">›</span></button>
+      <button class="setrow" id="openCur"><span>💱&nbsp;&nbsp;Валюта</span><span class="chev" id="curChev">₴</span></button>
       <button class="setrow" id="openExport"><span>📤&nbsp;&nbsp;Экспорт и резервная копия</span><span class="chev">›</span></button>
       <button class="setrow" id="doDemo"><span>✨&nbsp;&nbsp;Загрузить демо-данные</span><span class="chev">›</span></button>
       <button class="setrow danger" id="doEmpty"><span>🗑&nbsp;&nbsp;Начать с нуля</span><span class="chev">›</span></button>
@@ -1084,6 +1097,29 @@
         <button class="btn-cancel" id="ntfTest">Проверить сейчас</button>
         <button class="btn-primary" id="ntfSave">Сохранить</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== ОНБОРДИНГ ===== -->
+  <div id="onboard" hidden>
+    <div class="ob-box">
+      <div class="ob-logo">🪙</div>
+      <h1>Meridian</h1>
+      <p>Личные финансы, бюджеты, цели, долги и ИИ-советник — всё в одном месте, полностью офлайн и приватно.</p>
+      <div class="ob-label">Валюта</div>
+      <div class="cur-grid" id="obCur"></div>
+      <button class="btn-primary" id="obDemo">Посмотреть с примерами</button>
+      <button class="btn-ghost" id="obEmpty">Начать с чистого листа</button>
+    </div>
+  </div>
+
+  <!-- ===== ВАЛЮТА ===== -->
+  <div class="overlay" id="cursheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Валюта">
+      <h2>💱 Валюта</h2>
+      <div class="msub">Символ валюты применится ко всем суммам в приложении.</div>
+      <div class="cur-grid" id="curGrid" style="justify-content:flex-start"></div>
+      <div class="modal-actions"><button class="btn-cancel" id="curClose" style="flex:1;justify-content:center">Закрыть</button></div>
     </div>
   </div>
 
@@ -1436,7 +1472,10 @@ function loadMode(m){
 const $  = (s,p=document)=>p.querySelector(s);
 const $$ = (s,p=document)=>[...p.querySelectorAll(s)];
 const fmt = n => Math.round(n).toLocaleString('ru-RU');
-const money = n => fmt(n)+' ₴';
+const CURRENCIES=[{code:'UAH',sym:'₴'},{code:'USD',sym:'$'},{code:'EUR',sym:'€'},{code:'PLN',sym:'zł'},{code:'GBP',sym:'£'},{code:'KZT',sym:'₸'},{code:'RUB',sym:'₽'}];
+let CUR = (STORE.__cur && STORE.__cur.sym) ? STORE.__cur : {code:'UAH',sym:'₴'};
+const money = n => fmt(n)+' '+CUR.sym;
+function applyCurrency(){ document.querySelectorAll('.amount-in>span').forEach(function(x){ if(x.textContent.trim()!=='%')x.textContent=CUR.sym; }); }
 const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const ymd = d => { const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); };
 const REAL_TODAY = ymd(new Date());
@@ -1528,7 +1567,7 @@ function renderDonut(){
   });
   $('#donut').innerHTML=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${arcs}
     <text x="${cx}" y="${cy-4}" text-anchor="middle" class="axis-tx" style="font-size:11px">Всего</text>
-    <text x="${cx}" y="${cy+15}" text-anchor="middle" style="fill:var(--ink);font-size:17px;font-weight:750;font-family:var(--mono)">${fmt(total)} ₴</text></svg>`;
+    <text x="${cx}" y="${cy+15}" text-anchor="middle" style="fill:var(--ink);font-size:17px;font-weight:750;font-family:var(--mono)">${fmt(total)} ${CUR.sym}</text></svg>`;
   // легенда
   $('#donutLegend').innerHTML=entries.map(([k,v])=>
     `<span class="li"><i style="background:${CATS[k].color}"></i>${CATS[k].name}<b class="mono">${Math.round(v/total*100)}%</b></span>`).join('');
@@ -1623,13 +1662,13 @@ function txRow(t,full){
   if(t.type==='transfer'){
     return `<div class="tx tappable" data-id="${t.id}"><div class="tic" style="background:color-mix(in srgb,var(--brand) 15%,transparent)">↔</div>
       <div class="tt"><b>Перевод</b><small>${esc(t.ac)} → ${esc(t.ac2||'')}</small></div>
-      <div class="amt mono" style="color:var(--muted)">${fmt(t.amt)} ₴</div>
+      <div class="amt mono" style="color:var(--muted)">${fmt(t.amt)} ${CUR.sym}</div>
       ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
   }
   const c=CATS[t.cat]||{color:'var(--faint)',ic:'•',name:'—'};
   return `<div class="tx tappable" data-id="${t.id}"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
     <div class="tt"><b>${esc(t.t)}</b><small>${c.name} · ${t.ac}</small></div>
-    <div class="amt ${t.type==='in'?'in':''} mono">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ₴</div>
+    <div class="amt ${t.type==='in'?'in':''} mono">${t.type==='in'?'+ ':'− '}${fmt(t.amt)} ${CUR.sym}</div>
     ${full?`<button class="txdel" data-del="${t.id}" title="Удалить" aria-label="Удалить">✕</button>`:''}</div>`;
 }
 function renderRecent(){
@@ -1680,7 +1719,7 @@ function renderBudgets(target,mini){
     return `<div class="bud ${over?'over':''}" data-budcat="${b.cat}" style="cursor:pointer">
       <div class="bh"><div class="tic" style="background:color-mix(in srgb,${c.color} 16%,transparent)">${c.ic}</div>
         <b>${c.name}</b>
-        <div class="r"><span class="mono ${over?'amt-over':''}">${fmt(b.spent)} ₴</span><small class="mono">из ${fmt(b.limit)} ₴</small></div></div>
+        <div class="r"><span class="mono ${over?'amt-over':''}">${fmt(b.spent)} ${CUR.sym}</span><small class="mono">из ${fmt(b.limit)} ${CUR.sym}</small></div></div>
       <div class="track"><div class="fill" data-w="${pct}" style="width:0;background:${col}"></div></div>
       ${over?`<div class="warnrow">⚠ Превышение на ${money(b.spent-b.limit)}</div>`:''}
     </div>`;
@@ -1699,7 +1738,7 @@ function renderGoals(){
           style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)" data-off="${off}"/></svg>
         <div class="lbl"><b>${Math.round(pct*100)}%</b><small>${g.ic} накоплено</small></div></div>
       <div class="gname">${esc(g.name)}</div>
-      <div class="gsum"><b class="mono">${fmt(g.saved)} ₴</b> из <span class="mono">${fmt(g.target)} ₴</span></div>
+      <div class="gsum"><b class="mono">${fmt(g.saved)} ${CUR.sym}</b> из <span class="mono">${fmt(g.target)} ${CUR.sym}</span></div>
       <div class="eta">Осталось ${money(g.target-g.saved)}${g.eta?' · '+g.eta:''}</div>
       <div class="btn-ghost" style="pointer-events:none">Открыть →</div>
     </div></div>`;
@@ -1773,7 +1812,7 @@ function renderLeaks(){
   const spend=catSpend(); const budOver=BUDGETS.map(b=>({...b,over:(spend[b.cat]||0)-b.limit})).filter(b=>b.over>0).sort((a,b)=>b.over-a.over)[0];
   if(budOver){ const c=CATS[budOver.cat]||{name:budOver.cat}; leaks.push({ic:'⚠️',title:'Перерасход: '+c.name,sub:'Сверх лимита на '+money(budOver.over),amt:budOver.over}); }
   leaks.sort((a,b)=>b.amt-a.amt);
-  box.innerHTML=(leaks.length?leaks.slice(0,4).map(l=>`<div class="leak"><span class="lic">${l.ic}</span><span class="lt"><b>${esc(l.title)}</b><small>${esc(l.sub)}</small></span><span class="lv">${fmt(l.amt)} ₴${l.tag==='год'?'/год':''}</span></div>`).join('')
+  box.innerHTML=(leaks.length?leaks.slice(0,4).map(l=>`<div class="leak"><span class="lic">${l.ic}</span><span class="lt"><b>${esc(l.title)}</b><small>${esc(l.sub)}</small></span><span class="lv">${fmt(l.amt)} ${CUR.sym}${l.tag==='год'?'/год':''}</span></div>`).join('')
     :'<div class="empty" style="padding:20px 8px"><div style="font-size:26px">👍</div><b>Явных утечек не видно</b>Расходы под контролем</div>')
     +'<button class="link" id="leakAsk" style="margin-top:10px">🤖 Спросить, где сократить →</button>';
   const la=$('#leakAsk'); if(la)la.onclick=()=>{ go('advisor'); advSendMsg('Где сократить расходы?'); };
@@ -1841,7 +1880,7 @@ function runAnim(view){
 }
 function countUp(scope=document){
   $$('[data-count]',scope).forEach(el=>{
-    const target=+el.dataset.count, suf=(el.dataset.suffix||' ₴').replace(' ','\u00A0');
+    const target=+el.dataset.count, suf=((el.dataset.suffix||(' '+CUR.sym)).replace('₴',CUR.sym)).replace(' ','\u00A0');
     if(reduce){el.textContent=fmt(target)+suf;return;}
     const dur=900,st=performance.now();
     (function tick(now){const p=Math.min((now-st)/dur,1),e=1-Math.pow(1-p,3);
@@ -2014,12 +2053,13 @@ function bind(){
   bindNotif();
   bindMonth();
   bindPin();
+  bindOnboard();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet','#notifsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet','#notifsheet','#pinsheet','#cursheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -2167,11 +2207,13 @@ function bindSheets(){
   });
 }
 function init(){
+  const firstRun = !localStorage.getItem(LSK) && !STORE.__onboarded;
   if(!localStorage.getItem(LSK)){ STORE.__empty=true; try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){} }
   loadMode(STORE.__mode||'personal');
   loadScratch();
   document.body.classList.toggle('is-empty', !!STORE.__empty);
   initTheme();setLabels();fillCatSelects();bind();
+  applyCurrency();refreshCurChev();
   applyMonthLabels();renderMonthPill();
   $('#pageTitle').textContent=TITLES.overview[0]; $('#pageSub').textContent=subFor('overview');
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
@@ -2185,6 +2227,7 @@ function init(){
   refreshNotifChev(); syncNotifications(); refreshPinRow();
   animated.overview=true; runAnim('overview');
   if(hasPin())lockOpen('unlock');
+  if(firstRun)showOnboard();
 }
 /* =================================================================
    ПЛАНЫ · ДОЛГИ · ЧЕРНОВИК
@@ -2372,7 +2415,7 @@ function openAcctDetail(name){
     let inc,label;
     if(t.type==='transfer'){ const out=t.ac===a.name; inc=!out; label='Перевод '+(out?'→ '+esc(t.ac2||''):'← '+esc(t.ac)); }
     else { inc=t.type==='in'; label=esc(t.t); }
-    return `<div class="dt-kv"><span class="kk">${label} · ${dayLabel(t.d)}</span><b class="vv" style="color:${inc?'var(--income)':'var(--ink)'}">${inc?'+ ':'− '}${fmt(t.amt)} ₴</b></div>`;
+    return `<div class="dt-kv"><span class="kk">${label} · ${dayLabel(t.d)}</span><b class="vv" style="color:${inc?'var(--income)':'var(--ink)'}">${inc?'+ ':'− '}${fmt(t.amt)} ${CUR.sym}</b></div>`;
   }).join('')||'<div class="dt-kv"><span class="kk">Пока нет операций</span></div>';
   openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${a.color}">${a.ic}</div>
       <div><h2>${esc(a.name)}</h2><div class="msub" style="margin:0">${a.monoId?'Monobank · ':''}${ops.length} операций</div></div></div>
@@ -2399,7 +2442,7 @@ function openGoalDetail(i){
   const g=GOALS[i]; if(!g)return; const pct=g.target?Math.round(g.saved/g.target*100):0;
   openDetail(`<div class="dt-head"><div class="dt-ic" style="background:${g.color}">${g.ic}</div>
       <div><h2>${esc(g.name)}</h2><div class="msub" style="margin:0">${pct}%${g.eta?' · '+g.eta:''}</div></div></div>
-    <div class="dt-bal mono">${fmt(g.saved)} / ${fmt(g.target)} ₴</div>
+    <div class="dt-bal mono">${fmt(g.saved)} / ${fmt(g.target)} ${CUR.sym}</div>
     <div class="track" style="margin:8px 0 2px"><div class="fill" style="width:${Math.min(pct,100)}%;background:${g.color}"></div></div>
     <div class="dt-actions">
       <button class="dt-act primary" data-a="add">＋ Пополнить</button>
@@ -2920,6 +2963,34 @@ function bindCats(){
   const cs=$('#catEditSave'); if(cs)cs.onclick=saveCat;
   const cx=$('#catEditCancel'); if(cx)cx.onclick=()=>$('#catedit').hidden=true;
   ['catsheet','catedit'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
+}
+
+/* ================= ОНБОРДИНГ / ВАЛЮТА ================= */
+let obPick=(CUR&&CUR.code)||'UAH';
+function curChip(c,sel){ return '<button class="cur-chip'+(c.code===sel?' on':'')+'" data-cc="'+c.code+'">'+c.sym+' '+c.code+'</button>'; }
+function buildObCur(){ const box=$('#obCur'); if(!box)return; box.innerHTML=CURRENCIES.map(c=>curChip(c,obPick)).join('');
+  $$('#obCur [data-cc]').forEach(b=>b.onclick=()=>{ obPick=b.dataset.cc; buildObCur(); }); }
+function showOnboard(){ obPick=(CUR&&CUR.code)||'UAH'; buildObCur(); $('#onboard').hidden=false; }
+function onboardFinish(demo){
+  const c=CURRENCIES.find(x=>x.code===obPick)||CURRENCIES[0];
+  STORE={__empty:!demo,__mode:'personal',__onboarded:true,__cur:{code:c.code,sym:c.sym}};
+  try{localStorage.setItem(LSK,JSON.stringify(STORE));}catch(e){}
+  location.reload();
+}
+function refreshCurChev(){ const c=$('#curChev'); if(c)c.textContent=CUR.sym; }
+function buildCurGrid(){ const box=$('#curGrid'); if(!box)return; box.innerHTML=CURRENCIES.map(c=>curChip(c,CUR.code)).join('');
+  $$('#curGrid [data-cc]').forEach(b=>b.onclick=()=>setCurrency(b.dataset.cc)); }
+function setCurrency(code){
+  const c=CURRENCIES.find(x=>x.code===code); if(!c)return;
+  CUR={code:c.code,sym:c.sym}; STORE.__cur=CUR; persist();
+  applyCurrency(); refreshCurChev(); buildCurGrid(); animated={}; refreshAll(); runAnim(state.view); toast('Валюта: '+c.sym+' '+c.code);
+}
+function bindOnboard(){
+  const d=$('#obDemo'); if(d)d.onclick=()=>onboardFinish(true);
+  const e=$('#obEmpty'); if(e)e.onclick=()=>onboardFinish(false);
+  const o=$('#openCur'); if(o)o.onclick=()=>{ $('#settings').hidden=true; buildCurGrid(); $('#cursheet').hidden=false; };
+  const c=$('#curClose'); if(c)c.onclick=()=>$('#cursheet').hidden=true;
+  const el=$('#cursheet'); if(el)el.addEventListener('click',e=>{if(e.target.id==='cursheet')el.hidden=true;});
 }
 
 /* ================= КОД-ПАРОЛЬ (PIN) ================= */
