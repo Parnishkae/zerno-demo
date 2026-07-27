@@ -127,7 +127,7 @@
     backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .topbar h1{font-size:22px;font-weight:750;letter-spacing:-.02em}
   .topbar .sub{font-size:13px;color:var(--muted);margin-top:1px}
-  .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;row-gap:8px}
   .pill{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:11px;
     border:1px solid var(--line);background:var(--surface);font-size:13.5px;font-weight:600;color:var(--ink)}
   .pill:hover{border-color:var(--line-strong)}
@@ -460,6 +460,13 @@
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
 
+  /* ===== ПЕРЕКЛЮЧАТЕЛЬ МЕСЯЦА ===== */
+  .mo-nav{display:inline-flex;align-items:center;gap:1px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:2px}
+  .mo-nav button{display:grid;place-items:center;color:var(--muted);padding:6px;border-radius:7px;cursor:pointer}
+  .mo-nav button:hover{color:var(--text);background:var(--surface-3)}
+  .mo-nav button:disabled{opacity:.3;cursor:default}
+  .mo-label{font-size:13px;font-weight:650;color:var(--text)!important;min-width:104px;text-align:center;padding:6px 4px!important;white-space:nowrap}
+
   /* ===== ПЕРЕВОДЫ / КАТЕГОРИИ ===== */
   #mSeg{grid-template-columns:repeat(3,1fr)}
   .seg button.on[data-t="transfer"]{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand)}
@@ -617,9 +624,11 @@
           <button data-m="family">Семья</button>
           <button data-m="business">Бизнес</button>
         </div>
-        <button class="pill hide-sm"><span class="month-pill-txt">Июль&nbsp;2026</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="mo-nav" id="moNav">
+          <button id="moPrev" aria-label="Предыдущий месяц"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button id="moLabel" class="mo-label">Июль 2026</button>
+          <button id="moNext" aria-label="Следующий месяц"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
         <button class="icon-btn bell-wrap" id="bellBtn" aria-label="Подсказки">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           <span class="bell-badge" id="bellBadge" hidden>0</span>
@@ -1381,17 +1390,27 @@ const $$ = (s,p=document)=>[...p.querySelectorAll(s)];
 const fmt = n => Math.round(n).toLocaleString('ru-RU');
 const money = n => fmt(n)+' ₴';
 const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-const curMonth = '2026-07';
-const isJuly = t => t.d.startsWith(curMonth);
+const ymd = d => { const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); };
+const REAL_TODAY = ymd(new Date());
+let TODAY = REAL_TODAY;                 // реальная сегодняшняя дата
+const realMonth = REAL_TODAY.slice(0,7);
+let curMonth = realMonth;               // просматриваемый месяц YYYY-MM (меняется свитчером)
+const MO_NOM=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const MO_PREP=['январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре'];
+const MO_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const monthLabel = ym => { const [y,m]=ym.split('-'); return MO_NOM[+m-1].replace(/^./,c=>c.toUpperCase())+' '+y; };
+const isJuly = t => t.d && t.d.startsWith(curMonth);   // "в выбранном месяце"
 const monthIncome  = () => TX.filter(t=>isJuly(t)&&t.type==='in').reduce((a,b)=>a+b.amt,0);
 const monthExpense = () => TX.filter(t=>isJuly(t)&&t.type==='out').reduce((a,b)=>a+b.amt,0);
 function catSpend(){
   const m={}; TX.filter(t=>isJuly(t)&&t.type==='out').forEach(t=>m[t.cat]=(m[t.cat]||0)+t.amt); return m;
 }
+function shiftYM(ym,delta){ const [y,m]=ym.split('-').map(Number); const d=new Date(y,m-1+delta,1); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1); }
 function dayLabel(d){
-  if(d==='2026-07-22')return'Сегодня'; if(d==='2026-07-21')return'Вчера';
-  const [y,mo,da]=d.split('-'); const mm=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-  return +da+' '+mm[+mo-1];
+  if(d===TODAY)return'Сегодня';
+  const yd=new Date(TODAY+'T00:00:00'); yd.setDate(yd.getDate()-1);
+  if(d===ymd(yd))return'Вчера';
+  const [y,mo,da]=d.split('-'); return +da+' '+MO_GEN[+mo-1];
 }
 
 /* тултип */
@@ -1662,6 +1681,22 @@ function duePlansInMonth(){
 function renderForecast(){
   const box=$('#forecast'); if(!box)return;
   const inc=monthIncome(),exp=monthExpense(),bal=ACCTS.reduce((a,b)=>a+b.bal,0);
+  const hcard=$('#forecastCard'), htitle=hcard&&hcard.querySelector('h3');
+  if(curMonth!==realMonth){
+    if(htitle)htitle.textContent='📅 Итоги месяца';
+    $('#fcDays').textContent=monthLabel(curMonth);
+    if(inc+exp<=0){ box.innerHTML='<div class="empty" style="padding:20px 8px"><div style="font-size:26px">🗓️</div><b>Нет операций за этот месяц</b>Выберите другой месяц стрелками вверху</div>'; return; }
+    const saved=inc-exp, rate=inc?Math.round(saved/inc*100):0, cnt=TX.filter(isJuly).length;
+    box.innerHTML=`<div class="fc-hero"><span class="fcv mono">${money(saved)}</span><span class="fcp ${saved>=0?'good':'bad'}">${saved>=0?'отложено':'перерасход'}</span></div>
+      <div class="fc-grid">
+        <div class="fc-cell"><span class="k">Доходы</span><span class="v mono" style="color:var(--income)">${money(inc)}</span></div>
+        <div class="fc-cell"><span class="k">Расходы</span><span class="v mono">${money(exp)}</span></div>
+        <div class="fc-cell"><span class="k">Норма сбережений</span><span class="v mono" style="color:${saved>=0?'var(--income)':'var(--expense)'}">${rate}%</span></div>
+        <div class="fc-cell"><span class="k">Операций</span><span class="v mono">${cnt}</span></div>
+      </div><div class="fc-note">Факт за ${monthLabel(curMonth)}: доход ${money(inc)}, расход ${money(exp)}.</div>`;
+    return;
+  }
+  if(htitle)htitle.textContent='🔮 Прогноз к концу месяца';
   const dim=monthDays(),dayN=+TODAY.split('-')[2],rem=Math.max(dim-dayN,0);
   $('#fcDays').textContent='осталось '+rem+' '+plural(rem,'день','дня','дней');
   if(inc+exp<=0){ box.innerHTML='<div class="empty" style="padding:20px 8px"><div style="font-size:26px">🔮</div><b>Недостаточно данных</b>Добавьте операции — покажу прогноз</div>'; return; }
@@ -1706,6 +1741,33 @@ const TITLES={overview:['Обзор','Вторник, 22 июля 2026'],tx:['О
   invest:['Инвестиции','портфель и доходность'],
   advisor:['Советник','ваш финансовый ИИ-помощник']};
 let animated={};
+const WD=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+function fmtToday(){ const d=new Date(TODAY+'T00:00:00'); return WD[d.getDay()].replace(/^./,c=>c.toUpperCase())+', '+d.getDate()+' '+MO_GEN[d.getMonth()]+' '+d.getFullYear(); }
+function subFor(view){
+  if(view==='overview')return curMonth===realMonth?fmtToday():monthLabel(curMonth);
+  if(view==='tx'){ const n=TX.length; return n+' '+plural(n,'операция','операции','операций'); }
+  if(view==='analytics'||view==='budgets')return monthLabel(curMonth);
+  return (TITLES[view]&&TITLES[view][1])||'';
+}
+function applyMonthLabels(){
+  const m=+curMonth.split('-')[1]-1, d=MODES[MODE];
+  const ci=$('#capIn'); if(ci)ci.innerHTML='<span class="dot" style="background:var(--income)"></span>'+String(d.capIn).replace(/·\s*\S+$/,'· '+MO_NOM[m]);
+  const co=$('#capOut'); if(co)co.innerHTML='<span class="dot" style="background:var(--expense)"></span>'+String(d.capOut).replace(/·\s*\S+$/,'· '+MO_NOM[m]);
+  const cs=$('#capSaved'); if(cs)cs.textContent=String(d.capSaved).replace(/в\s+\S+$/,'в '+MO_PREP[m]);
+}
+function renderMonthPill(){
+  const l=$('#moLabel'); if(l)l.textContent=monthLabel(curMonth);
+  const nx=$('#moNext'); if(nx)nx.disabled = curMonth>=realMonth;
+}
+function setMonth(ym){
+  if(ym>realMonth)ym=realMonth;
+  curMonth=ym; animated={}; refreshAll(); renderMonthPill(); go(state.view||'overview');
+}
+function bindMonth(){
+  const p=$('#moPrev'); if(p)p.onclick=()=>setMonth(shiftYM(curMonth,-1));
+  const n=$('#moNext'); if(n)n.onclick=()=>{ if(curMonth<realMonth)setMonth(shiftYM(curMonth,1)); };
+  const l=$('#moLabel'); if(l)l.onclick=()=>setMonth(realMonth);
+}
 
 function go(view){
   state.view=view;
@@ -1714,7 +1776,7 @@ function go(view){
   $$('.bottomnav button').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
   $$('.bottomnav [data-more]').forEach(n=>n.classList.toggle('active',['budgets','goals','analytics','invest','advisor'].includes(view)));
   $('#pageTitle').textContent=TITLES[view][0];
-  $('#pageSub').textContent = view==='tx' ? (TX.length+' '+plural(TX.length,'операция','операции','операций')+' в июле') : TITLES[view][1];
+  $('#pageSub').textContent = subFor(view);
   document.querySelector('.content').scrollIntoView({block:'start'});
   window.scrollTo(0,0);
   if(!animated[view]){animated[view]=true; runAnim(view);}
@@ -1849,6 +1911,7 @@ function refreshAll(){
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   renderInvest();
   setComputedCounts();
+  applyMonthLabels(); renderMonthPill();
   refreshAI();
   if(hasNotify())syncNotifications();
   $('.paycard .pc-bal').textContent=money(ACCTS[0]?ACCTS[0].bal:0);
@@ -1901,6 +1964,7 @@ function bind(){
   bindCats();
   bindExport();
   bindNotif();
+  bindMonth();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
@@ -2059,6 +2123,8 @@ function init(){
   loadScratch();
   document.body.classList.toggle('is-empty', !!STORE.__empty);
   initTheme();setLabels();fillCatSelects();bind();
+  applyMonthLabels();renderMonthPill();
+  $('#pageTitle').textContent=TITLES.overview[0]; $('#pageSub').textContent=subFor('overview');
   renderAcctChips();renderCashflow();renderDonut();renderRecent();
   renderBudgets('#budgetMini',true);renderBudgets('#budgetsFull',false);renderTxFull();
   renderInvest();
@@ -2073,7 +2139,6 @@ function init(){
 /* =================================================================
    ПЛАНЫ · ДОЛГИ · ЧЕРНОВИК
    ================================================================= */
-const TODAY='2026-07-22';
 const MSHORT=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 function fmtDate(s){ if(!s)return '—'; const p=s.split('-'); return (+p[2])+' '+(MSHORT[+p[1]-1]||''); }
 function addMonth(s){ const d=new Date((s||TODAY)+'T00:00:00'); d.setMonth(d.getMonth()+1); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
