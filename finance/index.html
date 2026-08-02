@@ -852,6 +852,12 @@
           <div class="card col-3"><div class="kpi"><span class="k">Норма сбережений</span><span class="v mono" id="kpiRate" style="color:var(--income)">22%</span></div></div>
           <div class="card col-3"><div class="kpi"><span class="k">Чистый капитал</span><span class="v mono" id="kpiNet">177 120 ₴</span></div></div>
 
+          <div class="card col-12 adv-launch" id="reportLaunch" style="cursor:pointer">
+            <div class="al-ic" style="background:linear-gradient(135deg,var(--gold),var(--brand))">📤</div>
+            <div class="al-t"><b>Отчёт за месяц</b><small>Красивая картинка с итогами — сохранить или поделиться</small></div>
+            <span class="chev" style="color:var(--faint);font-size:20px">›</span>
+          </div>
+
           <div class="card col-7" id="forecastCard">
             <div class="card-h"><h3>🔮 Прогноз к концу месяца</h3><span class="hint" id="fcDays"></span></div>
             <div id="forecast"></div>
@@ -1109,6 +1115,22 @@
     </div>
   </div>
 
+  <!-- ===== ОТЧЁТ ЗА МЕСЯЦ ===== -->
+  <div class="overlay" id="reportsheet" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Отчёт за месяц" style="max-width:400px">
+      <h2>📤 Отчёт за месяц</h2>
+      <div class="msub">Сохраните картинку или поделитесь итогами месяца.</div>
+      <div style="border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--surface-2)">
+        <img id="reportImg" alt="Отчёт" style="width:100%;display:block">
+      </div>
+      <canvas id="reportCanvas" width="1080" height="1350" style="display:none"></canvas>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="reportClose">Закрыть</button>
+        <button class="btn-primary" id="reportShare">Поделиться / Сохранить</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== ОНБОРДИНГ ===== -->
   <div id="onboard" hidden>
     <div class="ob-box">
@@ -1306,7 +1328,7 @@
 /* =================================================================
    DATA — демо-данные (все суммы в гривнах, июль 2026)
    ================================================================= */
-const MONTHS=['Фев','Мар','Апр','Май','Июн','Июл'];
+let MONTHS=['Фев','Мар','Апр','Май','Июн','Июл'];  // 6 трейлинг-месяцев (пересчитывается под реальный месяц)
 /* «во все стороны» — три режима одного приложения: личные, семья, бизнес */
 const MODES = {
   personal:{
@@ -1457,12 +1479,12 @@ function loadMode(m){
   let base;
   if(s&&s.accts) base={accts:s.accts, tx:s.tx||[], goals:s.goals||[]};
   else if(STORE.__empty) base=emptyFor(m);
-  else base={accts:d.accts, tx:d.tx.map((t,i)=>({...t,id:'seed'+i})), goals:d.goals};
+  else base={accts:d.accts, tx:d.tx.map((t,i)=>({...t,id:'seed'+i,d:reDate(t.d)})), goals:d.goals};
   ACCTS=base.accts.map(a=>({...a}));
   TX=base.tx.map(t=>({...t}));
   GOALS=base.goals.map(g=>({...g}));
-  PLANS=(s&&s.plans)?s.plans.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_PLANS.map(x=>({...x})):[]));
-  DEBTS=(s&&s.debts)?s.debts.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_DEBTS.map(x=>({...x})):[]));
+  PLANS=(s&&s.plans)?s.plans.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_PLANS.map(x=>({...x,date:reDate(x.date)})):[]));
+  DEBTS=(s&&s.debts)?s.debts.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_DEBTS.map(x=>({...x,nextDate:reDate(x.nextDate)})):[]));
   INVEST=(s&&s.invest)?s.invest.map(x=>({...x})):(STORE.__empty?[]:(m==='personal'?DEMO_INVEST.map(x=>({...x})):[]));
   BUDGETS=(s&&s.budgets)?s.budgets.map(b=>({...b})):d.budgets.map(b=>({...b}));
   if(STORE.__empty){
@@ -1491,6 +1513,11 @@ const REAL_TODAY = ymd(new Date());
 let TODAY = REAL_TODAY;                 // реальная сегодняшняя дата
 const realMonth = REAL_TODAY.slice(0,7);
 let curMonth = realMonth;               // просматриваемый месяц YYYY-MM (меняется свитчером)
+const MSH3=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+MONTHS=(function(){ const out=[],p=realMonth.split('-'),y=+p[0],m=+p[1]; for(let i=5;i>=0;i--){ const d=new Date(y,m-1-i,1); out.push(MSH3[d.getMonth()]); } return out; })();
+function shiftDateMonths(ds,delta){ if(!ds||!delta)return ds; const p=ds.split('-'),d=new Date(+p[0],+p[1]-1+delta,+p[2]); const z=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
+const DEMO_DELTA=(function(){ const p=realMonth.split('-'); return (+p[0]-2026)*12+(+p[1]-7); })();
+const reDate=ds=>DEMO_DELTA?shiftDateMonths(ds,DEMO_DELTA):ds;
 const MO_NOM=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
 const MO_PREP=['январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре'];
 const MO_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -2063,12 +2090,13 @@ function bind(){
   bindMonth();
   bindPin();
   bindOnboard();
+  bindReport();
   const ab=$('#addBudgetBtn'); if(ab)ab.onclick=addBudget;
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllSheets();});
 }
 
 /* ===== НАСТРОЙКИ / СЧЕТА / MONOBANK ===== */
-function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet','#notifsheet','#pinsheet','#cursheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
+function closeAllSheets(){ ['#modal','#settings','#accsheet','#monosheet','#plansheet','#debtsheet','#moresheet','#detail','#invSheet','#aisheet','#insightsheet','#catsheet','#catedit','#exportsheet','#notifsheet','#pinsheet','#cursheet','#reportsheet'].forEach(s=>{const el=$(s);if(el)el.hidden=true;}); }
 function openSettings(){ $('#setMode').textContent=MODES[MODE].tab; $('#settings').hidden=false; }
 function startEmpty(){
   if(!confirm('Очистить всё и начать с нуля? Операции и балансы обнулятся.'))return;
@@ -3008,6 +3036,56 @@ function bindCats(){
   const cs=$('#catEditSave'); if(cs)cs.onclick=saveCat;
   const cx=$('#catEditCancel'); if(cx)cx.onclick=()=>$('#catedit').hidden=true;
   ['catsheet','catedit'].forEach(id=>{ const el=$('#'+id); if(el)el.addEventListener('click',e=>{if(e.target.id===id)el.hidden=true;}); });
+}
+
+/* ================= ОТЧЁТ ЗА МЕСЯЦ (картинка) ================= */
+function cssVar(n){ const v=(getComputedStyle(document.documentElement).getPropertyValue(n)||'').trim(); return v||''; }
+function rrect(g,x,y,w,h,r){ r=Math.min(r,h/2,w/2); g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+const FF='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+function drawReport(){
+  const c=$('#reportCanvas'); if(!c)return''; const g=c.getContext('2d'), W=c.width, H=c.height, s=financeSnapshot();
+  const bg=cssVar('--surface')||'#0f1613', card=cssVar('--surface-2')||'#17201c', text=cssVar('--text')||'#eaf2ee',
+    muted=cssVar('--muted')||'#9fb0a8', brand=cssVar('--brand')||'#1f8f5f', inc=cssVar('--income')||'#3ecb86',
+    exp=cssVar('--expense')||'#ef6a5b', gold=cssVar('--gold')||'#e2b23a', line=cssVar('--line')||'#26302b';
+  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  g.fillStyle=text; g.font='800 50px '+FF; g.fillText('🪙 Meridian',64,104);
+  g.fillStyle=muted; g.font='500 36px '+FF; g.fillText('Отчёт · '+monthLabel(curMonth),64,158);
+  g.fillStyle=muted; g.font='600 34px '+FF; g.fillText(s.saved>=0?'Отложено за месяц':'Перерасход за месяц',64,300);
+  g.fillStyle=s.saved>=0?inc:exp; g.font='800 124px '+FF; g.fillText(money(Math.abs(s.saved)),64,418);
+  g.fillStyle=muted; g.font='500 34px '+FF; g.fillText('Норма сбережений '+s.rate+'%',64,474);
+  const cw=(W-160)/2;
+  [[64,'Доход',money(s.inc),inc],[64+cw+32,'Расход',money(s.exp),exp]].forEach(col=>{
+    g.fillStyle=card; rrect(g,col[0],540,cw,150,24); g.fill();
+    g.fillStyle=muted; g.font='500 30px '+FF; g.fillText(col[1],col[0]+34,600);
+    g.fillStyle=col[3]; g.font='800 52px '+FF; g.fillText(col[2],col[0]+34,662);
+  });
+  g.fillStyle=text; g.font='700 42px '+FF; g.fillText('Куда ушли деньги',64,790);
+  const top=s.catArr.slice(0,4), maxA=top.length?top[0].amt:1;
+  if(!top.length){ g.fillStyle=muted; g.font='500 34px '+FF; g.fillText('Нет расходов за месяц',64,860); }
+  top.forEach((ct,i)=>{ const y=852+i*104;
+    g.fillStyle=text; g.font='600 34px '+FF; g.textAlign='left'; g.fillText(ct.name,64,y);
+    g.fillStyle=muted; g.textAlign='right'; g.fillText(money(ct.amt),W-64,y); g.textAlign='left';
+    g.fillStyle=line; rrect(g,64,y+18,W-128,20,10); g.fill();
+    g.fillStyle=[brand,gold,'#6aa9ff',exp][i%4]; rrect(g,64,y+18,Math.max(24,(W-128)*(ct.amt/maxA)),20,10); g.fill();
+  });
+  g.fillStyle=card; rrect(g,64,H-200,W-128,96,24); g.fill();
+  g.fillStyle=muted; g.font='500 30px '+FF; g.fillText('Общий баланс',96,H-142);
+  g.fillStyle=text; g.font='800 46px '+FF; g.textAlign='right'; g.fillText(money(s.bal),W-96,H-134); g.textAlign='left';
+  g.fillStyle=muted; g.font='400 26px '+FF; g.fillText('Сформировано в приложении Meridian',64,H-40);
+  const url=c.toDataURL('image/png'); const im=$('#reportImg'); if(im)im.src=url; return url;
+}
+function openReport(){ drawReport(); $('#reportsheet').hidden=false; }
+async function shareReport(){
+  const url=($('#reportImg')&&$('#reportImg').src)||drawReport(); if(!url)return;
+  try{ const blob=await (await fetch(url)).blob(); const file=new File([blob],'meridian-'+curMonth+'.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'Отчёт Meridian',text:'Мои финансы за '+monthLabel(curMonth)}); return; } }catch(e){}
+  try{ const a=document.createElement('a'); a.href=url; a.download='meridian-'+curMonth+'.png'; document.body.appendChild(a); a.click(); a.remove(); toast('Отчёт сохранён'); }catch(e){ toast('Не удалось сохранить'); }
+}
+function bindReport(){
+  const l=$('#reportLaunch'); if(l)l.onclick=openReport;
+  const c=$('#reportClose'); if(c)c.onclick=()=>$('#reportsheet').hidden=true;
+  const sh=$('#reportShare'); if(sh)sh.onclick=shareReport;
+  const el=$('#reportsheet'); if(el)el.addEventListener('click',e=>{if(e.target.id==='reportsheet')el.hidden=true;});
 }
 
 /* ================= ОНБОРДИНГ / ВАЛЮТА ================= */
