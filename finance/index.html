@@ -576,6 +576,15 @@
   .adv-mode.off{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
   .adv-mode.on{background:color-mix(in srgb,var(--income) 16%,transparent);color:var(--income)}
 
+  /* ===== АГЕНТНЫЕ ДЕЙСТВИЯ ===== */
+  .agent-q{font-size:14px;font-weight:600;margin-bottom:9px;line-height:1.4}
+  .agent-btns{display:flex;gap:8px}
+  .agent-btns button{flex:1;padding:9px 12px;border-radius:11px;font-size:13px;font-weight:650;cursor:pointer;transition:.12s;border:1px solid var(--line)}
+  .agent-yes{background:var(--brand);color:var(--brand-ink);border-color:transparent!important}
+  .agent-yes:hover{filter:brightness(1.07)} .agent-no{background:var(--surface);color:var(--muted)}
+  .agent-btns button:disabled{opacity:.5;cursor:default}
+  .agent-done{color:var(--income);font-weight:600}
+
   /* ===== ПОДСКАЗКИ / ИНСАЙТЫ ===== */
   .insight{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:var(--surface-2);
     border:1px solid var(--line);border-left:3px solid var(--brand)}
@@ -2809,10 +2818,46 @@ function advPush(role,html){
   const sc=$('#advScroll'); if(!sc)return; const n=advNode(role); n.querySelector('.adv-bub').innerHTML=html; sc.appendChild(n); sc.scrollTop=sc.scrollHeight; return n;
 }
 function advTyping(){ const sc=$('#advScroll'); const n=advNode('ai'); const b=n.querySelector('.adv-bub'); b.className='adv-bub typing'; b.innerHTML='<i></i><i></i><i></i>'; sc.appendChild(n); sc.scrollTop=sc.scrollHeight; return n; }
+/* ---- агентные действия: советник выполняет команды ---- */
+const CAT_SYN={food:['продукт','еда','магазин','супермаркет','сільпо','атб'],cafe:['кафе','ресторан','кофе','обед','достав','glovo'],transport:['транспорт','такси','метро','бензин','заправк','проезд','uklon','uber'],fun:['развлеч','кино','игр','отдых','подписк','netflix'],home:['жиль','аренд','квартир','коммунал','ипотек'],kids:['дет','ребёнок','ребенок','школ','сад'],other:['проч','разное']};
+function parseAmount(t){ const m=t.match(/(\d[\d\s]*)\s*(к|k|тыс)?/i); if(!m)return 0; let n=parseInt(m[1].replace(/\s/g,''),10)||0; if(m[2])n*=1000; return n; }
+function matchCat(t){ t=t.toLowerCase();
+  for(const k in CATS){ if(k!=='income'){ const nm=(CATS[k].name||'').toLowerCase(); if(nm&&t.includes(nm))return k; } }
+  for(const k in CAT_SYN){ if(CATS[k]&&CAT_SYN[k].some(s=>t.includes(s)))return k; }
+  return null;
+}
+function cleanName(s){ return (s||'').replace(/\d[\d\s]*(к|тыс)?/gi,'').replace(/[₴$€£₸₽]/g,'').replace(/\bна\b|\bдо\b/g,'').trim().replace(/^./,c=>c.toUpperCase()); }
+function parseCommand(text){
+  const t=text.toLowerCase().trim(), amt=parseAmount(t);
+  if(!amt)return null;
+  if(/(отлож|накоп|копить|копи|цель)/.test(t)){
+    let m=t.match(/на\s+(.+)$/)||t.match(/цель\s+(.+)$/); let name=cleanName(m?m[1]:'')||'Новая цель';
+    return {type:'goal',name,amount:amt,label:'Создать цель «'+name+'» на '+money(amt)+'?'};
+  }
+  if(/(лимит|бюджет)/.test(t)){ const cat=matchCat(t); if(cat)return {type:'budget',cat,amount:amt,label:'Поставить лимит '+money(amt)+' на «'+CATS[cat].name+'»?'}; }
+  if(/(доход|получил|зарплат|поступил|пришл|заработал)/.test(t)&&!/расход/.test(t)) return {type:'income',amount:amt,label:'Добавить доход '+money(amt)+'?'};
+  if(/(расход|потрат|трат|купил|заплатил|оплатил|потратил)/.test(t)){ const cat=matchCat(t)||'other'; let m=t.match(/на\s+([^\d]+)/); const title=cleanName(m?m[1]:'')||(CATS[cat]||{}).name||'Расход';
+    return {type:'expense',amount:amt,cat,title,label:'Добавить расход '+money(amt)+' · '+((CATS[cat]||{}).name||'Прочее')+'?'}; }
+  return null;
+}
+function execAction(a){
+  if(a.type==='goal'){ const pal=['var(--gold)','var(--cat-5)','var(--cat-3)','var(--cat-1)','var(--cat-6)']; GOALS.push({name:a.name,target:a.amount,saved:0,color:pal[GOALS.length%pal.length],ic:'🎯',eta:''}); STORE.__empty=false; saveState(); animated={}; refreshAll(); if(state.view==='goals')renderGoals(); return '<span class="agent-done">✅ Цель «'+esc(a.name)+'» на '+money(a.amount)+' создана.</span> Открой раздел «Цели».'; }
+  if(a.type==='budget'){ const ex=BUDGETS.find(b=>b.cat===a.cat); if(ex)ex.limit=a.amount; else BUDGETS.push({cat:a.cat,limit:a.amount}); STORE.__empty=false; saveState(); animated={}; refreshAll(); return '<span class="agent-done">✅ Лимит '+money(a.amount)+' на «'+esc(CATS[a.cat].name)+'» установлен.</span>'; }
+  if(a.type==='income'||a.type==='expense'){ const ac=ACCTS[0], inc=a.type==='income'; const t={id:'tx'+Date.now(),t:a.title||(inc?'Доход':'Расход'),cat:inc?'income':a.cat,type:inc?'in':'out',amt:a.amount,d:TODAY,ac:ac?ac.name:''}; TX.unshift(t); if(ac)ac.bal+=inc?a.amount:-a.amount; STORE.__empty=false; saveState(); animated={}; refreshAll(); return '<span class="agent-done">✅ '+(inc?'Доход':'Расход')+' '+money(a.amount)+' добавлен'+(a.type==='expense'?(' · '+esc((CATS[a.cat]||{}).name||'')):'')+'.</span>'; }
+  return 'Готово.';
+}
+function proposeAction(a){
+  const node=advPush('ai','<div class="agent-q">'+esc(a.label)+'</div><div class="agent-btns"><button class="agent-yes">Да, сделать</button><button class="agent-no">Отмена</button></div>');
+  const y=node.querySelector('.agent-yes'), n=node.querySelector('.agent-no');
+  if(y)y.onclick=()=>{ y.disabled=true; if(n)n.disabled=true; advPush('ai',execAction(a)); toast('Готово'); };
+  if(n)n.onclick=()=>{ if(y)y.disabled=true; n.disabled=true; advPush('ai','Отменил — ничего не менял. 👌'); };
+}
 function advSendMsg(text){
   text=(text||'').trim(); if(!text)return;
   advPush('me',esc(text)); advHistory.push({role:'user',content:text});
   const ta=$('#advText'); if(ta){ta.value='';ta.style.height='auto';}
+  const cmd=parseCommand(text);
+  if(cmd){ const tp=advTyping(); setTimeout(()=>{ tp.remove(); proposeAction(cmd); },340); return; }
   const smart=!!getKey(); const typ=advTyping();
   const finish=html=>{ typ.remove(); advPush('ai',html); advHistory.push({role:'assistant',content:html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,600)}); };
   if(smart){
@@ -2824,11 +2869,11 @@ function advSendMsg(text){
 function advWelcome(){
   const sc=$('#advScroll'); if(!sc)return; sc.innerHTML=''; advHistory=[];
   const on=!!getKey();
-  advPush('ai',P('Привет! 👋 Я ваш финансовый советник'+(on?' <b>(умный режим)</b>':'')+'. Разберу ваши расходы, долги, накопления и цели — и подскажу, что улучшить.')+P('Спросите своими словами или выберите тему ниже 👇'));
+  advPush('ai',P('Привет! 👋 Я ваш финансовый советник'+(on?' <b>(умный режим)</b>':'')+'. Разберу расходы, долги и цели — и не только подскажу, но и <b>сделаю</b>.')+P('Например: «отложи 5000 на отпуск», «лимит 3000 на кафе», «добавь расход 200 на такси». Или спросите совет 👇'));
 }
 function renderChips(){
   const box=$('#advChips'); if(!box)return;
-  const chips=['Сколько я трачу?','Как гасить долги?','Где сократить расходы?','Хватает ли подушки?','Как больше откладывать?','Правило 50/30/20','Проверь мои бюджеты','Мои цели'];
+  const chips=['Отложи 5000 на отпуск','Лимит 3000 на кафе','Сколько я трачу?','Как гасить долги?','Где сократить расходы?','Хватает ли подушки?','Правило 50/30/20','Мои цели'];
   box.innerHTML=chips.map(c=>'<button class="adv-chip">'+esc(c)+'</button>').join('');
   $$('#advChips .adv-chip').forEach(b=>b.onclick=()=>advSendMsg(b.textContent));
 }
