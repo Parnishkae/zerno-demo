@@ -388,13 +388,31 @@
   .debt-item .dh .rem{margin-left:auto;text-align:right;font-family:var(--mono);font-weight:700;font-size:13.5px;color:var(--expense);flex:none}
   .debt-item .dmeta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:var(--muted)}
   .debt-item .dmeta .mono{color:var(--ink)}
-  .scr-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-  .scr-row input{padding:11px 12px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-size:14px;outline:none}
-  .scr-row input:focus{border-color:var(--brand)}
-  .scr-row .nt{flex:1;min-width:0}
-  .scr-row .am{width:110px;flex:none;font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
-  .scr-row .del{width:34px;height:34px;flex:none;border-radius:9px;color:var(--faint);display:grid;place-items:center;font-size:12px}
-  .scr-row .del:hover{background:var(--neg-soft);color:var(--expense)}
+  .pad-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pad-bar select{flex:1;min-width:150px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font:inherit;font-size:14px;font-weight:650}
+  .pad-bar>button{width:40px;height:40px;flex:none;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);cursor:pointer;font-size:15px}
+  .pad-bar>button:hover{color:var(--text);border-color:var(--line-strong)}
+  .pad-tools{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .pad-tools label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+  .pad-tools input[inputmode]{width:96px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font:inherit;font-size:14px;text-align:right;outline:none}
+  .scr-row{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+  .scr-row:last-of-type{border-bottom:none}
+  .scr-check{width:26px;height:26px;flex:none;border-radius:8px;border:2px solid var(--line-strong);background:none;cursor:pointer;display:grid;place-items:center;font-size:14px;color:transparent;margin-top:2px}
+  .scr-check.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .scr-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+  .scr-main input{padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font:inherit;font-size:14px;outline:none}
+  .scr-main input:focus{border-color:var(--brand)}
+  .scr-row.done .nt{text-decoration:line-through;opacity:.5}
+  .scr-calc{display:flex;align-items:center;gap:6px}
+  .scr-calc input{padding:7px 8px;font-size:13px;text-align:right;background:var(--surface)}
+  .scr-calc .qty,.scr-calc .price{width:62px} .scr-calc .op{color:var(--faint);font-size:13px}
+  .scr-calc .sum{width:82px;margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+  .scr-del{width:30px;height:30px;flex:none;border-radius:8px;color:var(--faint);display:grid;place-items:center;font-size:12px;cursor:pointer;margin-top:2px}
+  .scr-del:hover{background:var(--neg-soft);color:var(--expense)}
+  .pad-sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pad-sum .ps{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  .pad-sum .ps .k{font-size:11.5px;color:var(--muted);display:block;margin-bottom:2px}
+  .pad-sum .ps .v{font-size:17px;font-weight:750;font-variant-numeric:tabular-nums}
 
   /* панель деталей */
   .dt-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
@@ -917,26 +935,36 @@
       <!-- ============ ЧЕРНОВИК ============ -->
       <section class="view" data-view="scratch" hidden>
         <div class="grid">
-          <div class="card col-12" style="padding:16px 20px">
-            <div class="msub" style="margin:0">Быстрый расчёт «на салфетке»: план прихода по датам и список расходов — суммы считаются сами. Ничего не влияет на баланс.</div>
+          <div class="card col-12" style="padding:15px 18px">
+            <div class="pad-bar">
+              <select id="padSelect" aria-label="Блокнот"></select>
+              <button id="padNew" title="Новый блокнот">＋</button>
+              <button id="padRename" title="Переименовать">✎</button>
+              <button id="padDel" title="Удалить блокнот">🗑</button>
+            </div>
+            <div class="pad-tools">
+              <label>🎯 Бюджет <input id="padBudget" inputmode="numeric" placeholder="0"></label>
+              <label>👥 На человек <input id="padSplit" inputmode="numeric" placeholder="1"></label>
+              <label style="gap:7px;cursor:pointer"><input type="checkbox" id="padHideDone" style="width:auto;accent-color:var(--brand)"> Скрыть выполненные</label>
+            </div>
           </div>
           <div class="card col-6">
-            <div class="card-h"><h3>Приход (план)</h3><b class="mono" id="scrInTotal" style="margin-left:auto;color:var(--income)">0 ₴</b></div>
+            <div class="card-h"><h3>Приход</h3><b class="mono" id="scrInTotal" style="margin-left:auto;color:var(--income)">0 ₴</b></div>
             <div id="scrIncome"></div>
-            <button class="btn-ghost" id="scrAddIn" style="width:100%;margin-top:8px">＋ Строка прихода</button>
+            <button class="btn-ghost" id="scrAddIn" style="width:100%;margin-top:8px">＋ Строка</button>
           </div>
           <div class="card col-6">
             <div class="card-h"><h3>Расходы</h3><b class="mono" id="scrOutTotal" style="margin-left:auto;color:var(--expense)">0 ₴</b></div>
             <div id="scrExpense"></div>
-            <button class="btn-ghost" id="scrAddOut" style="width:100%;margin-top:8px">＋ Строка расхода</button>
+            <button class="btn-ghost" id="scrAddOut" style="width:100%;margin-top:8px">＋ Строка</button>
           </div>
-          <div class="card col-12" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-            <div>
-              <div class="eyebrow">Итог</div>
-              <div class="mono" id="scrNet" style="font-size:30px;font-weight:770;letter-spacing:-.02em">0 ₴</div>
-              <div id="scrNetLbl" style="color:var(--faint);font-size:12.5px;font-weight:500">приход − расход</div>
+          <div class="card col-12">
+            <div class="pad-sum" id="padSum"></div>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn-primary" id="scrConvert" style="flex:1;justify-content:center;min-width:180px">Провести расходы в операции →</button>
+              <button class="btn-cancel" id="scrClear">Очистить</button>
             </div>
-            <button class="btn-cancel" id="scrClear">Очистить черновик</button>
+            <div class="msub" style="margin-top:10px;font-size:11.5px">💡 Строки считаются сами (кол-во × цена). Галочка отмечает выполненное. Блокноты независимы и не влияют на баланс, пока вы не нажмёте «Провести».</div>
           </div>
         </div>
       </section>
@@ -1475,12 +1503,22 @@ const DEMO_SCRATCH={
   income:[{note:'21 · подработка',amount:425},{note:'23 число',amount:700},{note:'24 число',amount:700},{note:'27 число',amount:700},{note:'28 число',amount:700},{note:'29 число',amount:700}],
   expense:[{note:'Пицца',amount:145},{note:'Сок',amount:70},{note:'Счёт',amount:400},{note:'Билеты',amount:1700},{note:'Проезд',amount:100},{note:'Попкорн',amount:160},{note:'Рассрочка',amount:200},{note:'Аромадиффузор',amount:150}]
 };
+let PADS;
+const emptyRow=()=>({note:'',qty:0,price:0,amount:0,done:false});
+function normRows(arr){ return (Array.isArray(arr)&&arr.length?arr:[{}]).map(r=>({note:r.note||'',qty:+r.qty||0,price:+r.price||0,amount:+r.amount||0,done:!!r.done})); }
 function loadScratch(){
-  if(STORE.__scratch) SCRATCH={income:(STORE.__scratch.income||[]).map(r=>({...r})),expense:(STORE.__scratch.expense||[]).map(r=>({...r}))};
-  else if(STORE.__empty) SCRATCH={income:[{note:'',amount:0}],expense:[{note:'',amount:0}]};
-  else SCRATCH={income:DEMO_SCRATCH.income.map(r=>({...r})),expense:DEMO_SCRATCH.expense.map(r=>({...r}))};
+  if(STORE.__pads&&STORE.__pads.list&&STORE.__pads.list.length){
+    PADS=STORE.__pads; PADS.list.forEach(p=>{ p.income=normRows(p.income); p.expense=normRows(p.expense); p.budget=+p.budget||0; p.split=+p.split||1; });
+  } else {
+    const base = STORE.__scratch || (STORE.__empty?{income:[{}],expense:[{}]}:{income:DEMO_SCRATCH.income.map(r=>({...r})),expense:DEMO_SCRATCH.expense.map(r=>({...r}))});
+    PADS={active:'p1',list:[{id:'p1',name:'Черновик',budget:0,split:1,income:normRows(base.income),expense:normRows(base.expense)}]};
+  }
+  if(!PADS.list.some(p=>p.id===PADS.active))PADS.active=PADS.list[0].id;
 }
-function saveScratch(){ STORE.__scratch=SCRATCH; persist(); }
+function savePads(){ STORE.__pads=PADS; persist(); }
+const saveScratch=savePads;
+const curPad=()=>PADS.list.find(p=>p.id===PADS.active)||PADS.list[0];
+const rowAmount=r=>(r.qty>0&&r.price>0)?Math.round(r.qty*r.price):(r.amount||0);
 function emptyFor(m){ const d=MODES[m]; return {accts:d.accts.map(a=>({...a,bal:0})), tx:[], goals:[]}; }
 function loadMode(m){
   MODE=m; const d=MODES[m], s=STORE[m];
@@ -2420,33 +2458,69 @@ function saveDebt(){
   if(debtEdit!=null) DEBTS[debtEdit]={...DEBTS[debtEdit],...obj}; else DEBTS.push({id:'g'+Date.now(),...obj});
   STORE.__empty=false; saveState(); $('#debtsheet').hidden=true; renderDebts(); toast('Сохранено');
 }
+function scrRowHtml(r,i,kind){
+  const hasCalc=r.qty>0&&r.price>0, amt=rowAmount(r);
+  return `<div class="scr-row${r.done?' done':''}" data-i="${i}" data-kind="${kind}">
+    <button class="scr-check${r.done?' on':''}" aria-label="Выполнено">✓</button>
+    <div class="scr-main">
+      <input class="nt" value="${esc(r.note||'')}" placeholder="Что">
+      <div class="scr-calc">
+        <input class="qty" inputmode="decimal" value="${r.qty||''}" placeholder="кол-во">
+        <span class="op">×</span>
+        <input class="price" inputmode="decimal" value="${r.price||''}" placeholder="цена">
+        <span class="op">=</span>
+        <input class="sum" inputmode="numeric" value="${amt?fmt(amt):''}" placeholder="сумма"${hasCalc?' readonly':''}>
+      </div>
+    </div>
+    <button class="scr-del" aria-label="Удалить">✕</button></div>`;
+}
 function renderScratch(){
-  const rowHtml=(r,i,kind)=>`<div class="scr-row" data-i="${i}" data-kind="${kind}">
-    <input class="nt" value="${esc(r.note||'')}" placeholder="Что">
-    <input class="am" inputmode="numeric" value="${r.amount?fmt(r.amount):''}" placeholder="0">
-    <button class="del" aria-label="Удалить">✕</button></div>`;
-  $('#scrIncome').innerHTML=SCRATCH.income.map((r,i)=>rowHtml(r,i,'income')).join('');
-  $('#scrExpense').innerHTML=SCRATCH.expense.map((r,i)=>rowHtml(r,i,'expense')).join('');
+  if(!PADS)loadScratch(); const pad=curPad(), hide=$('#padHideDone')&&$('#padHideDone').checked;
+  const sel=$('#padSelect'); if(sel)sel.innerHTML=PADS.list.map(p=>`<option value="${p.id}"${p.id===pad.id?' selected':''}>${esc(p.name)}</option>`).join('');
+  const pb=$('#padBudget'); if(pb)pb.value=pad.budget?fmt(pad.budget):''; const ps=$('#padSplit'); if(ps)ps.value=pad.split>1?pad.split:'';
+  const build=kind=>{ const html=pad[kind].map((r,i)=>({r,i})).filter(x=>!(hide&&x.r.done)).map(x=>scrRowHtml(x.r,x.i,kind)).join(''); return html||'<div class="empty" style="padding:14px 4px;font-size:13px;color:var(--faint)">Пусто</div>'; };
+  $('#scrIncome').innerHTML=build('income'); $('#scrExpense').innerHTML=build('expense');
   $$('#scrIncome .scr-row').forEach(wireScrRow); $$('#scrExpense .scr-row').forEach(wireScrRow);
   computeScratch();
 }
 function wireScrRow(row){
-  const kind=row.dataset.kind, i=+row.dataset.i;
-  const nt=row.querySelector('.nt'), am=row.querySelector('.am');
-  nt.addEventListener('input',()=>{ SCRATCH[kind][i].note=nt.value; saveScratch(); });
-  am.addEventListener('input',e=>{ numFmt(e); SCRATCH[kind][i].amount=parseNum(am.value); computeScratch(); saveScratch(); });
-  row.querySelector('.del').onclick=()=>{ SCRATCH[kind].splice(i,1); if(!SCRATCH[kind].length)SCRATCH[kind].push({note:'',amount:0}); saveScratch(); renderScratch(); };
+  const kind=row.dataset.kind, i=+row.dataset.i, pad=curPad(), r=pad[kind][i]; if(!r)return;
+  const nt=row.querySelector('.nt'),qty=row.querySelector('.qty'),price=row.querySelector('.price'),sum=row.querySelector('.sum'),chk=row.querySelector('.scr-check');
+  nt.addEventListener('input',()=>{ r.note=nt.value; savePads(); });
+  const recalc=()=>{ r.qty=parseFloat((qty.value||'').replace(',','.'))||0; r.price=parseFloat((price.value||'').replace(',','.'))||0;
+    if(r.qty>0&&r.price>0){ r.amount=Math.round(r.qty*r.price); sum.value=fmt(r.amount); sum.setAttribute('readonly','readonly'); }
+    else sum.removeAttribute('readonly');
+    computeScratch(); savePads(); };
+  qty.addEventListener('input',recalc); price.addEventListener('input',recalc);
+  sum.addEventListener('input',e=>{ if(sum.hasAttribute('readonly'))return; numFmt(e); r.amount=parseNum(sum.value); r.qty=0; r.price=0; qty.value=''; price.value=''; computeScratch(); savePads(); });
+  chk.onclick=()=>{ r.done=!r.done; savePads(); renderScratch(); };
+  row.querySelector('.scr-del').onclick=()=>{ pad[kind].splice(i,1); if(!pad[kind].length)pad[kind].push(emptyRow()); savePads(); renderScratch(); };
 }
+function psCell(k,v,color){ return `<div class="ps"><span class="k">${esc(k)}</span><span class="v" style="color:${color||'var(--text)'}">${v}</span></div>`; }
 function computeScratch(){
-  const sin=SCRATCH.income.reduce((a,b)=>a+(b.amount||0),0), sout=SCRATCH.expense.reduce((a,b)=>a+(b.amount||0),0);
-  $('#scrInTotal').textContent=money(sin); $('#scrOutTotal').textContent=money(sout);
-  const net=sin-sout, el=$('#scrNet');
-  el.textContent=(net<0?'− ':'')+money(Math.abs(net)); el.style.color=net<0?'var(--expense)':'var(--income)';
-  $('#scrNetLbl').textContent=net<0?'не хватает на расходы':'остаётся после расходов';
+  const pad=curPad(), sum=(arr,skipDone)=>arr.reduce((a,r)=>a+((skipDone&&r.done)?0:rowAmount(r)),0);
+  const sin=sum(pad.income), sout=sum(pad.expense), net=sin-sout, left=sum(pad.expense,true);
+  const ti=$('#scrInTotal'); if(ti)ti.textContent=money(sin); const to=$('#scrOutTotal'); if(to)to.textContent=money(sout);
+  const cells=[ psCell('Остаток (приход − расход)',(net<0?'− ':'')+money(Math.abs(net)),net<0?'var(--expense)':'var(--income)'),
+    psCell('Осталось потратить (невыполненные)',money(left)) ];
+  if(pad.budget>0){ const d=pad.budget-sout; cells.push(psCell('Бюджет '+money(pad.budget), d<0?('превышен на '+money(-d)):('осталось '+money(d)), d<0?'var(--expense)':'var(--income)')); }
+  if(pad.split>1)cells.push(psCell('Расход на человека (÷'+pad.split+')',money(Math.round(sout/pad.split))));
+  const box=$('#padSum'); if(box)box.innerHTML=cells.join('');
 }
-function addScrRow(kind){ SCRATCH[kind].push({note:'',amount:0}); saveScratch(); renderScratch();
+function addScrRow(kind){ curPad()[kind].push(emptyRow()); savePads(); renderScratch();
   const rows=$$('#'+(kind==='income'?'scrIncome':'scrExpense')+' .scr-row'), last=rows[rows.length-1]; if(last)last.querySelector('.nt').focus(); }
-function clearScratch(){ if(!confirm('Очистить черновик?'))return; SCRATCH={income:[{note:'',amount:0}],expense:[{note:'',amount:0}]}; saveScratch(); renderScratch(); }
+function clearScratch(){ if(!confirm('Очистить текущий блокнот?'))return; const p=curPad(); p.income=[emptyRow()]; p.expense=[emptyRow()]; savePads(); renderScratch(); }
+function newPad(){ const name=prompt('Название блокнота:','План '+(PADS.list.length+1)); if(!name||!name.trim())return; const id='pad'+Date.now(); PADS.list.push({id,name:name.trim(),budget:0,split:1,income:[emptyRow()],expense:[emptyRow()]}); PADS.active=id; savePads(); renderScratch(); toast('Блокнот создан'); }
+function renamePad(){ const p=curPad(), name=prompt('Название блокнота:',p.name); if(name&&name.trim()){ p.name=name.trim(); savePads(); renderScratch(); } }
+function delPad(){ if(PADS.list.length<=1){ toast('Нельзя удалить единственный блокнот'); return; } const p=curPad(); if(!confirm('Удалить блокнот «'+p.name+'»?'))return; PADS.list=PADS.list.filter(x=>x.id!==p.id); PADS.active=PADS.list[0].id; savePads(); renderScratch(); toast('Блокнот удалён'); }
+function convertScratch(){
+  const pad=curPad(), items=pad.expense.filter(r=>rowAmount(r)>0);
+  if(!items.length){ toast('Нет расходов для проведения'); return; }
+  const total=items.reduce((a,r)=>a+rowAmount(r),0), ac=ACCTS[0];
+  if(!confirm('Провести '+items.length+' расход(ов) на '+money(total)+' в реальные операции? Спишется со счёта «'+((ac||{}).name||'—')+'».'))return;
+  items.forEach(r=>{ const amt=rowAmount(r); TX.unshift({id:'tx'+Date.now()+Math.random().toString(36).slice(2,6),t:r.note||'Расход',cat:(typeof matchCat==='function'&&matchCat(r.note||''))||'other',type:'out',amt,d:TODAY,ac:ac?ac.name:''}); if(ac)ac.bal-=amt; });
+  STORE.__empty=false; saveState(); animated={}; refreshAll(); go('tx'); toast('Проведено: '+money(total));
+}
 function bindPlansScratch(){
   $('#addPlanBtn').onclick=openPlanSheet; $('#planCancel').onclick=()=>$('#plansheet').hidden=true; $('#planSave').onclick=savePlan;
   $('#planAmount').addEventListener('input',e=>{numFmt(e);$('#plansheet .amount-in').style.borderColor='';});
@@ -2454,6 +2528,12 @@ function bindPlansScratch(){
   $$('#debtSeg button').forEach(b=>b.onclick=()=>{debtType=b.dataset.dt;$$('#debtSeg button').forEach(x=>x.classList.toggle('on',x===b));});
   ['#debtTotal','#debtPaid','#debtMonthly'].forEach(s=>$(s).addEventListener('input',numFmt));
   $('#scrAddIn').onclick=()=>addScrRow('income'); $('#scrAddOut').onclick=()=>addScrRow('expense'); $('#scrClear').onclick=clearScratch;
+  $('#padSelect').onchange=e=>{ PADS.active=e.target.value; savePads(); renderScratch(); };
+  $('#padNew').onclick=newPad; $('#padRename').onclick=renamePad; $('#padDel').onclick=delPad;
+  $('#padBudget').addEventListener('input',e=>{ numFmt(e); curPad().budget=parseNum(e.target.value); computeScratch(); savePads(); });
+  $('#padSplit').addEventListener('input',e=>{ curPad().split=Math.max(1,parseInt((e.target.value||'').replace(/\D/g,''),10)||1); computeScratch(); savePads(); });
+  $('#padHideDone').onchange=renderScratch;
+  $('#scrConvert').onclick=convertScratch;
   $$('[data-more]').forEach(b=>b.onclick=()=>{$('#moresheet').hidden=false;});
   $('#moreClose').onclick=()=>$('#moresheet').hidden=true;
   $('#moreSettings').onclick=()=>{$('#moresheet').hidden=true;openSettings();};
