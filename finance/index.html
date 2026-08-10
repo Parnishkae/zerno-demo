@@ -26,7 +26,7 @@
     /* светлая тема (база) */
     --bg:#EFF1EC; --surface:#FFFFFF; --surface-2:#F6F8F3; --surface-3:#EEF1EA;
     --line:#E2E6DD; --line-strong:#D2D8CC;
-    --ink:#15201A; --muted:#57624F; --faint:#8B968A;
+    --text:#15201A; --ink:#15201A; --muted:#57624F; --faint:#8B968A;
     --brand:#0E9A64; --brand-ink:#FFFFFF; --brand-soft:#E1F3EA;
     --income:#0E9A64; --expense:#D9482D; --gold:#B8842A;
     --pos-soft:#E3F4EB; --neg-soft:#FBE8E2; --gold-soft:#F6EEDD;
@@ -43,7 +43,7 @@
     :root{
       --bg:#0D1512; --surface:#131E19; --surface-2:#182620; --surface-3:#1F2E27;
       --line:#24332B; --line-strong:#2F4237;
-      --ink:#E8EFEA; --muted:#8FA298; --faint:#5E7268;
+      --text:#E8EFEA; --ink:#E8EFEA; --muted:#8FA298; --faint:#5E7268;
       --brand:#22BE83; --brand-ink:#062016; --brand-soft:#12261D;
       --income:#22BE83; --expense:#F0654A; --gold:#D9A441;
       --pos-soft:#122A20; --neg-soft:#2B1813; --gold-soft:#28210F;
@@ -57,7 +57,7 @@
   :root[data-theme="dark"]{
     --bg:#0D1512; --surface:#131E19; --surface-2:#182620; --surface-3:#1F2E27;
     --line:#24332B; --line-strong:#2F4237;
-    --ink:#E8EFEA; --muted:#8FA298; --faint:#5E7268;
+    --text:#E8EFEA; --ink:#E8EFEA; --muted:#8FA298; --faint:#5E7268;
     --brand:#22BE83; --brand-ink:#062016; --brand-soft:#12261D;
     --income:#22BE83; --expense:#F0654A; --gold:#D9A441;
     --pos-soft:#122A20; --neg-soft:#2B1813; --gold-soft:#28210F;
@@ -70,7 +70,7 @@
   :root[data-theme="light"]{
     --bg:#EFF1EC; --surface:#FFFFFF; --surface-2:#F6F8F3; --surface-3:#EEF1EA;
     --line:#E2E6DD; --line-strong:#D2D8CC;
-    --ink:#15201A; --muted:#57624F; --faint:#8B968A;
+    --text:#15201A; --ink:#15201A; --muted:#57624F; --faint:#8B968A;
     --brand:#0E9A64; --brand-ink:#FFFFFF; --brand-soft:#E1F3EA;
     --income:#0E9A64; --expense:#D9482D; --gold:#B8842A;
     --pos-soft:#E3F4EB; --neg-soft:#FBE8E2; --gold-soft:#F6EEDD;
@@ -1521,6 +1521,7 @@ const curPad=()=>PADS.list.find(p=>p.id===PADS.active)||PADS.list[0];
 const rowAmount=r=>(r.qty>0&&r.price>0)?Math.round(r.qty*r.price):(r.amount||0);
 function emptyFor(m){ const d=MODES[m]; return {accts:d.accts.map(a=>({...a,bal:0})), tx:[], goals:[]}; }
 function loadMode(m){
+  if(!MODES[m])m='personal';                 // страховка от неизвестного профиля
   MODE=m; const d=MODES[m], s=STORE[m];
   CATS=(s&&s.cats)?JSON.parse(JSON.stringify(s.cats)):JSON.parse(JSON.stringify(d.cats));
   if(!CATS.income)CATS.income=JSON.parse(JSON.stringify((d.cats.income)||{name:'Доход',color:'var(--income)',ic:'💸'}));
@@ -1713,8 +1714,9 @@ function renderNetworth(){
 function renderNetBars(){
   const inc=CASHFLOW.income,exp=CASHFLOW.expense,lb=CASHFLOW.labels;
   const net=inc.map((v,i)=>v-exp[i]);
+  if(!net.some(v=>v)){ $('#netbars').innerHTML='<div class="empty-chart">Пока нет движения денег.<br>Добавьте операции.</div>'; return; }
   const W=300,H=210,padL=6,padR=6,padT=10,padB=24, n=net.length;
-  const max=Math.max(...net.map(Math.abs))*1.15, mid=padT+(H-padT-padB)/2;
+  const max=(Math.max(...net.map(Math.abs))*1.15)||1, mid=padT+(H-padT-padB)/2;
   const gw=(W-padL-padR)/n, bw=Math.min(20,gw*.5);
   let bars=`<line class="grid-line" x1="${padL}" y1="${mid}" x2="${W-padR}" y2="${mid}"/>`;
   net.forEach((v,i)=>{
@@ -1757,7 +1759,7 @@ function txRow(t,full){
 }
 function renderRecent(){
   if(!TX.length){ $('#recentTx').innerHTML='<div class="empty" style="padding:28px 12px"><div style="font-size:30px">🧾</div><b>Пока нет операций</b>Нажмите «+ Операция» или подключите Monobank в настройках ⚙️</div>'; return; }
-  $('#recentTx').innerHTML=[...TX].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6).map(txRow).join('');
+  $('#recentTx').innerHTML=[...TX].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6).map(t=>txRow(t)).join('');
   $$('#recentTx .tx').forEach(r=>r.onclick=()=>editTx(r.dataset.id));
 }
 function renderAcctChips(){
@@ -1840,7 +1842,7 @@ function renderGoals(){
 }
 function renderTopMerch(){
   const top=[...TX].filter(t=>t.type==='out').sort((a,b)=>b.amt-a.amt).slice(0,6);
-  $('#topMerch').innerHTML=top.map(txRow).join('');
+  $('#topMerch').innerHTML=top.map(t=>txRow(t)).join('');
 }
 function monthDays(){ const [y,m]=curMonth.split('-').map(Number); return new Date(y,m,0).getDate(); }
 function duePlansInMonth(){
@@ -2181,13 +2183,15 @@ function addAccRow(){
   row.querySelector('.nm').focus();
 }
 function saveAccounts(){
-  const rows=$$('#accsheet .acc-row');
+  const rows=$$('#accsheet .acc-row'), renames=[];
   const next=rows.map((r,idx)=>{
     const name=r.querySelector('.nm').value.trim()||('Счёт '+(idx+1));
     const bal=parseInt((r.querySelector('.bal').value||'').replace(/[^\d-]/g,''),10)||0;
     const old=ACCTS[+r.dataset.i];
-    return {name,bal,color:(old&&old.color)||'var(--brand)',ic:(old&&old.ic)||'💳'};
+    if(old&&old.name&&old.name!==name)renames.push([old.name,name]);
+    return {name,bal,color:(old&&old.color)||'var(--brand)',ic:(old&&old.ic)||'💳',...(old&&old.monoId?{monoId:old.monoId}:{})};
   });
+  renames.forEach(pair=>TX.forEach(t=>{ if(t.ac===pair[0])t.ac=pair[1]; if(t.ac2===pair[0])t.ac2=pair[1]; }));
   ACCTS = next.length?next:[{name:'Наличные',bal:0,color:'var(--brand)',ic:'💵'}];
   STORE.__empty=false; saveState(); fillCatSelects();
   $('#accsheet').hidden=true; animated={}; refreshAll(); go('overview'); toast('Счета сохранены');
@@ -2248,8 +2252,15 @@ async function monoSync(){
   const accs=(ci.data.accounts||[]).filter(a=>a.currencyCode===980);
   const jars=(ci.data.jars||[]).filter(j=>j.currencyCode===980);
   if(!accs.length&&!jars.length){ st.textContent='Гривневых счетов не найдено.'; return; }
-  const manual=(Array.isArray(ACCTS)?ACCTS:[]).filter(a=>!a.monoId&&a.bal!==0);
-  MODE='personal'; CATS=MODES.personal.cats; BUDGETS=MODES.personal.budgets.map(b=>({...b}));
+  const manual=(Array.isArray(ACCTS)&&MODE==='personal')?ACCTS.filter(a=>!a.monoId&&a.bal!==0):[];
+  MODE='personal'; STORE.__mode='personal';
+  const sp=STORE.personal;
+  CATS=(sp&&sp.cats)?JSON.parse(JSON.stringify(sp.cats)):JSON.parse(JSON.stringify(MODES.personal.cats));
+  BUDGETS=(sp&&sp.budgets)?sp.budgets.map(b=>({...b})):MODES.personal.budgets.map(b=>({...b}));
+  GOALS=(sp&&sp.goals)?sp.goals.map(x=>({...x})):[];
+  PLANS=(sp&&sp.plans)?sp.plans.map(x=>({...x})):[];
+  DEBTS=(sp&&sp.debts)?sp.debts.map(x=>({...x})):[];
+  INVEST=(sp&&sp.invest)?sp.invest.map(x=>({...x})):[];
   const cardAccts=accs.map(a=>({name:monoAcctName(a),bal:Math.round((a.balance-(a.creditLimit||0))/100),color:'var(--brand)',ic:a.type==='fop'?'🏦':'💳',monoId:a.id}));
   const jarAccts=jars.map(j=>({name:(j.title||'Банка'),bal:Math.round(j.balance/100),color:'var(--gold)',ic:'💰',monoId:j.id,jar:true}));
   ACCTS=[...cardAccts,...jarAccts,...manual];
@@ -2599,7 +2610,7 @@ function openAcctDetail(name){
   B('inc').onclick=()=>{ closeDetail(); openModalFor('in',a.name); };
   B('exp').onclick=()=>{ closeDetail(); openModalFor('out',a.name); };
   B('bal').onclick=()=>{ const v=prompt('Текущий баланс, ₴:',a.bal); if(v!==null){ a.bal=parseSigned(v); STORE.__empty=false; saveState(); animated={}; refreshAll(); runAnim(state.view); openAcctDetail(a.name);} };
-  B('ren').onclick=()=>{ const v=prompt('Название счёта:',a.name); if(v&&v.trim()){ a.name=v.trim(); saveState(); fillCatSelects(); refreshAll(); openAcctDetail(v.trim());} };
+  B('ren').onclick=()=>{ const v=prompt('Название счёта:',a.name); if(v&&v.trim()){ const old=a.name, nn=v.trim(); TX.forEach(t=>{ if(t.ac===old)t.ac=nn; if(t.ac2===old)t.ac2=nn; }); a.name=nn; saveState(); fillCatSelects(); refreshAll(); openAcctDetail(nn);} };
   B('ops').onclick=()=>{ closeDetail(); openAcct(a.name); };
   B('del').onclick=()=>{ if(confirm('Удалить счёт «'+a.name+'»? Операции останутся.')){ ACCTS.splice(i,1); if(!ACCTS.length)ACCTS.push({name:'Наличные',bal:0,color:'var(--brand)',ic:'💵'}); saveState(); fillCatSelects(); closeDetail(); animated={}; refreshAll(); runAnim(state.view);} };
 }
@@ -2938,7 +2949,8 @@ function advisorSystem(s){
 }
 async function answerSmart(q){
   const key=getKey(), prov=providerOf(key), sys=advisorSystem(financeSnapshot());
-  const hist=advHistory.slice(-8);
+  let hist=advHistory.slice(0,-1).slice(-8);            // исключаем только что добавленный текущий вопрос
+  while(hist.length&&hist[0].role!=='user')hist=hist.slice(1);  // API требует, чтобы диалог начинался с user
   let url,opts;
   if(prov==='anthropic'){
     url='https://api.anthropic.com/v1/messages';
@@ -3318,7 +3330,8 @@ function exportCSV(){
   toast('Экспорт CSV');
 }
 function exportJSON(){
-  const data=JSON.stringify(STORE), st=$('#expStatus');
+  const safe={}; Object.keys(STORE).forEach(k=>{ if(k!=='__aikey')safe[k]=STORE[k]; });  // не выгружаем API-ключ ИИ
+  const data=JSON.stringify(safe), st=$('#expStatus');
   if(downloadOrCopy('meridian-backup-'+TODAY+'.json','application/json',data)) st.textContent='✓ Резервная копия сформирована.';
   else if(copyText(data)) st.textContent='✓ Копия скопирована в буфер обмена.';
   else st.textContent='Не удалось создать копию.';
@@ -3328,7 +3341,8 @@ function importJSON(){
   const raw=($('#impText').value||'').trim(), st=$('#expStatus');
   if(!raw){ st.textContent='Вставьте содержимое копии в поле выше.'; return; }
   let obj; try{ obj=JSON.parse(raw); }catch(e){ st.textContent='⚠ Неверный формат — нужен .json из резервной копии.'; return; }
-  if(!obj||typeof obj!=='object'){ st.textContent='⚠ Неверные данные.'; return; }
+  if(!obj||typeof obj!=='object'||Array.isArray(obj)){ st.textContent='⚠ Неверные данные.'; return; }
+  if(obj.__mode&&!MODES[obj.__mode]) obj.__mode='personal';   // защита от неизвестного профиля (иначе краш при загрузке)
   if(!confirm('Восстановить данные из копии? Текущие данные будут заменены.'))return;
   try{ localStorage.setItem(LSK,JSON.stringify(obj)); }catch(e){}
   location.reload();
